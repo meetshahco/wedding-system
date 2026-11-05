@@ -38,3 +38,4 @@ process.on("SIGINT", stopWorker);
 process.on("SIGTERM", stopWorker);
 
 startWorker();
+

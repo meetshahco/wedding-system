@@ -32,11 +32,13 @@ import {
   Logout,
   Apartment,
   Group,
+  ContactPhone,
 } from "@mui/icons-material";
 
 const BASE_NAV_ITEMS = [
   { label: "Dashboard", icon: <Dashboard />, href: "/admin/dashboard" },
   { label: "Guests", icon: <People />, href: "/admin/guests" },
+  { label: "Senders", icon: <ContactPhone />, href: "/admin/senders" },
   { label: "Invitations", icon: <Send />, href: "/admin/invitations" },
   { label: "Messages", icon: <Message />, href: "/admin/messages" },
   { label: "Events", icon: <Event />, href: "/admin/events" },

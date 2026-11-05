@@ -144,3 +144,4 @@ export async function resolveTemplateForGuest(
 
   return template;
 }
+

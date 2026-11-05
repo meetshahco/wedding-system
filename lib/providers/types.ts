@@ -24,3 +24,4 @@ export interface MessageProvider {
   send(params: SendMessageParams): Promise<SendMessageResult>;
   checkDeliveryStatus?(externalMessageId: string): Promise<"sent" | "delivered" | "read" | "failed">;
 }
+

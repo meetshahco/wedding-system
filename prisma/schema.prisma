@@ -122,6 +122,7 @@ model Wedding {
   reminders        Reminder[]
   settings         Setting[]
   auditLogs        AuditLog[]
+  senders          Sender[]
 }
 
 // ---------------------------------------------------------------------------
@@ -180,10 +181,13 @@ model Guest {
   name          String
   phone         String       // E.164 format, unique per wedding
   city          String       @default("")
+  group         String       @default("")
   pax           Int          @default(1)
   language      String       @default("en")
   accessLevel   AccessLevel? @relation(fields: [accessLevelId], references: [id], onDelete: SetNull)
   accessLevelId String?
+  sender        Sender?      @relation(fields: [senderId], references: [id], onDelete: SetNull)
+  senderId      String?
   token         String       @unique // 10-char URL-safe random string (globally unique)
   code          String       // 4-digit numeric string (unique per wedding)
   inviteStatus  InviteStatus @default(not_invited)
@@ -199,6 +203,31 @@ model Guest {
   @@unique([weddingId, phone])
   @@unique([weddingId, code])
   @@index([weddingId])
+  @@index([senderId])
+}
+
+// ---------------------------------------------------------------------------
+// Senders (Manual message dispatchers per wedding)
+// ---------------------------------------------------------------------------
+
+model Sender {
+  id              String    @id @default(cuid())
+  wedding         Wedding   @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  weddingId       String
+  name            String
+  phone           String?
+  accessToken     String    @unique
+  pin             String?   // optional 4-digit PIN for access
+  expiresAt       DateTime?
+  revokedAt       DateTime?
+  messageOverride String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  guests          Guest[]
+
+  @@index([weddingId])
+  @@index([accessToken])
 }
 
 enum InviteStatus {
