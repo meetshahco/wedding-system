@@ -458,3 +458,4 @@ describe("Phase 8: Invitations Screen & Sending Workflows", () => {
     expect(progress.isFinished).toBe(false);
   });
 });
+

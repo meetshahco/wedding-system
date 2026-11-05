@@ -58,6 +58,29 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
       }
     }
 
+    const reminderId = req.nextUrl.searchParams.get("reminderId");
+
+    // Fetch active message rounds/reminders for this wedding
+    const activeReminders = await prisma.reminder.findMany({
+      where: {
+        weddingId: sender.weddingId,
+        status: { in: ["scheduled", "running", "done"] },
+      },
+      select: { id: true, title: true, templateKey: true, createdAt: true },
+      orderBy: { createdAt: "desc" },
+    });
+
+    let currentTemplateKey = "invitation";
+    let activeReminderTitle = "Wedding Invitations";
+
+    if (reminderId) {
+      const selectedReminder = activeReminders.find((r) => r.id === reminderId);
+      if (selectedReminder) {
+        currentTemplateKey = selectedReminder.templateKey;
+        activeReminderTitle = selectedReminder.title;
+      }
+    }
+
     // Sender only sees their own assigned guests!
     const guests = await prisma.guest.findMany({
       where: {
@@ -66,6 +89,13 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
       },
       include: {
         accessLevel: true,
+        messageLogs: reminderId
+          ? {
+              where: { reminderId },
+              orderBy: { createdAt: "desc" },
+              take: 1,
+            }
+          : undefined,
       },
       orderBy: [{ inviteStatus: "asc" }, { name: "asc" }],
     });
@@ -80,7 +110,7 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
     // Resolve template and render messages for each guest
     const guestItems = await Promise.all(
       guests.map(async (g) => {
-        const template = await resolveTemplateForGuest(sender.weddingId, "invitation", g.language);
+        const template = await resolveTemplateForGuest(sender.weddingId, currentTemplateKey, g.language);
         const defaultBody = template?.body || DEFAULT_TEMPLATES[0].body;
 
         const inviteUrl = getInviteUrl(g, sender.wedding);
@@ -96,10 +126,14 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
             invite_url: inviteUrl,
             access_level: g.accessLevel?.name || "All Events",
           },
-          sender.messageOverride
+          reminderId ? null : sender.messageOverride
         );
 
         const waMeUrl = ManualLinkProvider.generateWhatsAppUrl(g.phone, renderedMessage);
+
+        const effectiveStatus = reminderId && g.messageLogs?.[0]
+          ? g.messageLogs[0].status
+          : g.inviteStatus;
 
         return {
           id: g.id,
@@ -109,7 +143,7 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
           group: g.group,
           pax: g.pax,
           code: g.code,
-          inviteStatus: g.inviteStatus,
+          inviteStatus: effectiveStatus,
           message: renderedMessage,
           waMeUrl,
           inviteUrl,
@@ -117,7 +151,7 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
       })
     );
 
-    const sentCount = guestItems.filter((g) => g.inviteStatus === "sent").length;
+    const sentCount = guestItems.filter((g) => g.inviteStatus === "sent" || g.inviteStatus === "delivered" || g.inviteStatus === "read").length;
 
     return NextResponse.json({
       sender: {
@@ -131,6 +165,14 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
         coupleNames,
         weddingDate: sender.wedding.weddingDate,
         accentColor: sender.wedding.accentColor,
+      },
+      rounds: [
+        { id: "", title: "Wedding Invitations", isDefault: true },
+        ...activeReminders.map((r) => ({ id: r.id, title: r.title, isDefault: false })),
+      ],
+      activeRound: {
+        id: reminderId || "",
+        title: activeReminderTitle,
       },
       guests: guestItems,
       stats: {

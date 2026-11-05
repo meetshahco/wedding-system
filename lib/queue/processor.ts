@@ -23,15 +23,14 @@ export interface QueueProcessSummary {
  * This prevents double-sends even when multiple workers or cron executions overlap.
  */
 export async function claimQueueBatch(batchSize = 10, weddingId?: string): Promise<string[]> {
-  const now = new Date();
-
   if (weddingId) {
     const claimed = await prisma.$queryRaw<{ id: string }[]>`
       WITH to_claim AS (
         SELECT id FROM "MessageLog"
         WHERE status = 'queued'
           AND "weddingId" = ${weddingId}
-          AND ("nextAttemptAt" IS NULL OR "nextAttemptAt" <= ${now})
+          AND ("nextAttemptAt" IS NULL OR "nextAttemptAt" <= (NOW() AT TIME ZONE 'UTC'))
+          AND ("scheduledAt" IS NULL OR "scheduledAt" <= (NOW() AT TIME ZONE 'UTC'))
         ORDER BY "createdAt" ASC
         LIMIT ${batchSize}
         FOR UPDATE SKIP LOCKED
@@ -49,7 +48,8 @@ export async function claimQueueBatch(batchSize = 10, weddingId?: string): Promi
     WITH to_claim AS (
       SELECT id FROM "MessageLog"
       WHERE status = 'queued'
-        AND ("nextAttemptAt" IS NULL OR "nextAttemptAt" <= ${now})
+        AND ("nextAttemptAt" IS NULL OR "nextAttemptAt" <= (NOW() AT TIME ZONE 'UTC'))
+        AND ("scheduledAt" IS NULL OR "scheduledAt" <= (NOW() AT TIME ZONE 'UTC'))
       ORDER BY "createdAt" ASC
       LIMIT ${batchSize}
       FOR UPDATE SKIP LOCKED

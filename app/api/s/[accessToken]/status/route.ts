@@ -25,7 +25,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     }
 
     const body = await req.json().catch(() => null);
-    const { guestId, action } = body || {};
+    const { guestId, action, reminderId } = body || {};
 
     if (!guestId || (action !== "sent" && action !== "undo")) {
       return NextResponse.json({ error: "Invalid request parameters" }, { status: 400 });
@@ -46,6 +46,38 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
     const now = new Date();
 
+    if (reminderId) {
+      // Handling reminder round message status
+      if (action === "sent") {
+        await prisma.messageLog.updateMany({
+          where: {
+            weddingId: sender.weddingId,
+            guestId: guest.id,
+            reminderId,
+          },
+          data: {
+            status: "sent",
+            sentAt: now,
+          },
+        });
+        return NextResponse.json({ success: true, guestId, status: "sent", reminderId });
+      } else {
+        await prisma.messageLog.updateMany({
+          where: {
+            weddingId: sender.weddingId,
+            guestId: guest.id,
+            reminderId,
+          },
+          data: {
+            status: "queued",
+            sentAt: null,
+          },
+        });
+        return NextResponse.json({ success: true, guestId, status: "queued", reminderId });
+      }
+    }
+
+    // Default invitation status handling
     if (action === "sent") {
       await prisma.guest.update({
         where: { id: guest.id },
