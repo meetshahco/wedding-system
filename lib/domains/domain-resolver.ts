@@ -141,3 +141,4 @@ export async function getPrimaryDomainRedirect(
   const protocol = primaryDomain.includes("localhost") ? "http" : "https";
   return `${protocol}://${primaryDomain}/i/${guestToken}`;
 }
+
