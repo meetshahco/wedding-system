@@ -1,0 +1,214 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Events & Access Levels
+// ---------------------------------------------------------------------------
+
+model Event {
+  id          String   @id @default(cuid())
+  name        String
+  date        DateTime
+  startTime   String
+  venue       String
+  address     String
+  mapUrl      String   @default("")
+  dressCode   String   @default("")
+  description String   @default("")
+  sortOrder   Int      @default(0)
+
+  accessLevels AccessLevelEvent[]
+  rsvps        Rsvp[]
+}
+
+model AccessLevel {
+  id     String @id @default(cuid())
+  name   String @unique
+
+  events AccessLevelEvent[]
+  guests Guest[]
+}
+
+model AccessLevelEvent {
+  accessLevel   AccessLevel @relation(fields: [accessLevelId], references: [id], onDelete: Cascade)
+  accessLevelId String
+  event         Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId       String
+
+  @@id([accessLevelId, eventId])
+}
+
+// ---------------------------------------------------------------------------
+// Guests
+// ---------------------------------------------------------------------------
+
+model Guest {
+  id            String       @id @default(cuid())
+  name          String
+  phone         String       @unique   // E.164 format
+  city          String       @default("")
+  pax           Int          @default(1)
+  accessLevel   AccessLevel? @relation(fields: [accessLevelId], references: [id])
+  accessLevelId String?
+  token         String       @unique   // 10-char URL-safe random
+  code          String       @unique   // 4-digit string, unique across guests
+  inviteStatus  InviteStatus @default(not_invited)
+  optedOut      Boolean      @default(false)
+  viewedAt      DateTime?
+  lastInboundAt DateTime?
+  createdAt     DateTime     @default(now())
+
+  rsvps       Rsvp[]
+  messageLogs MessageLog[]
+}
+
+enum InviteStatus {
+  not_invited
+  queued
+  sent
+  delivered
+  read
+  failed
+  skipped
+}
+
+// ---------------------------------------------------------------------------
+// RSVP
+// ---------------------------------------------------------------------------
+
+model Rsvp {
+  id           String     @id @default(cuid())
+  guest        Guest      @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  guestId      String
+  event        Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId      String
+  status       RsvpStatus
+  paxAttending Int        @default(0)
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([guestId, eventId])
+}
+
+enum RsvpStatus {
+  attending
+  declined
+}
+
+// ---------------------------------------------------------------------------
+// Message Templates
+// ---------------------------------------------------------------------------
+
+model MessageTemplate {
+  id             String  @id @default(cuid())
+  key            String  @unique
+  category       String  // Marketing | Utility | Authentication
+  body           String
+  buttons        String  // JSON: array of button definitions
+  sampleValues   String  // JSON: array of sample variable strings
+  approvalStatus String  @default("local") // local | pending | approved | rejected
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Message Logs (also the job queue)
+// ---------------------------------------------------------------------------
+
+model MessageLog {
+  id                String          @id @default(cuid())
+  guest             Guest           @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  guestId           String
+  kind              MessageKind
+  templateKey       String          @default("")
+  reminder          Reminder?       @relation(fields: [reminderId], references: [id])
+  reminderId        String?
+  provider          String          @default("")
+  status            MessageLogStatus @default(queued)
+  externalMessageId String?
+  errorMessage      String?
+  attempts          Int             @default(0)
+  nextAttemptAt     DateTime?
+  scheduledAt       DateTime?
+  sentAt            DateTime?
+  deliveredAt       DateTime?
+  readAt            DateTime?
+
+  // Prevent duplicate queuing: same guest + template + kind + reminder
+  @@unique([guestId, templateKey, kind, reminderId])
+}
+
+enum MessageKind {
+  template
+  text
+  inbound
+}
+
+enum MessageLogStatus {
+  queued
+  sending
+  sent
+  delivered
+  read
+  failed
+  skipped
+}
+
+// ---------------------------------------------------------------------------
+// Reminders
+// ---------------------------------------------------------------------------
+
+model Reminder {
+  id             String         @id @default(cuid())
+  title          String
+  templateKey    String
+  audienceFilter String         // JSON
+  variableMap    String         // JSON
+  scheduledAt    DateTime?
+  status         ReminderStatus @default(draft)
+  createdAt      DateTime       @default(now())
+
+  messageLogs MessageLog[]
+}
+
+enum ReminderStatus {
+  draft
+  scheduled
+  running
+  done
+  cancelled
+}
+
+// ---------------------------------------------------------------------------
+// Settings (key-value store)
+// ---------------------------------------------------------------------------
+
+model Setting {
+  key   String @id
+  value String
+}
+
+// ---------------------------------------------------------------------------
+// Rate Limiting (DB-backed, not in-memory)
+// ---------------------------------------------------------------------------
+
+model RateLimit {
+  id        String   @id @default(cuid())
+  key       String              // e.g. "code_entry:127.0.0.1"
+  action    String              // e.g. "code_entry" | "admin_login"
+  attempts  Int      @default(1)
+  windowStart DateTime
+  expiresAt DateTime
+
+  @@unique([key, action])
+  @@index([expiresAt])
+}
+
