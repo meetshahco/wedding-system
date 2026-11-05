@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, FormEvent } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import {
   Box,
   Card,
@@ -17,10 +17,10 @@ import {
 import { Visibility, VisibilityOff, Favorite } from "@mui/icons-material";
 
 export default function LoginPage() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const from = searchParams.get("from") ?? "/admin/dashboard";
 
+  const [email, setEmail] = useState("owner@weddings.test");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -35,14 +35,14 @@ export default function LoginPage() {
       const res = await fetch("/api/admin/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
 
       if (res.ok) {
         window.location.href = from;
       } else {
-        setError(data.error ?? "Invalid password");
+        setError(data.error ?? "Invalid credentials");
       }
     } catch {
       setError("Something went wrong. Please try again.");
@@ -65,16 +65,16 @@ export default function LoginPage() {
       <Card sx={{ width: "100%", maxWidth: 400 }}>
         <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
           {/* Header */}
-          <Box sx={{ textAlign: "center", mb: 4 }}>
+          <Box sx={{ textAlign: "center", mb: 3 }}>
             <Favorite sx={{ color: "primary.main", fontSize: 40, mb: 1 }} />
             <Typography
               variant="h5"
               sx={{ fontWeight: 700, letterSpacing: "-0.02em" }}
             >
-              Wedding Admin
+              Wedding Studio
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-              Enter your admin password to continue
+              Sign in with your email and password
             </Typography>
           </Box>
 
@@ -87,13 +87,24 @@ export default function LoginPage() {
             )}
 
             <TextField
+              label="Email Address"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              fullWidth
+              required
+              autoFocus
+              disabled={loading}
+              sx={{ mb: 2.5 }}
+            />
+
+            <TextField
               label="Password"
               type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               fullWidth
               required
-              autoFocus
               disabled={loading}
               sx={{ mb: 3 }}
               InputProps={{
@@ -116,7 +127,7 @@ export default function LoginPage() {
               variant="contained"
               fullWidth
               size="large"
-              disabled={loading || !password}
+              disabled={loading || !email || !password}
             >
               {loading ? (
                 <CircularProgress size={22} color="inherit" />
@@ -125,9 +136,14 @@ export default function LoginPage() {
               )}
             </Button>
           </form>
+
+          <Box sx={{ mt: 3, pt: 2, borderTop: "1px solid", borderColor: "divider", textAlign: "center" }}>
+            <Typography variant="caption" color="text.secondary">
+              Default credentials: <strong>owner@weddings.test</strong> / <strong>changeme</strong>
+            </Typography>
+          </Box>
         </CardContent>
       </Card>
     </Box>
   );
 }
-

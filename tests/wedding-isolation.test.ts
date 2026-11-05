@@ -179,3 +179,4 @@ describe("Phase 3A: Multi-Wedding Foundation & Isolation", () => {
     expect(untypedPrisma.rsvpStatus).toBeUndefined();
   });
 });
+

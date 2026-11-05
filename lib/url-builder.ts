@@ -70,3 +70,4 @@ export function getWeddingLandingUrl(
   const cleanBase = base.replace(/\/$/, "");
   return `${cleanBase}/w/${wedding.slug}`;
 }
+

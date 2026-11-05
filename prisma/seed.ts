@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import crypto from "crypto";
+import { hashPassword } from "../lib/crypto-passwords";
 
 const prisma = new PrismaClient();
 
@@ -45,80 +46,155 @@ async function main() {
 
   console.log(`✅  Wedding tenant created: ${wedding.coupleName1} & ${wedding.coupleName2} (${wedding.slug})`);
 
-  // 2. Events (scoped to wedding)
-  const event1 = await prisma.event.create({
-    data: {
-      weddingId: wedding.id,
-      name: "Mehendi Ceremony",
-      date: new Date("2027-02-19T16:00:00+05:30"),
-      startTime: "4:00 PM",
-      venue: "The Garden Pavilion",
-      address: "123, Bougainvillea Lane, Juhu, Mumbai 400049",
-      mapUrl: "https://maps.google.com/?q=Juhu+Beach+Mumbai",
-      dressCode: "Colourful / Festive",
-      description: "Join us for an afternoon of henna, music and celebration.",
-      sortOrder: 1,
+  // 2. Users (OWNER, MANAGER, VIEWER)
+  const defaultPassword = process.env.ADMIN_PASSWORD || "changeme";
+  const defaultPasswordHash = hashPassword(defaultPassword);
+
+  const owner = await prisma.user.upsert({
+    where: { email: "owner@weddings.test" },
+    update: { passwordHash: defaultPasswordHash },
+    create: {
+      email: "owner@weddings.test",
+      name: "Studio Owner",
+      passwordHash: defaultPasswordHash,
+      globalRole: "OWNER",
+      isActive: true,
     },
   });
 
-  const event2 = await prisma.event.create({
-    data: {
-      weddingId: wedding.id,
-      name: "Sangeet Night",
-      date: new Date("2027-02-20T19:30:00+05:30"),
-      startTime: "7:30 PM",
-      venue: "Royal Ballroom, The Grand Hotel",
-      address: "456, Marine Drive, Mumbai 400002",
-      mapUrl: "https://maps.google.com/?q=Marine+Drive+Mumbai",
-      dressCode: "Cocktail / Semi-formal",
-      description: "An evening of music, dance performances and celebration.",
-      sortOrder: 2,
-    },
-  });
-
-  const event3 = await prisma.event.create({
-    data: {
-      weddingId: wedding.id,
-      name: "Wedding Ceremony & Reception",
-      date: new Date("2027-02-21T10:00:00+05:30"),
-      startTime: "10:00 AM",
-      venue: "Sunrise Lawns, ITC Maratha",
-      address: "Sahar Road, Andheri East, Mumbai 400099",
-      mapUrl: "https://maps.google.com/?q=ITC+Maratha+Mumbai",
-      dressCode: "Formal / Traditional",
-      description: "The main wedding ceremony followed by celebration dinner.",
-      sortOrder: 3,
-    },
-  });
-
-  console.log("✅  Events created");
-
-  // 3. Access Levels (scoped to wedding)
-  const ceremonyOnly = await prisma.accessLevel.create({
-    data: {
-      weddingId: wedding.id,
-      name: "Ceremony only",
-      events: { create: [{ eventId: event3.id }] },
-    },
-  });
-
-  const allEvents = await prisma.accessLevel.create({
-    data: {
-      weddingId: wedding.id,
-      name: "All events",
-      events: {
-        create: [
-          { eventId: event1.id },
-          { eventId: event2.id },
-          { eventId: event3.id },
-        ],
+  const manager = await prisma.user.upsert({
+    where: { email: "manager@weddings.test" },
+    update: { passwordHash: defaultPasswordHash },
+    create: {
+      email: "manager@weddings.test",
+      name: "Wedding Manager",
+      passwordHash: defaultPasswordHash,
+      globalRole: "MANAGER",
+      isActive: true,
+      weddingAccess: {
+        create: {
+          weddingId: wedding.id,
+          role: "MANAGER",
+        },
       },
     },
   });
 
-  console.log("✅  Access levels created");
+  await prisma.user.upsert({
+    where: { email: "viewer@weddings.test" },
+    update: { passwordHash: defaultPasswordHash },
+    create: {
+      email: "viewer@weddings.test",
+      name: "Family Viewer",
+      passwordHash: defaultPasswordHash,
+      globalRole: "USER",
+      isActive: true,
+      weddingAccess: {
+        create: {
+          weddingId: wedding.id,
+          role: "VIEWER",
+        },
+      },
+    },
+  });
 
-  // 4. Message Templates (scoped to wedding)
+  console.log(`✅  Users seeded (owner: ${owner.email}, manager: ${manager.email})`);
+
+  // 3. Events (scoped to wedding)
+  const existingEvents = await prisma.event.findMany({ where: { weddingId: wedding.id } });
+  let event1 = existingEvents.find((e) => e.name.includes("Mehendi"));
+  let event2 = existingEvents.find((e) => e.name.includes("Sangeet"));
+  let event3 = existingEvents.find((e) => e.name.includes("Wedding"));
+
+  if (!event1) {
+    event1 = await prisma.event.create({
+      data: {
+        weddingId: wedding.id,
+        name: "Mehendi Ceremony",
+        date: new Date("2027-02-19T16:00:00+05:30"),
+        startTime: "4:00 PM",
+        venue: "The Garden Pavilion",
+        address: "123, Bougainvillea Lane, Juhu, Mumbai 400049",
+        mapUrl: "https://maps.google.com/?q=Juhu+Beach+Mumbai",
+        dressCode: "Colourful / Festive",
+        description: "Join us for an afternoon of henna, music and celebration.",
+        sortOrder: 1,
+      },
+    });
+  }
+
+  if (!event2) {
+    event2 = await prisma.event.create({
+      data: {
+        weddingId: wedding.id,
+        name: "Sangeet Night",
+        date: new Date("2027-02-20T19:30:00+05:30"),
+        startTime: "7:30 PM",
+        venue: "Royal Ballroom, The Grand Hotel",
+        address: "456, Marine Drive, Mumbai 400002",
+        mapUrl: "https://maps.google.com/?q=Marine+Drive+Mumbai",
+        dressCode: "Cocktail / Semi-formal",
+        description: "An evening of music, dance performances and celebration.",
+        sortOrder: 2,
+      },
+    });
+  }
+
+  if (!event3) {
+    event3 = await prisma.event.create({
+      data: {
+        weddingId: wedding.id,
+        name: "Wedding Ceremony & Reception",
+        date: new Date("2027-02-21T10:00:00+05:30"),
+        startTime: "10:00 AM",
+        venue: "Sunrise Lawns, ITC Maratha",
+        address: "Sahar Road, Andheri East, Mumbai 400099",
+        mapUrl: "https://maps.google.com/?q=ITC+Maratha+Mumbai",
+        dressCode: "Formal / Traditional",
+        description: "The main wedding ceremony followed by celebration dinner.",
+        sortOrder: 3,
+      },
+    });
+  }
+
+  console.log("✅  Events checked");
+
+  // 4. Access Levels (scoped to wedding)
+  let ceremonyOnly = await prisma.accessLevel.findFirst({
+    where: { weddingId: wedding.id, name: "Ceremony only" },
+  });
+  if (!ceremonyOnly) {
+    ceremonyOnly = await prisma.accessLevel.create({
+      data: {
+        weddingId: wedding.id,
+        name: "Ceremony only",
+        events: { create: [{ eventId: event3.id }] },
+      },
+    });
+  }
+
+  let allEvents = await prisma.accessLevel.findFirst({
+    where: { weddingId: wedding.id, name: "All events" },
+  });
+  if (!allEvents) {
+    allEvents = await prisma.accessLevel.create({
+      data: {
+        weddingId: wedding.id,
+        name: "All events",
+        events: {
+          create: [
+            { eventId: event1.id },
+            { eventId: event2.id },
+            { eventId: event3.id },
+          ],
+        },
+      },
+    });
+  }
+
+  console.log("✅  Access levels checked");
+
+  // 5. Message Templates (scoped to wedding)
   const templates = [
     {
       key: "wedding_invite",
@@ -186,18 +262,25 @@ async function main() {
   ];
 
   for (const t of templates) {
-    await prisma.messageTemplate.create({
-      data: {
-        weddingId: wedding.id,
-        ...t,
-      },
+    const existingT = await prisma.messageTemplate.findFirst({
+      where: { weddingId: wedding.id, key: t.key },
     });
+    if (!existingT) {
+      await prisma.messageTemplate.create({
+        data: {
+          weddingId: wedding.id,
+          ...t,
+        },
+      });
+    }
   }
 
-  console.log("✅  Message templates created");
+  console.log("✅  Message templates checked");
 
-  // 5. Sample Guests (scoped to wedding)
+  // 6. Sample Guests (scoped to wedding)
   const usedCodes = new Set<string>();
+  const currentGuests = await prisma.guest.findMany({ where: { weddingId: wedding.id } });
+  currentGuests.forEach((cg) => usedCodes.add(cg.code));
 
   const sampleGuests = [
     {
@@ -238,20 +321,25 @@ async function main() {
   ];
 
   for (const g of sampleGuests) {
-    const code = generateCode(usedCodes);
-    await prisma.guest.create({
-      data: {
-        weddingId: wedding.id,
-        ...g,
-        token: generateToken(),
-        code,
-      },
+    const existing = await prisma.guest.findFirst({
+      where: { weddingId: wedding.id, phone: g.phone },
     });
+    if (!existing) {
+      const code = generateCode(usedCodes);
+      await prisma.guest.create({
+        data: {
+          weddingId: wedding.id,
+          ...g,
+          token: generateToken(),
+          code,
+        },
+      });
+    }
   }
 
-  console.log("✅  Sample guests created");
+  console.log("✅  Sample guests checked");
 
-  // 6. Settings (scoped to wedding)
+  // 7. Settings (scoped to wedding)
   const defaultSettings = [
     { key: "baseUrl", value: "http://localhost:3000" },
     { key: "activeProvider", value: "mock" },
@@ -259,8 +347,10 @@ async function main() {
   ];
 
   for (const s of defaultSettings) {
-    await prisma.setting.create({
-      data: {
+    await prisma.setting.upsert({
+      where: { weddingId_key: { weddingId: wedding.id, key: s.key } },
+      update: {},
+      create: {
         weddingId: wedding.id,
         key: s.key,
         value: s.value,
@@ -268,8 +358,8 @@ async function main() {
     });
   }
 
-  console.log("✅  Default settings created");
-  console.log("\n🎉  Postgres seed complete!");
+  console.log("✅  Default settings checked");
+  console.log("\n🎉  Postgres seed complete with Users & Roles!");
 }
 
 main()

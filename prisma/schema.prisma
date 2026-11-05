@@ -1,5 +1,5 @@
 // Prisma Schema for Wedding Invitation System
-// PostgreSQL Engine (multi-wedding multi-tenancy)
+// PostgreSQL Engine (multi-wedding multi-tenancy & multi-user RBAC)
 
 generator client {
   provider = "prisma-client-js"
@@ -8,6 +8,94 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Users & Roles (RBAC)
+// ---------------------------------------------------------------------------
+
+enum GlobalRole {
+  OWNER
+  MANAGER
+  USER
+}
+
+enum WeddingRole {
+  MANAGER
+  VIEWER
+}
+
+model User {
+  id           String      @id @default(cuid())
+  email        String      @unique
+  name         String
+  passwordHash String?     // null if invited but hasn't set password yet
+  globalRole   GlobalRole  @default(USER)
+  isActive     Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  weddingAccess WeddingAccess[]
+  invitesSent   UserInvite[]    @relation("InvitedBy")
+  auditLogs     AuditLog[]
+}
+
+model WeddingAccess {
+  id        String      @id @default(cuid())
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  wedding   Wedding     @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  weddingId String
+  role      WeddingRole @default(VIEWER)
+  createdAt DateTime    @default(now())
+
+  @@unique([userId, weddingId])
+  @@index([userId])
+  @@index([weddingId])
+}
+
+model UserInvite {
+  id          String       @id @default(cuid())
+  email       String
+  token       String       @unique
+  invitedBy   User         @relation("InvitedBy", fields: [invitedById], references: [id], onDelete: Cascade)
+  invitedById String
+  targetRole  GlobalRole   @default(USER)
+  weddingId   String?
+  weddingRole WeddingRole? @default(VIEWER)
+  expiresAt   DateTime
+  usedAt      DateTime?
+  createdAt   DateTime     @default(now())
+
+  @@index([token])
+  @@index([email])
+}
+
+model PasswordReset {
+  id        String    @id @default(cuid())
+  userId    String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([token])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId    String?
+  wedding   Wedding? @relation(fields: [weddingId], references: [id], onDelete: SetNull)
+  weddingId String?
+  action    String
+  details   String?  // JSON string
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@index([weddingId])
+  @@index([userId])
+  @@index([action])
 }
 
 // ---------------------------------------------------------------------------
@@ -21,9 +109,11 @@ model Wedding {
   coupleName2 String
   weddingDate DateTime
   accentColor String   @default("#111111")
+  archived    Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  weddingAccess    WeddingAccess[]
   events           Event[]
   accessLevels     AccessLevel[]
   guests           Guest[]
@@ -31,6 +121,7 @@ model Wedding {
   messageTemplates MessageTemplate[]
   reminders        Reminder[]
   settings         Setting[]
+  auditLogs        AuditLog[]
 }
 
 // ---------------------------------------------------------------------------
