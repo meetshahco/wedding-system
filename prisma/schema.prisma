@@ -187,7 +187,9 @@ model Guest {
   code          String       // 4-digit numeric string (unique per wedding)
   inviteStatus  InviteStatus @default(not_invited)
   optedOut      Boolean      @default(false)
-  viewedAt      DateTime?
+  viewedAt      DateTime? // First opened at
+  lastViewedAt  DateTime? // Most recent open at
+  openCount     Int          @default(0)
   lastInboundAt DateTime?
   createdAt     DateTime     @default(now())
 
