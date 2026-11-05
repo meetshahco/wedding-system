@@ -5,3 +5,4 @@ export function Inter() {
     style: { fontFamily: "Inter, sans-serif" },
   };
 }
+

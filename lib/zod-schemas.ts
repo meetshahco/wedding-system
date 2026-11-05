@@ -17,6 +17,7 @@ export const CreateGuestSchema = z.object({
   phone: z.string().min(1, "Phone is required"),
   city: z.string().max(100).optional().default(""),
   pax: z.coerce.number().int().min(1).max(100).optional().default(1),
+  accessLevelId: z.string().nullable().optional(),
 });
 
 export const UpdateGuestSchema = CreateGuestSchema.partial();
@@ -62,18 +63,3 @@ export const CreateAccessLevelSchema = z.object({
 });
 
 export const UpdateAccessLevelSchema = CreateAccessLevelSchema.partial();
-
-// ---------------------------------------------------------------------------
-// RSVP
-// ---------------------------------------------------------------------------
-
-export const RsvpEntrySchema = z.object({
-  eventId: z.string().min(1),
-  status: z.enum(["attending", "declined"]),
-  paxAttending: z.coerce.number().int().min(0).max(100),
-});
-
-export const SubmitRsvpSchema = z.object({
-  entries: z.array(RsvpEntrySchema).min(1),
-});
-

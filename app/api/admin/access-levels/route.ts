@@ -1,10 +1,10 @@
-import { NextResponse } from "next/server";
-import { prisma, ensurePragmas } from "@/lib/prisma";
+import { NextRequest, NextResponse } from "next/server";
+import { getWeddingContext } from "@/lib/wedding-context";
 
-export async function GET() {
-  await ensurePragmas();
+export async function GET(req: NextRequest) {
+  const { scoped } = await getWeddingContext(req);
 
-  const accessLevels = await prisma.accessLevel.findMany({
+  const accessLevels = await scoped.accessLevel.findMany({
     include: {
       events: {
         include: {
@@ -20,4 +20,3 @@ export async function GET() {
 
   return NextResponse.json({ accessLevels });
 }
-

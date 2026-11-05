@@ -3,7 +3,7 @@ import { prisma } from "./prisma";
 
 /**
  * Generate a 10-character URL-safe token using crypto.randomBytes.
- * Ensures uniqueness by checking the Guest table.
+ * Ensures global uniqueness by checking the Guest table.
  */
 export async function generateUniqueToken(): Promise<string> {
   for (let i = 0; i < 100; i++) {
@@ -15,12 +15,17 @@ export async function generateUniqueToken(): Promise<string> {
 }
 
 /**
- * Generate a 4-digit code, ensuring uniqueness across all guests.
+ * Generate a 4-digit code, ensuring uniqueness per wedding (or globally if no weddingId provided).
  */
-export async function generateUniqueCode(): Promise<string> {
+export async function generateUniqueCode(weddingId?: string): Promise<string> {
   for (let i = 0; i < 1000; i++) {
     const code = String(Math.floor(Math.random() * 9000) + 1000);
-    const existing = await prisma.guest.findUnique({ where: { code } });
+    const existing = await prisma.guest.findFirst({
+      where: {
+        code,
+        ...(weddingId ? { weddingId } : {}),
+      },
+    });
     if (!existing) return code;
   }
   throw new Error("Failed to generate unique code after 1000 attempts");
@@ -36,4 +41,3 @@ export function makeRawToken(): string {
 export function makeRawCode(): string {
   return String(Math.floor(Math.random() * 9000) + 1000);
 }
-

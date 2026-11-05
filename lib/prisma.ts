@@ -15,14 +15,7 @@ if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma;
 }
 
-// Enable WAL mode and busy timeout on first connection so web + worker
-// can safely share the same SQLite file without SQLITE_BUSY errors.
-// journal_mode returns a result row so we use $queryRawUnsafe; busy_timeout
-// does not return rows so we use $executeRawUnsafe.
-let pragmasApplied = false;
+// PostgreSQL does not require SQLite WAL pragmas
 export async function ensurePragmas() {
-  if (pragmasApplied) return;
-  await prisma.$queryRawUnsafe("PRAGMA journal_mode=WAL;");
-  await prisma.$queryRawUnsafe("PRAGMA busy_timeout=5000;");
-  pragmasApplied = true;
+  // no-op for PostgreSQL
 }

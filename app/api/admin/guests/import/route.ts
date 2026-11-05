@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma, ensurePragmas } from "@/lib/prisma";
+import { getWeddingContext } from "@/lib/wedding-context";
 import { validateImportRows, RawImportRow, ValidatedGuestRow } from "@/lib/import-validation";
 import crypto from "crypto";
 
 export async function POST(req: NextRequest) {
-  await ensurePragmas();
+  const { wedding, scoped } = await getWeddingContext(req);
 
   const body = await req.json().catch(() => null);
   if (!body) {
@@ -18,10 +18,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "rawRows must be an array" }, { status: 400 });
     }
 
-    // Fetch all existing guest phones from DB to detect collisions
-    const existingGuests = await prisma.guest.findMany({ select: { phone: true } });
-    const existingPhones = new Set(existingGuests.map((g) => g.phone));
+    // Fetch existing phones in THIS wedding
+    const existingGuests = (await scoped.guest.findMany({
+      select: { phone: true },
+    })) as Array<{ phone: string }>;
 
+    const existingPhones = new Set(existingGuests.map((g) => g.phone));
     const result = validateImportRows(rawRows as RawImportRow[], existingPhones);
     return NextResponse.json(result);
   }
@@ -36,36 +38,32 @@ export async function POST(req: NextRequest) {
 
     const rows = validRowsToImport as ValidatedGuestRow[];
 
-    // Load existing codes to guarantee uniqueness across new items
-    const existing = await prisma.guest.findMany({
-      select: { code: true, token: true, phone: true },
-    });
-    const usedCodes = new Set(existing.map((g) => g.code));
-    const usedTokens = new Set(existing.map((g) => g.token));
-    const usedPhones = new Set(existing.map((g) => g.phone));
+    // Load existing codes & phones in this wedding, and global tokens
+    const existingInWedding = (await scoped.guest.findMany({
+      select: { code: true, phone: true },
+    })) as Array<{ code: string; phone: string }>;
+
+    const usedCodes = new Set(existingInWedding.map((g) => g.code));
+    const usedPhones = new Set(existingInWedding.map((g) => g.phone));
 
     const createdGuests = [];
 
     for (const r of rows) {
       if (usedPhones.has(r.phone)) {
-        continue; // skip if added in the meantime
+        continue; // skip duplicate in wedding
       }
 
-      // Generate 10-char URL-safe token
-      let token: string;
-      do {
-        token = crypto.randomBytes(8).toString("base64url").slice(0, 10);
-      } while (usedTokens.has(token));
-      usedTokens.add(token);
+      // Generate 10-char URL-safe globally unique token
+      const token = crypto.randomBytes(8).toString("base64url").slice(0, 10);
 
-      // Generate 4-digit code
+      // Generate 4-digit code unique to this wedding
       let code: string;
       do {
         code = String(Math.floor(Math.random() * 9000) + 1000);
       } while (usedCodes.has(code));
       usedCodes.add(code);
 
-      const guest = await prisma.guest.create({
+      const guest = await scoped.guest.create({
         data: {
           name: r.name,
           phone: r.phone,
@@ -88,4 +86,3 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ error: "Invalid action" }, { status: 400 });
 }
-

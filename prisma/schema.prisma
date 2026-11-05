@@ -1,13 +1,36 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// Prisma Schema for Wedding Invitation System
+// PostgreSQL Engine (multi-wedding multi-tenancy)
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Wedding (Tenant)
+// ---------------------------------------------------------------------------
+
+model Wedding {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  coupleName1 String
+  coupleName2 String
+  weddingDate DateTime
+  accentColor String   @default("#111111")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  events           Event[]
+  accessLevels     AccessLevel[]
+  guests           Guest[]
+  messageLogs      MessageLog[]
+  messageTemplates MessageTemplate[]
+  reminders        Reminder[]
+  settings         Setting[]
 }
 
 // ---------------------------------------------------------------------------
@@ -16,6 +39,8 @@ datasource db {
 
 model Event {
   id          String   @id @default(cuid())
+  wedding     Wedding  @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  weddingId   String
   name        String
   date        DateTime
   startTime   String
@@ -27,15 +52,21 @@ model Event {
   sortOrder   Int      @default(0)
 
   accessLevels AccessLevelEvent[]
-  rsvps        Rsvp[]
+
+  @@index([weddingId])
 }
 
 model AccessLevel {
-  id     String @id @default(cuid())
-  name   String @unique
+  id        String   @id @default(cuid())
+  wedding   Wedding  @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  weddingId String
+  name      String
 
   events AccessLevelEvent[]
   guests Guest[]
+
+  @@unique([weddingId, name])
+  @@index([weddingId])
 }
 
 model AccessLevelEvent {
@@ -48,27 +79,32 @@ model AccessLevelEvent {
 }
 
 // ---------------------------------------------------------------------------
-// Guests
+// Guests (Scoped per wedding; token is globally unique)
 // ---------------------------------------------------------------------------
 
 model Guest {
   id            String       @id @default(cuid())
+  wedding       Wedding      @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  weddingId     String
   name          String
-  phone         String       @unique   // E.164 format
+  phone         String       // E.164 format, unique per wedding
   city          String       @default("")
   pax           Int          @default(1)
-  accessLevel   AccessLevel? @relation(fields: [accessLevelId], references: [id])
+  accessLevel   AccessLevel? @relation(fields: [accessLevelId], references: [id], onDelete: SetNull)
   accessLevelId String?
-  token         String       @unique   // 10-char URL-safe random
-  code          String       @unique   // 4-digit string, unique across guests
+  token         String       @unique // 10-char URL-safe random string (globally unique)
+  code          String       // 4-digit numeric string (unique per wedding)
   inviteStatus  InviteStatus @default(not_invited)
   optedOut      Boolean      @default(false)
   viewedAt      DateTime?
   lastInboundAt DateTime?
   createdAt     DateTime     @default(now())
 
-  rsvps       Rsvp[]
   messageLogs MessageLog[]
+
+  @@unique([weddingId, phone])
+  @@unique([weddingId, code])
+  @@index([weddingId])
 }
 
 enum InviteStatus {
@@ -82,68 +118,54 @@ enum InviteStatus {
 }
 
 // ---------------------------------------------------------------------------
-// RSVP
-// ---------------------------------------------------------------------------
-
-model Rsvp {
-  id           String     @id @default(cuid())
-  guest        Guest      @relation(fields: [guestId], references: [id], onDelete: Cascade)
-  guestId      String
-  event        Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  eventId      String
-  status       RsvpStatus
-  paxAttending Int        @default(0)
-  updatedAt    DateTime   @updatedAt
-
-  @@unique([guestId, eventId])
-}
-
-enum RsvpStatus {
-  attending
-  declined
-}
-
-// ---------------------------------------------------------------------------
-// Message Templates
+// Message Templates (Scoped per wedding)
 // ---------------------------------------------------------------------------
 
 model MessageTemplate {
-  id             String  @id @default(cuid())
-  key            String  @unique
-  category       String  // Marketing | Utility | Authentication
+  id             String   @id @default(cuid())
+  wedding        Wedding  @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  weddingId      String
+  key            String   // unique per wedding
+  category       String   // Marketing | Utility | Authentication
   body           String
-  buttons        String  // JSON: array of button definitions
-  sampleValues   String  // JSON: array of sample variable strings
-  approvalStatus String  @default("local") // local | pending | approved | rejected
+  buttons        String   // JSON string
+  sampleValues   String   // JSON string
+  approvalStatus String   @default("local") // local | pending | approved | rejected
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+
+  @@unique([weddingId, key])
+  @@index([weddingId])
 }
 
 // ---------------------------------------------------------------------------
-// Message Logs (also the job queue)
+// Message Logs / Job Queue (Scoped per wedding)
 // ---------------------------------------------------------------------------
 
 model MessageLog {
-  id                String          @id @default(cuid())
-  guest             Guest           @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  id                String           @id @default(cuid())
+  wedding           Wedding          @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  weddingId         String
+  guest             Guest            @relation(fields: [guestId], references: [id], onDelete: Cascade)
   guestId           String
   kind              MessageKind
-  templateKey       String          @default("")
-  reminder          Reminder?       @relation(fields: [reminderId], references: [id])
+  templateKey       String           @default("")
+  reminder          Reminder?        @relation(fields: [reminderId], references: [id], onDelete: SetNull)
   reminderId        String?
-  provider          String          @default("")
+  provider          String           @default("")
   status            MessageLogStatus @default(queued)
   externalMessageId String?
   errorMessage      String?
-  attempts          Int             @default(0)
+  attempts          Int              @default(0)
   nextAttemptAt     DateTime?
   scheduledAt       DateTime?
   sentAt            DateTime?
   deliveredAt       DateTime?
   readAt            DateTime?
 
-  // Prevent duplicate queuing: same guest + template + kind + reminder
-  @@unique([guestId, templateKey, kind, reminderId])
+  @@unique([weddingId, guestId, templateKey, kind, reminderId])
+  @@index([weddingId])
+  @@index([status, nextAttemptAt])
 }
 
 enum MessageKind {
@@ -163,11 +185,13 @@ enum MessageLogStatus {
 }
 
 // ---------------------------------------------------------------------------
-// Reminders
+// Reminders (Scoped per wedding)
 // ---------------------------------------------------------------------------
 
 model Reminder {
   id             String         @id @default(cuid())
+  wedding        Wedding        @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  weddingId      String
   title          String
   templateKey    String
   audienceFilter String         // JSON
@@ -177,6 +201,8 @@ model Reminder {
   createdAt      DateTime       @default(now())
 
   messageLogs MessageLog[]
+
+  @@index([weddingId])
 }
 
 enum ReminderStatus {
@@ -188,27 +214,31 @@ enum ReminderStatus {
 }
 
 // ---------------------------------------------------------------------------
-// Settings (key-value store)
+// Settings (Key-Value scoped per wedding)
 // ---------------------------------------------------------------------------
 
 model Setting {
-  key   String @id
-  value String
+  wedding   Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  weddingId String
+  key       String
+  value     String
+
+  @@id([weddingId, key])
+  @@index([weddingId])
 }
 
 // ---------------------------------------------------------------------------
-// Rate Limiting (DB-backed, not in-memory)
+// Rate Limiting (Global security table)
 // ---------------------------------------------------------------------------
 
 model RateLimit {
-  id        String   @id @default(cuid())
-  key       String              // e.g. "code_entry:127.0.0.1"
-  action    String              // e.g. "code_entry" | "admin_login"
-  attempts  Int      @default(1)
+  id          String   @id @default(cuid())
+  key         String   // e.g. "code_entry:slug:ip" or "admin_login:ip"
+  action      String   // e.g. "code_entry" | "admin_login"
+  attempts    Int      @default(1)
   windowStart DateTime
-  expiresAt DateTime
+  expiresAt   DateTime
 
   @@unique([key, action])
   @@index([expiresAt])
 }
-

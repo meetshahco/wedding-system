@@ -1,23 +1,34 @@
-import { NextResponse } from "next/server";
-import { prisma, ensurePragmas } from "@/lib/prisma";
+import { NextRequest, NextResponse } from "next/server";
+import { getWeddingContext } from "@/lib/wedding-context";
+import { getInviteUrl } from "@/lib/url-builder";
 import Papa from "papaparse";
 
-export async function GET() {
-  await ensurePragmas();
+export async function GET(req: NextRequest) {
+  const { wedding, scoped } = await getWeddingContext(req);
 
   const [guests, baseUrlSetting] = await Promise.all([
-    prisma.guest.findMany({
+    scoped.guest.findMany({
       include: {
         accessLevel: { select: { name: true } },
       },
       orderBy: { name: "asc" },
     }),
-    prisma.setting.findUnique({
-      where: { key: "baseUrl" },
-    }),
-  ]);
+    scoped.setting.findUnique("baseUrl"),
+  ]) as [
+    Array<{
+      name: string;
+      phone: string;
+      city: string;
+      pax: number;
+      token: string;
+      code: string;
+      inviteStatus: string;
+      accessLevel: { name: string } | null;
+    }>,
+    { key: string; value: string } | null
+  ];
 
-  const baseUrl = (baseUrlSetting?.value || process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000").replace(/\/$/, "");
+  const baseUrl = baseUrlSetting?.value || process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
   const rows = guests.map((g) => ({
     Name: g.name,
@@ -27,7 +38,7 @@ export async function GET() {
     "Access Level": g.accessLevel?.name || "Unassigned",
     "Invite Status": g.inviteStatus,
     "4-Digit Code": g.code,
-    "Invite Link": `${baseUrl}/i/${g.token}`,
+    "Invite Link": getInviteUrl({ token: g.token }, wedding, baseUrl),
   }));
 
   const csv = Papa.unparse(rows);
@@ -36,8 +47,7 @@ export async function GET() {
     status: 200,
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": 'attachment; filename="wedding-guests-links-codes.csv"',
+      "Content-Disposition": `attachment; filename="wedding-guests-${wedding.slug}.csv"`,
     },
   });
 }
-

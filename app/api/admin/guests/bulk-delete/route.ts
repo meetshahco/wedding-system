@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma, ensurePragmas } from "@/lib/prisma";
+import { getWeddingContext } from "@/lib/wedding-context";
 import { BulkDeleteSchema } from "@/lib/zod-schemas";
 
 export async function POST(req: NextRequest) {
-  await ensurePragmas();
+  const { scoped } = await getWeddingContext(req);
 
   const body = await req.json().catch(() => null);
   const parsed = BulkDeleteSchema.safeParse(body);
@@ -12,10 +12,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid guest IDs" }, { status: 400 });
   }
 
-  const { count } = await prisma.guest.deleteMany({
+  const { count } = await scoped.guest.deleteMany({
     where: { id: { in: parsed.data.ids } },
   });
 
   return NextResponse.json({ success: true, deletedCount: count });
 }
-

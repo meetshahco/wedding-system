@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma, ensurePragmas } from "@/lib/prisma";
+import { getWeddingContext } from "@/lib/wedding-context";
 import { UpdateGuestSchema } from "@/lib/zod-schemas";
 import { normalisePhone } from "@/lib/phone";
 
@@ -7,8 +7,17 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  await ensurePragmas();
+  const { scoped } = await getWeddingContext(req);
   const { id } = await params;
+
+  // Verify guest belongs to this wedding
+  const guest = (await scoped.guest.findFirst({
+    where: { id },
+  })) as { id: string; name: string } | null;
+
+  if (!guest) {
+    return NextResponse.json({ error: "Guest not found in this wedding" }, { status: 404 });
+  }
 
   const body = await req.json().catch(() => null);
   const parsed = UpdateGuestSchema.safeParse(body);
@@ -20,12 +29,13 @@ export async function PATCH(
     );
   }
 
-  const { name, phone, city, pax } = parsed.data;
+  const { name, phone, city, pax, accessLevelId } = parsed.data;
   const updateData: Record<string, unknown> = {};
 
   if (name !== undefined) updateData.name = name;
   if (city !== undefined) updateData.city = city;
   if (pax !== undefined) updateData.pax = pax;
+  if (accessLevelId !== undefined) updateData.accessLevelId = accessLevelId || null;
 
   if (phone !== undefined) {
     const normalised = normalisePhone(phone);
@@ -36,50 +46,49 @@ export async function PATCH(
       );
     }
 
-    // Check if phone is taken by another guest
-    const existing = await prisma.guest.findUnique({
+    // Check if phone is taken by another guest in THIS wedding
+    const existing = (await scoped.guest.findFirst({
       where: { phone: normalised },
-    });
+    })) as { id: string; name: string } | null;
+
     if (existing && existing.id !== id) {
       return NextResponse.json(
-        { error: `Phone ${normalised} is already used by ${existing.name}.` },
+        { error: `Phone ${normalised} is already used by ${existing.name} in this wedding.` },
         { status: 409 }
       );
     }
     updateData.phone = normalised;
   }
 
-  // Also support updating accessLevelId directly if passed in body
-  if (body?.accessLevelId !== undefined) {
-    updateData.accessLevelId = body.accessLevelId || null;
-  }
-
   try {
-    const updated = await prisma.guest.update({
+    const updated = await scoped.guest.update({
       where: { id },
       data: updateData,
       include: { accessLevel: true },
     });
     return NextResponse.json({ guest: updated });
   } catch {
-    return NextResponse.json({ error: "Guest not found" }, { status: 404 });
+    return NextResponse.json({ error: "Failed to update guest" }, { status: 500 });
   }
 }
 
 export async function DELETE(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  await ensurePragmas();
+  const { scoped } = await getWeddingContext(req);
   const { id } = await params;
 
+  // Verify guest belongs to this wedding
+  const guest = await scoped.guest.findFirst({ where: { id } });
+  if (!guest) {
+    return NextResponse.json({ error: "Guest not found in this wedding" }, { status: 404 });
+  }
+
   try {
-    await prisma.guest.delete({
-      where: { id },
-    });
+    await scoped.guest.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch {
-    return NextResponse.json({ error: "Guest not found" }, { status: 404 });
+    return NextResponse.json({ error: "Failed to delete guest" }, { status: 500 });
   }
 }
-

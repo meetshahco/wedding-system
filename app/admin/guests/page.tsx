@@ -48,6 +48,7 @@ import {
 } from "@mui/icons-material";
 import GuestFormDialog, { GuestFormData } from "@/components/admin/GuestFormDialog";
 import GuestImportDialog from "@/components/admin/GuestImportDialog";
+import { getInviteUrl } from "@/lib/url-builder";
 
 interface GuestRow {
   id: string;
@@ -61,12 +62,6 @@ interface GuestRow {
   optedOut: boolean;
   viewedAt: string | null;
   accessLevel: { id: string; name: string } | null;
-  rsvps: Array<{
-    id: string;
-    eventId: string;
-    status: string;
-    paxAttending: number;
-  }>;
 }
 
 interface Totals {
@@ -95,7 +90,6 @@ export default function GuestsPage() {
   const [cityFilter, setCityFilter] = useState("");
   const [accessFilter, setAccessFilter] = useState("");
   const [inviteStatusFilter, setInviteStatusFilter] = useState("");
-  const [rsvpStatusFilter, setRsvpStatusFilter] = useState("");
 
   // Access levels for filtering
   const [accessLevels, setAccessLevels] = useState<{ id: string; name: string }[]>([]);
@@ -122,7 +116,6 @@ export default function GuestsPage() {
       if (cityFilter) params.set("city", cityFilter);
       if (accessFilter) params.set("accessLevelId", accessFilter);
       if (inviteStatusFilter) params.set("inviteStatus", inviteStatusFilter);
-      if (rsvpStatusFilter) params.set("rsvpStatus", rsvpStatusFilter);
 
       const res = await fetch(`/api/admin/guests?${params.toString()}`);
       const data = await res.json();
@@ -135,9 +128,8 @@ export default function GuestsPage() {
     } finally {
       setLoading(false);
     }
-  }, [search, cityFilter, accessFilter, inviteStatusFilter, rsvpStatusFilter]);
+  }, [search, cityFilter, accessFilter, inviteStatusFilter]);
 
-  // Fetch access levels for dropdown
   const fetchAccessLevels = async () => {
     try {
       const res = await fetch("/api/admin/access-levels");
@@ -241,27 +233,6 @@ export default function GuestsPage() {
     }
   };
 
-  const getRsvpBadge = (g: GuestRow) => {
-    if (!g.rsvps || g.rsvps.length === 0) {
-      return <Chip label="Pending" size="small" variant="outlined" />;
-    }
-    const hasAttending = g.rsvps.some((r) => r.status === "attending");
-    if (hasAttending) {
-      const totalAttending = g.rsvps.reduce((acc, curr) => acc + (curr.paxAttending || 0), 0);
-      return (
-        <Chip
-          label={`Attending (${totalAttending})`}
-          size="small"
-          color="success"
-          variant="filled"
-        />
-      );
-    }
-    return <Chip label="Declined" size="small" color="error" variant="outlined" />;
-  };
-
-  const origin = typeof window !== "undefined" ? window.location.origin : "";
-
   return (
     <Box sx={{ p: { xs: 2, sm: 3 } }}>
       {/* Header & Metrics */}
@@ -280,7 +251,7 @@ export default function GuestsPage() {
             Guest List
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Manage your wedding guests, invitations, links, and RSVPs
+            Manage wedding guests, codes, personalised links, and invitation status
           </Typography>
         </Box>
 
@@ -391,7 +362,7 @@ export default function GuestsPage() {
             gridTemplateColumns: {
               xs: "1fr",
               sm: "2fr 1fr 1fr",
-              md: "2fr 1fr 1fr 1fr 1fr",
+              md: "2fr 1fr 1fr 1fr",
             },
             gap: 1.5,
           }}
@@ -463,19 +434,6 @@ export default function GuestsPage() {
             <MenuItem value="read">Read</MenuItem>
             <MenuItem value="failed">Failed</MenuItem>
           </TextField>
-
-          <TextField
-            select
-            label="RSVP Status"
-            value={rsvpStatusFilter}
-            onChange={(e) => setRsvpStatusFilter(e.target.value)}
-            size="small"
-          >
-            <MenuItem value="">All RSVPs</MenuItem>
-            <MenuItem value="attending">Attending</MenuItem>
-            <MenuItem value="declined">Declined</MenuItem>
-            <MenuItem value="pending">Pending</MenuItem>
-          </TextField>
         </Box>
 
         {/* Bulk Action Bar */}
@@ -521,7 +479,7 @@ export default function GuestsPage() {
             px: 2,
             textAlign: "center",
             bgcolor: "background.paper",
-            borderRadius: 3,
+            borderRadius: 2,
           }}
         >
           <People sx={{ fontSize: 48, color: "text.disabled", mb: 1 }} />
@@ -546,7 +504,7 @@ export default function GuestsPage() {
         /* Mobile Card View (<600px) */
         <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
           {guests.map((g) => {
-            const inviteUrl = `${origin}/i/${g.token}`;
+            const inviteUrl = getInviteUrl({ token: g.token });
             return (
               <Card key={g.id} variant="outlined">
                 <CardContent sx={{ pb: 1 }}>
@@ -583,7 +541,6 @@ export default function GuestsPage() {
                       size="small"
                       color={getInviteChipColor(g.inviteStatus)}
                     />
-                    {getRsvpBadge(g)}
                     {g.accessLevel && (
                       <Chip
                         label={g.accessLevel.name}
@@ -596,7 +553,7 @@ export default function GuestsPage() {
                   {/* Code and Link */}
                   <Box
                     sx={{
-                      bgcolor: "background.paper",
+                      bgcolor: "action.selected",
                       p: 1.5,
                       borderRadius: 1.5,
                       mt: 1.5,
@@ -725,7 +682,6 @@ export default function GuestsPage() {
                 <TableCell align="center">Pax</TableCell>
                 <TableCell>Access Level</TableCell>
                 <TableCell>Invite Status</TableCell>
-                <TableCell>RSVP</TableCell>
                 <TableCell>4-Digit Code</TableCell>
                 <TableCell>Invite Link</TableCell>
                 <TableCell align="right">Actions</TableCell>
@@ -734,7 +690,7 @@ export default function GuestsPage() {
             <TableBody>
               {guests.map((g) => {
                 const isSelected = selectedIds.includes(g.id);
-                const inviteUrl = `${origin}/i/${g.token}`;
+                const inviteUrl = getInviteUrl({ token: g.token });
 
                 return (
                   <TableRow key={g.id} hover selected={isSelected}>
@@ -786,13 +742,14 @@ export default function GuestsPage() {
                       />
                     </TableCell>
 
-                    <TableCell>{getRsvpBadge(g)}</TableCell>
-
                     <TableCell>
                       <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                        <code style={{ fontWeight: 700, letterSpacing: 1 }}>
+                        <Box
+                          component="code"
+                          sx={{ fontWeight: 700, letterSpacing: 1 }}
+                        >
                           {g.code}
-                        </code>
+                        </Box>
                         <Tooltip title="Copy 4-digit code">
                           <IconButton
                             size="small"
@@ -810,7 +767,7 @@ export default function GuestsPage() {
                         <Typography
                           variant="caption"
                           sx={{
-                            maxWidth: 100,
+                            maxWidth: 120,
                             overflow: "hidden",
                             textOverflow: "ellipsis",
                             whiteSpace: "nowrap",
@@ -818,7 +775,7 @@ export default function GuestsPage() {
                         >
                           /i/{g.token}
                         </Typography>
-                        <Tooltip title="Copy personalized link">
+                        <Tooltip title="Copy personalised link">
                           <IconButton
                             size="small"
                             onClick={() => copyToClipboard(inviteUrl, "Link")}
@@ -919,8 +876,8 @@ export default function GuestsPage() {
         <DialogContent>
           <DialogContentText>
             Are you sure you want to remove{" "}
-            <strong>{guestToDelete?.name}</strong>? Their RSVP responses and
-            invitation logs will also be deleted.
+            <strong>{guestToDelete?.name}</strong>? Their invitation history
+            and logs will also be deleted.
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>

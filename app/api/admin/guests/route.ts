@@ -1,29 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma, ensurePragmas } from "@/lib/prisma";
+import { getWeddingContext } from "@/lib/wedding-context";
 import { CreateGuestSchema } from "@/lib/zod-schemas";
 import { normalisePhone } from "@/lib/phone";
 import { generateUniqueCode, generateUniqueToken } from "@/lib/token";
 import { Prisma } from "@prisma/client";
 
 export async function GET(req: NextRequest) {
-  await ensurePragmas();
+  const { wedding, scoped } = await getWeddingContext(req);
 
   const searchParams = req.nextUrl.searchParams;
   const q = searchParams.get("q")?.trim() || "";
   const city = searchParams.get("city")?.trim() || "";
   const accessLevelId = searchParams.get("accessLevelId")?.trim() || "";
   const inviteStatus = searchParams.get("inviteStatus")?.trim() || "";
-  const rsvpStatus = searchParams.get("rsvpStatus")?.trim() || "";
 
-  // Build where filter
+  // Build where filter scoped to wedding
   const where: Prisma.GuestWhereInput = {};
 
   if (q) {
     where.OR = [
-      { name: { contains: q } },
-      { phone: { contains: q } },
-      { code: { contains: q } },
-      { city: { contains: q } },
+      { name: { contains: q, mode: "insensitive" } },
+      { phone: { contains: q, mode: "insensitive" } },
+      { code: { contains: q, mode: "insensitive" } },
+      { city: { contains: q, mode: "insensitive" } },
     ];
   }
 
@@ -43,42 +42,26 @@ export async function GET(req: NextRequest) {
     where.inviteStatus = inviteStatus as Prisma.EnumInviteStatusFilter;
   }
 
-  if (rsvpStatus) {
-    if (rsvpStatus === "attending") {
-      where.rsvps = { some: { status: "attending" } };
-    } else if (rsvpStatus === "declined") {
-      where.rsvps = { some: { status: "declined" } };
-    } else if (rsvpStatus === "pending") {
-      where.rsvps = { none: {} };
-    }
-  }
-
   const [guests, allGuests] = await Promise.all([
-    prisma.guest.findMany({
+    scoped.guest.findMany({
       where,
       include: {
         accessLevel: { select: { id: true, name: true } },
-        rsvps: {
-          select: {
-            id: true,
-            eventId: true,
-            status: true,
-            paxAttending: true,
-          },
-        },
       },
       orderBy: { createdAt: "desc" },
     }),
-    prisma.guest.findMany({
+    scoped.guest.findMany({
       select: {
         id: true,
         pax: true,
         city: true,
       },
     }),
-  ]);
+  ]) as [
+    Array<{ id: string; pax: number; city: string; [key: string]: unknown }>,
+    Array<{ id: string; pax: number; city: string }>
+  ];
 
-  // Distinct cities for filter dropdown
   const cities = Array.from(
     new Set(allGuests.map((g) => g.city).filter(Boolean))
   ).sort();
@@ -86,11 +69,16 @@ export async function GET(req: NextRequest) {
   const totalGuests = allGuests.length;
   const totalPax = allGuests.reduce((acc, curr) => acc + curr.pax, 0);
 
-  // Filtered totals
   const filteredGuests = guests.length;
   const filteredPax = guests.reduce((acc, curr) => acc + curr.pax, 0);
 
   return NextResponse.json({
+    wedding: {
+      id: wedding.id,
+      slug: wedding.slug,
+      coupleName1: wedding.coupleName1,
+      coupleName2: wedding.coupleName2,
+    },
     guests,
     cities,
     totals: {
@@ -103,7 +91,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  await ensurePragmas();
+  const { wedding, scoped } = await getWeddingContext(req);
 
   const body = await req.json().catch(() => null);
   const parsed = CreateGuestSchema.safeParse(body);
@@ -115,9 +103,8 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { name, phone, city, pax } = parsed.data;
+  const { name, phone, city, pax, accessLevelId } = parsed.data;
 
-  // Normalise phone number to E.164
   const normalisedPhone = normalisePhone(phone);
   if (!normalisedPhone) {
     return NextResponse.json(
@@ -126,29 +113,30 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Check for duplicate phone in database
-  const existing = await prisma.guest.findUnique({
+  // Check for duplicate phone in this wedding
+  const existing = (await scoped.guest.findFirst({
     where: { phone: normalisedPhone },
-  });
+  })) as { name: string } | null;
 
   if (existing) {
     return NextResponse.json(
-      { error: `A guest with phone ${normalisedPhone} already exists (${existing.name}).` },
+      { error: `A guest with phone ${normalisedPhone} already exists in this wedding (${existing.name}).` },
       { status: 409 }
     );
   }
 
   const [token, code] = await Promise.all([
     generateUniqueToken(),
-    generateUniqueCode(),
+    generateUniqueCode(wedding.id),
   ]);
 
-  const guest = await prisma.guest.create({
+  const guest = await scoped.guest.create({
     data: {
       name,
       phone: normalisedPhone,
       city: city || "",
       pax: pax ?? 1,
+      accessLevelId: accessLevelId || null,
       token,
       code,
     },
@@ -159,4 +147,3 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ guest }, { status: 201 });
 }
-
