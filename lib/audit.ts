@@ -36,3 +36,4 @@ export async function logAuditEvent({
     return null;
   }
 }
+

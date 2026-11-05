@@ -18,6 +18,7 @@ export interface ScopedWeddingContext {
     event: {
       findMany: (args?: Prisma.EventFindManyArgs) => Promise<unknown[]>;
       findFirst: (args?: Prisma.EventFindFirstArgs) => Promise<unknown | null>;
+      findUnique: (args: Prisma.EventFindUniqueArgs) => Promise<unknown | null>;
       create: (args: Prisma.EventCreateArgs) => Promise<unknown>;
       update: (args: Prisma.EventUpdateArgs) => Promise<unknown>;
       delete: (args: Prisma.EventDeleteArgs) => Promise<unknown>;
@@ -25,7 +26,10 @@ export interface ScopedWeddingContext {
     accessLevel: {
       findMany: (args?: Prisma.AccessLevelFindManyArgs) => Promise<unknown[]>;
       findFirst: (args?: Prisma.AccessLevelFindFirstArgs) => Promise<unknown | null>;
+      findUnique: (args: Prisma.AccessLevelFindUniqueArgs) => Promise<unknown | null>;
       create: (args: Prisma.AccessLevelCreateArgs) => Promise<unknown>;
+      update: (args: Prisma.AccessLevelUpdateArgs) => Promise<unknown>;
+      delete: (args: Prisma.AccessLevelDeleteArgs) => Promise<unknown>;
     };
     setting: {
       findUnique: (key: string) => Promise<{ key: string; value: string } | null>;
@@ -158,6 +162,9 @@ export async function getWeddingContext(
         const where = { ...(args?.where || {}), weddingId };
         return prisma.event.findFirst({ ...args, where });
       },
+      findUnique: (args: Prisma.EventFindUniqueArgs) => {
+        return prisma.event.findUnique(args);
+      },
       create: (args: Prisma.EventCreateArgs) => {
         const data = { ...args.data, wedding: { connect: { id: weddingId } } };
         return prisma.event.create({ ...args, data: data as Prisma.EventCreateInput });
@@ -178,9 +185,18 @@ export async function getWeddingContext(
         const where = { ...(args?.where || {}), weddingId };
         return prisma.accessLevel.findFirst({ ...args, where });
       },
+      findUnique: (args: Prisma.AccessLevelFindUniqueArgs) => {
+        return prisma.accessLevel.findUnique(args);
+      },
       create: (args: Prisma.AccessLevelCreateArgs) => {
         const data = { ...args.data, wedding: { connect: { id: weddingId } } };
         return prisma.accessLevel.create({ ...args, data: data as Prisma.AccessLevelCreateInput });
+      },
+      update: (args: Prisma.AccessLevelUpdateArgs) => {
+        return prisma.accessLevel.update({ ...args });
+      },
+      delete: (args: Prisma.AccessLevelDeleteArgs) => {
+        return prisma.accessLevel.delete({ where: { id: args.where.id } });
       },
     },
     setting: {
