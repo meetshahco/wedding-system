@@ -145,3 +145,31 @@ export async function resolveTemplateForGuest(
   return template;
 }
 
+/**
+ * Seeds default message templates for a wedding if they don't already exist.
+ */
+export async function seedDefaultTemplates(weddingId: string) {
+  const existing = await prisma.messageTemplate.findMany({
+    where: { weddingId },
+    select: { key: true, language: true },
+  });
+
+  const existingKeys = new Set(existing.map((t) => `${t.key}_${t.language}`));
+
+  for (const tpl of DEFAULT_TEMPLATES) {
+    if (!existingKeys.has(`${tpl.key}_${tpl.language}`)) {
+      await prisma.messageTemplate.create({
+        data: {
+          weddingId,
+          key: tpl.key,
+          language: tpl.language,
+          category: tpl.category,
+          body: tpl.body,
+          buttons: tpl.buttons,
+          sampleValues: tpl.sampleValues,
+        },
+      });
+    }
+  }
+}
+

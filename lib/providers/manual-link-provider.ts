@@ -34,3 +34,4 @@ export class ManualLinkProvider {
     return renderTemplate(templateToUse, variables);
   }
 }
+

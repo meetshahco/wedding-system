@@ -299,3 +299,4 @@ describe("Phase 7: Senders & Manual Mode", () => {
     expect(unassignedCount).toBe(result.assignments[s1.id]);
   });
 });
+

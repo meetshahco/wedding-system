@@ -84,3 +84,4 @@ export async function autoSplitGuests(params: AutoSplitParams): Promise<AutoSpli
     assignments,
   };
 }
+
