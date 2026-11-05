@@ -123,6 +123,33 @@ model Wedding {
   settings         Setting[]
   auditLogs        AuditLog[]
   senders          Sender[]
+  domains          WeddingDomain[]
+}
+
+// ---------------------------------------------------------------------------
+// Domains (Custom domains and subdomains per wedding)
+// ---------------------------------------------------------------------------
+
+enum DomainStatus {
+  pending
+  configuring
+  active
+  error
+}
+
+model WeddingDomain {
+  id           String       @id @default(cuid())
+  wedding      Wedding      @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  weddingId    String
+  domain       String       @unique
+  isPrimary    Boolean      @default(false)
+  status       DomainStatus @default(pending)
+  vercelConfig String?      // JSON string of verification data
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@index([weddingId])
+  @@index([domain])
 }
 
 // ---------------------------------------------------------------------------

@@ -28,6 +28,8 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
 import {
   Save,
@@ -41,9 +43,24 @@ import {
   Payment,
   Settings as SettingsIcon,
   Checklist,
+  Language as LanguageIcon,
+  Add,
+  Delete,
+  Star,
+  StarBorder,
+  ContentCopy,
+  OpenInNew,
 } from "@mui/icons-material";
 import { tokens } from "@/lib/theme";
 import { GoLiveChecklist, UsageReport, HealthCheckResult } from "@/lib/dashboard-service";
+
+interface DomainItem {
+  id: string;
+  domain: string;
+  isPrimary: boolean;
+  status: "pending" | "configuring" | "active" | "error";
+  createdAt: string;
+}
 
 export default function SettingsPage() {
   const [tabIndex, setTabIndex] = useState(0);
@@ -59,6 +76,12 @@ export default function SettingsPage() {
   const [sendingMethod, setSendingMethod] = useState<"mock" | "whatsapp_cloud" | "manual">("mock");
   const [dailyCap, setDailyCap] = useState(250);
 
+  // Domains
+  const [domains, setDomains] = useState<DomainItem[]>([]);
+  const [platformSubdomain, setPlatformSubdomain] = useState("");
+  const [newDomainInput, setNewDomainInput] = useState("");
+  const [domainActionLoading, setDomainActionLoading] = useState(false);
+
   // Checklist & Reports
   const [checklist, setChecklist] = useState<GoLiveChecklist | null>(null);
   const [usageReport, setUsageReport] = useState<UsageReport | null>(null);
@@ -72,10 +95,11 @@ export default function SettingsPage() {
 
   const fetchSettings = useCallback(async () => {
     try {
-      const [settingsRes, usageRes, healthRes] = await Promise.all([
+      const [settingsRes, usageRes, healthRes, domainsRes] = await Promise.all([
         fetch("/api/admin/settings"),
         fetch(`/api/admin/settings/usage?utilityRate=${utilityRate}&marketingRate=${marketingRate}&currency=${currency}`),
         fetch("/api/admin/settings/health"),
+        fetch("/api/admin/domains"),
       ]);
 
       if (settingsRes.ok) {
@@ -89,6 +113,12 @@ export default function SettingsPage() {
         setSendingMethod(data.sendingMethod || "mock");
         setDailyCap(data.dailyCap || 250);
         setChecklist(data.checklist);
+      }
+
+      if (domainsRes.ok) {
+        const dData = await domainsRes.json();
+        setDomains(dData.domains || []);
+        setPlatformSubdomain(dData.platformSubdomain || "");
       }
 
       if (usageRes.ok) {
@@ -142,6 +172,84 @@ export default function SettingsPage() {
     }
   };
 
+  const handleAddDomain = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newDomainInput.trim()) return;
+    setDomainActionLoading(true);
+    setFeedback(null);
+
+    try {
+      const res = await fetch("/api/admin/domains", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ domain: newDomainInput }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to add domain");
+
+      setFeedback({ message: `Domain ${newDomainInput} registered. Please configure DNS.`, severity: "success" });
+      setNewDomainInput("");
+      fetchSettings();
+    } catch (err: unknown) {
+      setFeedback({ message: (err as Error).message, severity: "error" });
+    } finally {
+      setDomainActionLoading(false);
+    }
+  };
+
+  const handleVerifyDomain = async (id: string) => {
+    setDomainActionLoading(true);
+    try {
+      const res = await fetch(`/api/admin/domains/${id}/verify`, { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Verification failed");
+
+      setFeedback({
+        message: data.verified ? "Domain successfully verified and active!" : "Domain verification pending DNS propagation.",
+        severity: data.verified ? "success" : "error",
+      });
+      fetchSettings();
+    } catch (err: unknown) {
+      setFeedback({ message: (err as Error).message, severity: "error" });
+    } finally {
+      setDomainActionLoading(false);
+    }
+  };
+
+  const handleSetPrimary = async (id: string) => {
+    setDomainActionLoading(true);
+    try {
+      const res = await fetch(`/api/admin/domains/${id}/primary`, { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to set primary domain");
+
+      setFeedback({ message: "Primary domain updated.", severity: "success" });
+      fetchSettings();
+    } catch (err: unknown) {
+      setFeedback({ message: (err as Error).message, severity: "error" });
+    } finally {
+      setDomainActionLoading(false);
+    }
+  };
+
+  const handleDeleteDomain = async (id: string, domainName: string) => {
+    if (!window.confirm(`Are you sure you want to remove ${domainName}?`)) return;
+    setDomainActionLoading(true);
+    try {
+      const res = await fetch(`/api/admin/domains/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to remove domain");
+
+      setFeedback({ message: `Domain ${domainName} removed.`, severity: "success" });
+      fetchSettings();
+    } catch (err: unknown) {
+      setFeedback({ message: (err as Error).message, severity: "error" });
+    } finally {
+      setDomainActionLoading(false);
+    }
+  };
+
   const handleRefreshHealth = async () => {
     setCheckingHealth(true);
     try {
@@ -178,7 +286,7 @@ export default function SettingsPage() {
           Wedding Settings
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-          Manage wedding configuration, go-live readiness, usage costs, and platform health.
+          Manage wedding configuration, custom domains, go-live readiness, and system health.
         </Typography>
       </Box>
 
@@ -209,6 +317,7 @@ export default function SettingsPage() {
         }}
       >
         <Tab icon={<SettingsIcon sx={{ fontSize: 18 }} />} iconPosition="start" label="General & Delivery" />
+        <Tab icon={<LanguageIcon sx={{ fontSize: 18 }} />} iconPosition="start" label="Custom Domains" />
         <Tab icon={<Checklist sx={{ fontSize: 18 }} />} iconPosition="start" label="Go-Live Checklist" />
         <Tab icon={<Payment sx={{ fontSize: 18 }} />} iconPosition="start" label="Usage & Costs" />
         <Tab icon={<HealthAndSafety sx={{ fontSize: 18 }} />} iconPosition="start" label="Health Check" />
@@ -321,8 +430,200 @@ export default function SettingsPage() {
         </Paper>
       )}
 
-      {/* TAB 1: GO-LIVE CHECKLIST */}
+      {/* TAB 1: CUSTOM DOMAINS */}
       {tabIndex === 1 && (
+        <Box sx={{ maxWidth: 880 }}>
+          {/* Platform Subdomain Card */}
+          <Paper elevation={0} sx={{ p: 3, mb: 3, border: `1px solid ${tokens.neutral.border}`, borderRadius: 2 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5 }}>
+              Default Platform Subdomain
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              Every wedding automatically receives a free subdomain on the platform:
+            </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                p: 1.5,
+                bgcolor: tokens.neutral.subtle,
+                borderRadius: 1.5,
+                border: `1px solid ${tokens.neutral.border}`,
+              }}
+            >
+              <Typography variant="body2" sx={{ fontFamily: "monospace", fontWeight: 600 }}>
+                https://{platformSubdomain}
+              </Typography>
+              <Box sx={{ display: "flex", gap: 1 }}>
+                <Button
+                  size="small"
+                  onClick={() => {
+                    navigator.clipboard.writeText(`https://${platformSubdomain}`);
+                    setFeedback({ message: "Subdomain URL copied to clipboard", severity: "success" });
+                  }}
+                  startIcon={<ContentCopy fontSize="small" />}
+                  sx={{ color: tokens.neutral.textSecondary }}
+                >
+                  Copy
+                </Button>
+              </Box>
+            </Box>
+          </Paper>
+
+          {/* Add Custom Domain Form */}
+          <Paper elevation={0} sx={{ p: 3, mb: 3, border: `1px solid ${tokens.neutral.border}`, borderRadius: 2 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>
+              Add a Custom Domain
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              Point your own domain (e.g. <code>arjunandmeera.com</code>) to your wedding site. Guests will see your branding directly at your root URL.
+            </Typography>
+
+            <form onSubmit={handleAddDomain}>
+              <Box sx={{ display: "flex", gap: 1.5, flexDirection: { xs: "column", sm: "row" } }}>
+                <TextField
+                  placeholder="e.g. arjunandmeera.com"
+                  value={newDomainInput}
+                  onChange={(e) => setNewDomainInput(e.target.value)}
+                  size="small"
+                  fullWidth
+                  disabled={domainActionLoading}
+                />
+                <Button
+                  type="submit"
+                  variant="contained"
+                  disabled={domainActionLoading || !newDomainInput.trim()}
+                  startIcon={domainActionLoading ? <CircularProgress size={16} color="inherit" /> : <Add />}
+                  sx={{
+                    minHeight: 40,
+                    minWidth: 140,
+                    bgcolor: tokens.primary.main,
+                    color: tokens.neutral.white,
+                    "&:hover": { bgcolor: tokens.primary.dark },
+                  }}
+                >
+                  Add Domain
+                </Button>
+              </Box>
+            </form>
+          </Paper>
+
+          {/* Registered Domains List */}
+          <Paper elevation={0} sx={{ border: `1px solid ${tokens.neutral.border}`, borderRadius: 2, overflow: "hidden" }}>
+            <Box sx={{ p: 2, bgcolor: tokens.neutral.subtle, borderBottom: `1px solid ${tokens.neutral.border}` }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+                Configured Custom Domains ({domains.length})
+              </Typography>
+            </Box>
+
+            {domains.length === 0 ? (
+              <Box sx={{ p: 4, textAlign: "center" }}>
+                <Typography variant="body2" color="text.secondary">
+                  No custom domains configured yet. Add your domain above to get started.
+                </Typography>
+              </Box>
+            ) : (
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{ fontWeight: 600 }}>Domain</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Role</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }} align="right">
+                        Actions
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {domains.map((dom) => (
+                      <TableRow key={dom.id}>
+                        <TableCell>
+                          <Typography variant="body2" sx={{ fontWeight: 700, fontFamily: "monospace" }}>
+                            {dom.domain}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            DNS: CNAME @ &rarr; cname.vercel-dns.com
+                          </Typography>
+                        </TableCell>
+
+                        <TableCell>
+                          {dom.isPrimary ? (
+                            <Chip
+                              icon={<Star sx={{ fontSize: 14 }} />}
+                              label="PRIMARY"
+                              size="small"
+                              sx={{ bgcolor: tokens.neutral.subtleHover, fontWeight: 700, fontSize: "0.7rem" }}
+                            />
+                          ) : (
+                            <Button
+                              size="small"
+                              onClick={() => handleSetPrimary(dom.id)}
+                              disabled={domainActionLoading}
+                              sx={{ color: tokens.neutral.textSecondary, textTransform: "none", fontSize: "0.8rem" }}
+                            >
+                              Make Primary
+                            </Button>
+                          )}
+                        </TableCell>
+
+                        <TableCell>
+                          <Chip
+                            label={dom.status.toUpperCase()}
+                            size="small"
+                            sx={{
+                              fontWeight: 700,
+                              fontSize: "0.7rem",
+                              bgcolor:
+                                dom.status === "active"
+                                  ? tokens.status.successBg
+                                  : dom.status === "error"
+                                  ? tokens.status.errorBg
+                                  : tokens.neutral.subtleHover,
+                              color:
+                                dom.status === "active"
+                                  ? tokens.status.success
+                                  : dom.status === "error"
+                                  ? tokens.status.error
+                                  : tokens.neutral.textPrimary,
+                              border: `1px solid ${tokens.neutral.border}`,
+                            }}
+                          />
+                        </TableCell>
+
+                        <TableCell align="right">
+                          <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              onClick={() => handleVerifyDomain(dom.id)}
+                              disabled={domainActionLoading}
+                              sx={{ borderColor: tokens.neutral.border, color: tokens.neutral.textPrimary, minHeight: 32 }}
+                            >
+                              Verify DNS
+                            </Button>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleDeleteDomain(dom.id, dom.domain)}
+                              disabled={domainActionLoading}
+                            >
+                              <Delete fontSize="small" />
+                            </IconButton>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+          </Paper>
+        </Box>
+      )}
+
+      {/* TAB 2: GO-LIVE CHECKLIST */}
+      {tabIndex === 2 && (
         <Paper elevation={0} sx={{ p: { xs: 2.5, sm: 4 }, border: `1px solid ${tokens.neutral.border}`, borderRadius: 2 }}>
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
             <Box>
@@ -392,8 +693,8 @@ export default function SettingsPage() {
         </Paper>
       )}
 
-      {/* TAB 2: USAGE REPORT & COST CALCULATOR */}
-      {tabIndex === 2 && (
+      {/* TAB 3: USAGE REPORT & COST CALCULATOR */}
+      {tabIndex === 3 && (
         <Box>
           {/* Controls Bar */}
           <Paper elevation={0} sx={{ p: 3, mb: 3, border: `1px solid ${tokens.neutral.border}`, borderRadius: 2 }}>
@@ -493,8 +794,8 @@ export default function SettingsPage() {
         </Box>
       )}
 
-      {/* TAB 3: SYSTEM & WEDDING HEALTH CHECK */}
-      {tabIndex === 3 && (
+      {/* TAB 4: SYSTEM & WEDDING HEALTH CHECK */}
+      {tabIndex === 4 && (
         <Paper elevation={0} sx={{ p: { xs: 2.5, sm: 4 }, border: `1px solid ${tokens.neutral.border}`, borderRadius: 2 }}>
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
             <Box>
