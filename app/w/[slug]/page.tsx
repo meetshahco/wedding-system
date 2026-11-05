@@ -90,3 +90,4 @@ export default async function WeddingCodeEntryPage({ params }: PageProps) {
     </Box>
   );
 }
+

@@ -309,3 +309,4 @@ describe("Phase 5: Public Guest Site (no RSVP)", () => {
     expect(result).toBeNull();
   });
 });
+

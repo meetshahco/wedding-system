@@ -181,6 +181,7 @@ model Guest {
   phone         String       // E.164 format, unique per wedding
   city          String       @default("")
   pax           Int          @default(1)
+  language      String       @default("en")
   accessLevel   AccessLevel? @relation(fields: [accessLevelId], references: [id], onDelete: SetNull)
   accessLevelId String?
   token         String       @unique // 10-char URL-safe random string (globally unique)
@@ -219,6 +220,7 @@ model MessageTemplate {
   wedding        Wedding  @relation(fields: [weddingId], references: [id], onDelete: Cascade)
   weddingId      String
   key            String   // unique per wedding
+  language       String   @default("en")
   category       String   // Marketing | Utility | Authentication
   body           String
   buttons        String   // JSON string
@@ -227,7 +229,7 @@ model MessageTemplate {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  @@unique([weddingId, key])
+  @@unique([weddingId, key, language])
   @@index([weddingId])
 }
 
@@ -255,6 +257,7 @@ model MessageLog {
   sentAt            DateTime?
   deliveredAt       DateTime?
   readAt            DateTime?
+  createdAt         DateTime         @default(now())
 
   @@unique([weddingId, guestId, templateKey, kind, reminderId])
   @@index([weddingId])

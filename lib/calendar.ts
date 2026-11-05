@@ -101,3 +101,4 @@ export function generateIcs(params: CalendarEventParams): string {
 
   return lines.join("\r\n") + "\r\n";
 }
+
