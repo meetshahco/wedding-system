@@ -1,5 +1,6 @@
 import { prisma } from "../prisma";
 import { mockProvider } from "../providers/mock-provider";
+import { cloudApiProvider } from "../providers/cloud-api-provider";
 import { renderTemplate, resolveTemplateForGuest } from "../template-renderer";
 import { getSendingMethod, checkDailyCaps } from "../sending-settings";
 import { getInviteUrl } from "../url-builder";
@@ -161,8 +162,8 @@ export async function processQueueBatch(
         })
       : `Dear ${guest.name}, you are joyfully invited to the wedding of ${coupleNames} on ${formattedDate}. View your invite: ${inviteUrl}`;
 
-    // Select provider (MockProvider used by default or for testing)
-    const provider = mockProvider;
+    // Select provider (Cloud API if configured, otherwise MockProvider)
+    const provider = sendingMethod === "whatsapp_cloud" ? cloudApiProvider : mockProvider;
 
     const result = await provider.send({
       weddingId: wedding.id,

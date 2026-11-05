@@ -613,3 +613,4 @@ export async function getHealthCheck(weddingId?: string): Promise<HealthCheckRes
     details,
   };
 }
+
