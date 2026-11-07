@@ -1,20 +1,11 @@
-import { Box, Typography } from "@mui/material";
+import { redirect } from "next/navigation";
+import { getSession } from "@/lib/auth";
 
-export default function HomePage() {
-  return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        p: 3,
-      }}
-    >
-      <Typography variant="h4" sx={{ fontFamily: "var(--font-playfair)" }}>
-        Wedding Invitation — Coming in Phase 4
-      </Typography>
-    </Box>
-  );
+export default async function HomePage() {
+  const session = await getSession();
+  if (session?.isLoggedIn) {
+    redirect("/admin/dashboard");
+  } else {
+    redirect("/login");
+  }
 }
-

@@ -1,4 +1,6 @@
 import { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import {
   Box,
   Typography,
@@ -22,6 +24,7 @@ import {
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { tokens } from "@/lib/theme";
+import { getPrimaryDomainRedirect } from "@/lib/domains/domain-resolver";
 
 export const metadata: Metadata = {
   title: "Wedding Invitation",
@@ -37,6 +40,13 @@ interface PageProps {
 
 export default async function InvitePage({ params }: PageProps) {
   const { token } = await params;
+
+  const headersList = await headers();
+  const host = headersList.get("host") || "";
+  const redirectUrl = await getPrimaryDomainRedirect(host, token);
+  if (redirectUrl) {
+    redirect(redirectUrl);
+  }
 
   // Global lookup by token
   const guest = await prisma.guest.findUnique({

@@ -56,18 +56,6 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  // 3. Platform Host behavior:
-  // Rule: Redirect from /i/[token] on the platform host to the wedding's primary domain
-  if (resolution.type === "platform" && pathname.startsWith("/i/")) {
-    const token = pathname.replace(/^\/i\//, "").split("/")[0];
-    if (token) {
-      const redirectUrl = await getPrimaryDomainRedirect(host, token);
-      if (redirectUrl) {
-        return NextResponse.redirect(new URL(redirectUrl));
-      }
-    }
-  }
-
   // Allow public auth endpoints
   if (pathname.startsWith("/api/admin/auth")) {
     return NextResponse.next();

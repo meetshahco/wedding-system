@@ -14,7 +14,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={inter.variable}>
-      <body>
+      <body className={inter.className} style={{ fontFamily: "var(--font-inter), Inter, sans-serif" }}>
         <MuiProvider>{children}</MuiProvider>
       </body>
     </html>

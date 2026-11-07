@@ -1,5 +1,3 @@
-"use client";
-
 import { createTheme, ThemeOptions, alpha } from "@mui/material/styles";
 import { Inter } from "next/font/google";
 
@@ -91,18 +89,18 @@ const themeOptions: ThemeOptions = {
     },
   },
   typography: {
-    fontFamily: "var(--font-inter), Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-    h1: { fontWeight: 700, letterSpacing: "-0.02em" },
-    h2: { fontWeight: 700, letterSpacing: "-0.02em" },
-    h3: { fontWeight: 700, letterSpacing: "-0.01em" },
-    h4: { fontWeight: 600, letterSpacing: "-0.01em" },
-    h5: { fontWeight: 600, letterSpacing: "-0.01em" },
-    h6: { fontWeight: 600 },
-    subtitle1: { fontWeight: 500 },
-    subtitle2: { fontWeight: 500 },
-    body1: { letterSpacing: "-0.005em" },
-    body2: { letterSpacing: "-0.005em" },
-    button: { textTransform: "none", fontWeight: 600 },
+    fontFamily: "var(--font-inter), Inter, sans-serif",
+    h1: { fontFamily: "var(--font-inter), Inter, sans-serif", fontWeight: 700, letterSpacing: "-0.02em" },
+    h2: { fontFamily: "var(--font-inter), Inter, sans-serif", fontWeight: 700, letterSpacing: "-0.02em" },
+    h3: { fontFamily: "var(--font-inter), Inter, sans-serif", fontWeight: 700, letterSpacing: "-0.01em" },
+    h4: { fontFamily: "var(--font-inter), Inter, sans-serif", fontWeight: 600, letterSpacing: "-0.01em" },
+    h5: { fontFamily: "var(--font-inter), Inter, sans-serif", fontWeight: 600, letterSpacing: "-0.01em" },
+    h6: { fontFamily: "var(--font-inter), Inter, sans-serif", fontWeight: 600 },
+    subtitle1: { fontFamily: "var(--font-inter), Inter, sans-serif", fontWeight: 500 },
+    subtitle2: { fontFamily: "var(--font-inter), Inter, sans-serif", fontWeight: 500 },
+    body1: { fontFamily: "var(--font-inter), Inter, sans-serif", letterSpacing: "-0.005em" },
+    body2: { fontFamily: "var(--font-inter), Inter, sans-serif", letterSpacing: "-0.005em" },
+    button: { fontFamily: "var(--font-inter), Inter, sans-serif", textTransform: "none", fontWeight: 600 },
   },
   shape: {
     borderRadius: 8,
@@ -110,9 +108,16 @@ const themeOptions: ThemeOptions = {
   components: {
     MuiCssBaseline: {
       styleOverrides: {
+        html: {
+          fontFamily: "var(--font-inter), Inter, sans-serif",
+        },
         body: {
           color: tokens.neutral.textPrimary,
           backgroundColor: tokens.neutral.bg,
+          fontFamily: "var(--font-inter), Inter, sans-serif",
+        },
+        "*": {
+          fontFamily: "inherit",
         },
         "a": {
           color: tokens.neutral.textPrimary,

@@ -37,48 +37,27 @@ export async function resolveHost(hostHeader: string | null | undefined): Promis
     };
   }
 
-  // 2. Platform Subdomain (e.g. arjun.weddings.test)
-  if (host.endsWith(`.${platformDomain}`)) {
-    const slug = host.replace(`.${platformDomain}`, "");
-    const wedding = await prisma.wedding.findUnique({
-      where: { slug },
-    });
+  try {
+    // 2. Platform Subdomain (e.g. arjun.weddings.test)
+    if (host.endsWith(`.${platformDomain}`)) {
+      const slug = host.replace(`.${platformDomain}`, "");
+      const wedding = await prisma.wedding.findUnique({
+        where: { slug },
+      });
 
-    if (wedding) {
-      return {
-        type: "wedding_subdomain",
-        wedding,
-        isWeddingHost: true,
-      };
+      if (wedding) {
+        return {
+          type: "wedding_subdomain",
+          wedding,
+          isWeddingHost: true,
+        };
+      }
     }
-  }
 
-  // 3. Custom Domain Lookup in WeddingDomain table (e.g. arjunandmeera.com)
-  const domainRecord = await prisma.weddingDomain.findFirst({
-    where: {
-      domain: host,
-      status: "active",
-    },
-    include: {
-      wedding: true,
-    },
-  });
-
-  if (domainRecord) {
-    return {
-      type: "wedding_custom_domain",
-      wedding: domainRecord.wedding,
-      domain: domainRecord,
-      isWeddingHost: true,
-    };
-  }
-
-  // Also check without www if www was supplied
-  if (host.startsWith("www.")) {
-    const nonWww = host.replace(/^www\./, "");
-    const nonWwwRecord = await prisma.weddingDomain.findFirst({
+    // 3. Custom Domain Lookup in WeddingDomain table (e.g. arjunandmeera.com)
+    const domainRecord = await prisma.weddingDomain.findFirst({
       where: {
-        domain: nonWww,
+        domain: host,
         status: "active",
       },
       include: {
@@ -86,14 +65,39 @@ export async function resolveHost(hostHeader: string | null | undefined): Promis
       },
     });
 
-    if (nonWwwRecord) {
+    if (domainRecord) {
       return {
         type: "wedding_custom_domain",
-        wedding: nonWwwRecord.wedding,
-        domain: nonWwwRecord,
+        wedding: domainRecord.wedding,
+        domain: domainRecord,
         isWeddingHost: true,
       };
     }
+
+    // Also check without www if www was supplied
+    if (host.startsWith("www.")) {
+      const nonWww = host.replace(/^www\./, "");
+      const nonWwwRecord = await prisma.weddingDomain.findFirst({
+        where: {
+          domain: nonWww,
+          status: "active",
+        },
+        include: {
+          wedding: true,
+        },
+      });
+
+      if (nonWwwRecord) {
+        return {
+          type: "wedding_custom_domain",
+          wedding: nonWwwRecord.wedding,
+          domain: nonWwwRecord,
+          isWeddingHost: true,
+        };
+      }
+    }
+  } catch {
+    // In Edge runtime where Prisma is unsupported, fallback safely
   }
 
   return {
