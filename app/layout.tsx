@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import MuiProvider from "@/components/MuiProvider";
 import { inter } from "@/lib/theme";
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Wedding Invitation Manager",
-  description: "Wedding invitation management system",
+  description: "Wedding invitation management platform",
 };
 
 export default function RootLayout({

@@ -139,7 +139,7 @@ export default function LoginPage() {
 
           <Box sx={{ mt: 3, pt: 2, borderTop: "1px solid", borderColor: "divider", textAlign: "center" }}>
             <Typography variant="caption" color="text.secondary">
-              Default credentials: <strong>owner@weddings.test</strong> / <strong>changeme</strong>
+              Default credentials: <strong>owner@weddings.test</strong> / <strong>Password123!</strong>
             </Typography>
           </Box>
         </CardContent>

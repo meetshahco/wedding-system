@@ -1,0 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  margin: 0;
+  padding: 0;
+  background-color: #FFFFFF;
+  color: #111111;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Force Inter font family across all MUI typography and components */
+.MuiTypography-root,
+.MuiButton-root,
+.MuiInputBase-root,
+.MuiInputLabel-root,
+.MuiTableCell-root,
+.MuiChip-root,
+.MuiTab-root,
+.MuiMenuItem-root,
+.MuiListItemText-root,
+.MuiDialogTitle-root,
+.MuiDialogContentText-root,
+.MuiCardHeader-root,
+.MuiAlert-root,
+.MuiBadge-root {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+/* Smooth transitions for interactive SaaS controls */
+button, a {
+  transition: background-color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+}
+
+/* Mobile responsive container utility */
+@media (max-width: 600px) {
+  .mobile-full-width {
+    width: 100% !important;
+  }
+}
