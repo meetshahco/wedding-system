@@ -15,3 +15,4 @@ jobs:
           curl --fail --silent --show-error \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             "${{ secrets.APP_URL }}/api/cron/tick"
+

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { Suspense, useState, FormEvent } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   Box,
@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import { Visibility, VisibilityOff, Favorite } from "@mui/icons-material";
 
-export default function LoginPage() {
+function LoginForm() {
   const searchParams = useSearchParams();
   const from = searchParams.get("from") ?? "/admin/dashboard";
 
@@ -145,5 +145,27 @@ export default function LoginPage() {
         </CardContent>
       </Card>
     </Box>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <Box
+          sx={{
+            minHeight: "100vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            bgcolor: "background.default",
+          }}
+        >
+          <CircularProgress sx={{ color: "primary.main" }} />
+        </Box>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }
