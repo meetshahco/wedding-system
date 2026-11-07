@@ -183,20 +183,39 @@ DIRECT_URL="postgresql://user:password@direct-host:5432/wedding_system?sslmode=r
 | `VERCEL_PROJECT_ID` | Vercel Project ID | `prj_...` |
 | `VERCEL_TEAM_ID` | Vercel Team ID (if using team account) | `team_...` |
 
-### 3. Vercel Cron Setup
-A `vercel.json` file is included in the project root:
-```json
-{
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "crons": [
-    {
-      "path": "/api/cron/tick",
-      "schedule": "* * * * *"
-    }
-  ]
-}
-```
-Vercel automatically triggers `/api/cron/tick` every minute and includes `Authorization: Bearer <CRON_SECRET>` automatically.
+### 3. Vercel Cron & GitHub Actions Queue Scheduler
+
+Vercel Hobby (free) accounts enforce a limit of **once-daily cron executions**. Attempting to deploy with more frequent schedules (`* * * * *`) results in a deployment rejection.
+
+To provide frequent 5-minute queue processing at zero cost:
+1. **Daily Safety Net (`vercel.json`):**
+   ```json
+   {
+     "$schema": "https://openapi.vercel.sh/vercel.json",
+     "crons": [
+       {
+         "path": "/api/cron/tick",
+         "schedule": "0 3 * * *"
+       }
+     ]
+   }
+   ```
+   Runs once daily at 03:00 UTC as an automated safety net.
+
+2. **Free 5-Minute Queue Processing via GitHub Actions (`.github/workflows/tick.yml`):**
+   A GitHub Action workflow runs every 5 minutes (`*/5 * * * *`) and on manual `workflow_dispatch`. It securely invokes `/api/cron/tick` with:
+   ```bash
+   curl --fail --silent --show-error \
+     -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+     "${{ secrets.APP_URL }}/api/cron/tick"
+   ```
+
+   **Required GitHub Repository Secrets** (add in GitHub **Settings > Secrets and variables > Actions**):
+   - `APP_URL`: Your deployed Vercel application URL (e.g. `https://wedding-system.vercel.app`).
+   - `CRON_SECRET`: The exact secret token matching `CRON_SECRET` in your Vercel Environment Variables.
+
+3. **Concurrency & Overlap Protection:**
+   Whether triggered by the daily Vercel cron, the 5-minute GitHub Action, or manual administrative requests, the queue processor uses PostgreSQL atomic CTEs with `FOR UPDATE SKIP LOCKED`. If runs overlap, jobs are claimed by exactly one process, guaranteeing zero double-sends.
 
 ---
 

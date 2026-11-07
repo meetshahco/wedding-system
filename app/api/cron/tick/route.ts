@@ -1,5 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+import crypto from "crypto";
 import { processQueueBatch } from "@/lib/queue/processor";
+
+function constantTimeCompare(a: string, b: string): boolean {
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) return false;
+  return crypto.timingSafeEqual(bufA, bufB);
+}
 
 export async function GET(req: NextRequest) {
   return handleCronTick(req);
@@ -10,21 +18,25 @@ export async function POST(req: NextRequest) {
 }
 
 async function handleCronTick(req: NextRequest) {
-  // CRON_SECRET validation
   const cronSecret = process.env.CRON_SECRET;
-  if (cronSecret) {
-    const authHeader = req.headers.get("authorization");
-    const customHeader = req.headers.get("x-cron-secret");
+  if (!cronSecret) {
+    return NextResponse.json(
+      { error: "Server misconfiguration: CRON_SECRET is not configured." },
+      { status: 401 }
+    );
+  }
 
-    const tokenFromAuth = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
-    const isAuthorized = tokenFromAuth === cronSecret || customHeader === cronSecret;
+  const authHeader = req.headers.get("authorization");
+  const customHeader = req.headers.get("x-cron-secret");
 
-    if (!isAuthorized) {
-      return NextResponse.json(
-        { error: "Unauthorized. Valid CRON_SECRET required." },
-        { status: 401 }
-      );
-    }
+  const tokenFromAuth = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+  const token = tokenFromAuth || customHeader;
+
+  if (!token || !constantTimeCompare(token, cronSecret)) {
+    return NextResponse.json(
+      { error: "Unauthorized. Valid CRON_SECRET required." },
+      { status: 401 }
+    );
   }
 
   try {
@@ -44,4 +56,3 @@ async function handleCronTick(req: NextRequest) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
-

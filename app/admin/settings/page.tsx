@@ -410,6 +410,25 @@ export default function SettingsPage() {
               </Grid>
             </Grid>
 
+            <Box
+              sx={{
+                p: 2,
+                borderRadius: 2,
+                bgcolor: tokens.neutral.subtle,
+                border: `1px solid ${tokens.neutral.border}`,
+                mb: 3,
+              }}
+            >
+              <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5 }}>
+                Queue Scheduler Configuration
+              </Typography>
+              <Typography variant="caption" color="text.secondary" sx={{ display: "block", lineHeight: 1.5 }}>
+                On the Vercel Hobby plan, Vercel Cron runs once daily (0 3 * * *) as a safety net. Frequent 5-minute
+                queue processing runs via GitHub Actions (.github/workflows/tick.yml) using your repository secrets.
+                PostgreSQL atomic SKIP LOCKED transaction locking ensures zero overlap between runs.
+              </Typography>
+            </Box>
+
             <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 4 }}>
               <Button
                 type="submit"

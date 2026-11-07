@@ -1,0 +1,17 @@
+name: Message Queue Tick
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  tick:
+    name: Process Message Queue
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Queue Tick
+        run: |
+          curl --fail --silent --show-error \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.APP_URL }}/api/cron/tick"
