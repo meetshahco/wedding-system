@@ -5,6 +5,7 @@ import { requireWeddingAccess } from "@/lib/auth";
 import { createAndScheduleReminder, AudienceFilter } from "@/lib/reminder-service";
 import { getSendingMethod } from "@/lib/sending-settings";
 import { logAuditEvent } from "@/lib/audit";
+import { isWhatsAppApiEnabled } from "@/lib/features";
 
 export async function GET(req: NextRequest) {
   try {
@@ -74,6 +75,13 @@ export async function POST(req: NextRequest) {
     const filter: AudienceFilter = body.audienceFilter || {};
     const scheduledAt = body.scheduledAt ? new Date(body.scheduledAt) : null;
     const sendImmediately = Boolean(body.sendImmediately);
+
+    if (scheduledAt && !isWhatsAppApiEnabled()) {
+      return NextResponse.json(
+        { error: "WhatsApp API sending is coming soon" },
+        { status: 403 }
+      );
+    }
 
     const result = await createAndScheduleReminder({
       weddingId: wedding.id,

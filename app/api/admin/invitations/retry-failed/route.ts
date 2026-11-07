@@ -5,11 +5,19 @@ import { queueInvitations } from "@/lib/invitation-service";
 import { processQueueBatch } from "@/lib/queue/processor";
 import { getSendingMethod } from "@/lib/sending-settings";
 import { logAuditEvent } from "@/lib/audit";
+import { isWhatsAppApiEnabled } from "@/lib/features";
 
 export async function POST(req: NextRequest) {
   try {
     const { wedding } = await getWeddingContext(req);
     const { session } = await requireWeddingAccess(wedding.id, "MANAGER");
+
+    if (!isWhatsAppApiEnabled()) {
+      return NextResponse.json(
+        { error: "WhatsApp API sending is coming soon" },
+        { status: 403 }
+      );
+    }
 
     const body = await req.json().catch(() => ({}));
     const guestIds = Array.isArray(body?.guestIds) && body.guestIds.length > 0 ? body.guestIds : undefined;

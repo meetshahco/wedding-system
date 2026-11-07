@@ -6,6 +6,7 @@ import { getSendingMethod, setSendingMethod, getWeddingDailyCap } from "@/lib/se
 import { getGoLiveChecklist } from "@/lib/dashboard-service";
 import { logAuditEvent } from "@/lib/audit";
 import { SendingMethod } from "@/lib/providers/types";
+import { isWhatsAppApiEnabled } from "@/lib/features";
 
 export async function GET(req: NextRequest) {
   try {
@@ -30,6 +31,7 @@ export async function GET(req: NextRequest) {
       sendingMethod,
       dailyCap,
       checklist,
+      enableWhatsAppApi: isWhatsAppApiEnabled(),
     });
   } catch (error: unknown) {
     const err = error as Error;
@@ -53,6 +55,20 @@ export async function PUT(req: NextRequest) {
     const accentColor = typeof body.accentColor === "string" && body.accentColor.trim() ? body.accentColor.trim() : wedding.accentColor;
     const sendingMethod = body.sendingMethod as SendingMethod | undefined;
     const dailyCap = typeof body.dailyCap === "number" || typeof body.dailyCap === "string" ? parseInt(String(body.dailyCap), 10) : undefined;
+
+    // Enforce server-side WhatsApp API lock
+    if (sendingMethod && sendingMethod === "whatsapp_cloud" && !isWhatsAppApiEnabled()) {
+      return NextResponse.json(
+        { error: "WhatsApp API sending is coming soon" },
+        { status: 403 }
+      );
+    }
+    if (sendingMethod && sendingMethod === "mock" && process.env.NODE_ENV !== "development" && !isWhatsAppApiEnabled()) {
+      return NextResponse.json(
+        { error: "Mock engine is available in development only" },
+        { status: 403 }
+      );
+    }
 
     // Update wedding record
     const updatedWedding = await prisma.wedding.update({

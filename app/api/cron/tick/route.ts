@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { processQueueBatch } from "@/lib/queue/processor";
+import { isWhatsAppApiEnabled } from "@/lib/features";
 
 function constantTimeCompare(a: string, b: string): boolean {
   const bufA = Buffer.from(a);
@@ -37,6 +38,17 @@ async function handleCronTick(req: NextRequest) {
       { error: "Unauthorized. Valid CRON_SECRET required." },
       { status: 401 }
     );
+  }
+
+  // When WhatsApp API is disabled, tick safely does nothing harmful
+  if (!isWhatsAppApiEnabled()) {
+    return NextResponse.json({
+      success: true,
+      message: "WhatsApp API sending is disabled (ENABLE_WHATSAPP_API=false). No queue processing executed.",
+      processed: 0,
+      sent: 0,
+      failed: 0,
+    });
   }
 
   try {

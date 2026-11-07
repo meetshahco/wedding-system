@@ -570,9 +570,35 @@ export default function InvitationsPage() {
                 Sending Invitations in Progress...
               </Typography>
             </Box>
-            <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
-              {liveProgress.sent + liveProgress.delivered + liveProgress.read} / {liveProgress.total} completed
-            </Typography>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
+                {liveProgress.sent + liveProgress.delivered + liveProgress.read} / {liveProgress.total} completed
+              </Typography>
+              <Tooltip title="Automated queue processing via WhatsApp API is coming soon. In v1, send invitations via family senders using WhatsApp links.">
+                <span>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    disabled
+                    sx={{ borderColor: tokens.neutral.border, color: tokens.neutral.textSecondary, textTransform: "none", minHeight: 30 }}
+                  >
+                    Process now
+                  </Button>
+                </span>
+              </Tooltip>
+              <Chip
+                label="Coming soon"
+                size="small"
+                variant="outlined"
+                sx={{
+                  color: tokens.neutral.textSecondary,
+                  borderColor: tokens.neutral.border,
+                  fontWeight: 600,
+                  fontSize: "0.75rem",
+                  height: 22,
+                }}
+              />
+            </Box>
           </Box>
 
           <LinearProgress

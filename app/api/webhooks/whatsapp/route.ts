@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cloudApiProvider } from "@/lib/providers/cloud-api-provider";
+import { isWhatsAppApiEnabled } from "@/lib/features";
 
 /**
  * GET /api/webhooks/whatsapp
@@ -36,6 +37,13 @@ export async function POST(req: NextRequest) {
     const isValid = cloudApiProvider.verifySignature(rawBody, signature);
     if (!isValid) {
       return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+    }
+
+    if (!isWhatsAppApiEnabled()) {
+      return NextResponse.json(
+        { success: true, message: "WhatsApp API is disabled. Event acknowledged." },
+        { status: 200 }
+      );
     }
 
     let payload: Record<string, unknown> = {};

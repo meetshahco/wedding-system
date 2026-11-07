@@ -1,13 +1,14 @@
 import { prisma } from "./prisma";
 import { MessageLogStatus } from "@prisma/client";
 import { SendingMethod } from "./providers/types";
+import { isWhatsAppApiEnabled } from "./features";
 
 export const DEFAULT_WEDDING_DAILY_CAP = 250;
 export const DEFAULT_GLOBAL_DAILY_CAP = 1000;
 
 /**
  * Gets the configured sending method for a wedding.
- * Defaults to "mock".
+ * Defaults to "manual" when ENABLE_WHATSAPP_API is false (except in dev/test with explicit mock).
  */
 export async function getSendingMethod(weddingId: string): Promise<SendingMethod> {
   const setting = await prisma.setting.findUnique({
@@ -20,16 +21,40 @@ export async function getSendingMethod(weddingId: string): Promise<SendingMethod
   });
 
   const val = setting?.value?.toLowerCase();
+  const isDevOrTest = process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test";
+
+  // If WhatsApp API is not enabled:
+  if (!isWhatsAppApiEnabled()) {
+    // Mock provider is available in development and test environments only
+    if (val === "mock" && isDevOrTest) {
+      return "mock";
+    }
+    // Locked to manual mode as v1 default
+    return "manual";
+  }
+
   if (val === "whatsapp_cloud" || val === "manual") {
     return val as SendingMethod;
   }
-  return "mock";
+  if (val === "mock") {
+    return "mock";
+  }
+  return "manual";
 }
 
 /**
  * Sets the sending method for a wedding.
  */
 export async function setSendingMethod(weddingId: string, method: SendingMethod) {
+  const isDevOrTest = process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test";
+
+  if (method === "whatsapp_cloud" && !isWhatsAppApiEnabled()) {
+    throw new Error("WhatsApp API sending is coming soon");
+  }
+  if (method === "mock" && !isDevOrTest && !isWhatsAppApiEnabled()) {
+    throw new Error("Mock engine is available in development only");
+  }
+
   return prisma.setting.upsert({
     where: {
       weddingId_key: {

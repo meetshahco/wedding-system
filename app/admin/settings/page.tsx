@@ -73,8 +73,9 @@ export default function SettingsPage() {
   const [coupleName2, setCoupleName2] = useState("");
   const [weddingDate, setWeddingDate] = useState("");
   const [accentColor, setAccentColor] = useState(tokens.primary.main);
-  const [sendingMethod, setSendingMethod] = useState<"mock" | "whatsapp_cloud" | "manual">("mock");
+  const [sendingMethod, setSendingMethod] = useState<"mock" | "whatsapp_cloud" | "manual">("manual");
   const [dailyCap, setDailyCap] = useState(250);
+  const [enableWhatsAppApi, setEnableWhatsAppApi] = useState(false);
 
   // Domains
   const [domains, setDomains] = useState<DomainItem[]>([]);
@@ -110,9 +111,10 @@ export default function SettingsPage() {
           data.wedding.weddingDate ? new Date(data.wedding.weddingDate).toISOString().split("T")[0] : ""
         );
         setAccentColor(data.wedding.accentColor || tokens.primary.main);
-        setSendingMethod(data.sendingMethod || "mock");
+        setSendingMethod(data.sendingMethod || "manual");
         setDailyCap(data.dailyCap || 250);
         setChecklist(data.checklist);
+        setEnableWhatsAppApi(Boolean(data.enableWhatsAppApi));
       }
 
       if (domainsRes.ok) {
@@ -378,25 +380,148 @@ export default function SettingsPage() {
 
             <Divider sx={{ my: 3 }} />
 
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-              Delivery Engine & Caps
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
+              Sending Method
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              Choose how invitations are dispatched to your guests. In v1, Manual mode is active by default.
             </Typography>
 
-            <Grid container spacing={2.5} sx={{ mb: 3 }}>
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth size="small">
-                  <InputLabel>Sending Method</InputLabel>
-                  <Select
-                    value={sendingMethod}
-                    label="Sending Method"
-                    onChange={(e) => setSendingMethod(e.target.value as "mock" | "whatsapp_cloud" | "manual")}
-                  >
-                    <MenuItem value="mock">Mock Engine (Local Testing)</MenuItem>
-                    <MenuItem value="whatsapp_cloud">WhatsApp Cloud API (Automated)</MenuItem>
-                    <MenuItem value="manual">Manual Mode (Direct wa.me Links)</MenuItem>
-                  </Select>
-                </FormControl>
+            <Grid container spacing={2} sx={{ mb: 3 }}>
+              {/* Card 1: Manual Mode */}
+              <Grid item xs={12} md={4}>
+                <Card
+                  elevation={0}
+                  onClick={() => setSendingMethod("manual")}
+                  sx={{
+                    p: 2.5,
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    cursor: "pointer",
+                    border: sendingMethod === "manual" ? `2px solid ${tokens.primary.main}` : `1px solid ${tokens.neutral.border}`,
+                    bgcolor: sendingMethod === "manual" ? tokens.neutral.subtle : tokens.neutral.white,
+                    borderRadius: 2,
+                  }}
+                >
+                  <Box>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1.5 }}>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                        Manual (family senders)
+                      </Typography>
+                      <Chip
+                        label={sendingMethod === "manual" ? "Active" : "Available"}
+                        size="small"
+                        sx={{
+                          bgcolor: sendingMethod === "manual" ? tokens.primary.main : tokens.neutral.subtle,
+                          color: sendingMethod === "manual" ? tokens.neutral.white : tokens.neutral.textPrimary,
+                          fontWeight: 600,
+                          fontSize: "0.75rem",
+                          height: 22,
+                        }}
+                      />
+                    </Box>
+                    <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.5 }}>
+                      Family senders send invitations directly from their own phones using personalized WhatsApp links. No Meta verification or API approval required.
+                    </Typography>
+                  </Box>
+                </Card>
               </Grid>
+
+              {/* Card 2: Dedicated Number */}
+              <Grid item xs={12} md={4}>
+                <Tooltip title="WhatsApp API sending is coming soon. In v1, send invitations via family senders using WhatsApp links.">
+                  <Card
+                    elevation={0}
+                    onClick={() => {
+                      if (enableWhatsAppApi) setSendingMethod("whatsapp_cloud");
+                    }}
+                    sx={{
+                      p: 2.5,
+                      height: "100%",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      opacity: enableWhatsAppApi ? 1 : 0.65,
+                      cursor: enableWhatsAppApi ? "pointer" : "not-allowed",
+                      border: sendingMethod === "whatsapp_cloud" ? `2px solid ${tokens.primary.main}` : `1px solid ${tokens.neutral.border}`,
+                      bgcolor: tokens.neutral.white,
+                      borderRadius: 2,
+                    }}
+                  >
+                    <Box>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1.5 }}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 700, pr: 1 }}>
+                          WhatsApp Business API, dedicated number
+                        </Typography>
+                        <Chip
+                          label="Coming soon"
+                          size="small"
+                          variant="outlined"
+                          sx={{
+                            color: tokens.neutral.textSecondary,
+                            borderColor: tokens.neutral.border,
+                            fontWeight: 600,
+                            fontSize: "0.75rem",
+                            height: 22,
+                          }}
+                        />
+                      </Box>
+                      <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.5 }}>
+                        Automatic sending, delivery and read tracking, and scheduled reminders via your own Meta WhatsApp Business Account.
+                      </Typography>
+                    </Box>
+                  </Card>
+                </Tooltip>
+              </Grid>
+
+              {/* Card 3: Shared Number */}
+              <Grid item xs={12} md={4}>
+                <Tooltip title="WhatsApp API sending is coming soon. In v1, send invitations via family senders using WhatsApp links.">
+                  <Card
+                    elevation={0}
+                    sx={{
+                      p: 2.5,
+                      height: "100%",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      opacity: 0.65,
+                      cursor: "not-allowed",
+                      border: `1px solid ${tokens.neutral.border}`,
+                      bgcolor: tokens.neutral.white,
+                      borderRadius: 2,
+                    }}
+                  >
+                    <Box>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1.5 }}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 700, pr: 1 }}>
+                          WhatsApp Business API, shared number
+                        </Typography>
+                        <Chip
+                          label="Coming soon"
+                          size="small"
+                          variant="outlined"
+                          sx={{
+                            color: tokens.neutral.textSecondary,
+                            borderColor: tokens.neutral.border,
+                            fontWeight: 600,
+                            fontSize: "0.75rem",
+                            height: 22,
+                          }}
+                        />
+                      </Box>
+                      <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.5 }}>
+                        Automatic sending, delivery and read tracking via a shared verified platform number.
+                      </Typography>
+                    </Box>
+                  </Card>
+                </Tooltip>
+              </Grid>
+            </Grid>
+
+            <Grid container spacing={2.5} sx={{ mb: 3 }}>
               <Grid item xs={12} sm={6}>
                 <TextField
                   label="Daily Send Cap (Rolling 24h)"
@@ -405,7 +530,7 @@ export default function SettingsPage() {
                   onChange={(e) => setDailyCap(parseInt(e.target.value, 10) || 0)}
                   fullWidth
                   size="small"
-                  helperText="Maximum messages permitted per rolling 24 hours"
+                  helperText="Maximum automated messages permitted per rolling 24 hours"
                 />
               </Grid>
             </Grid>
@@ -420,12 +545,10 @@ export default function SettingsPage() {
               }}
             >
               <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5 }}>
-                Queue Scheduler Configuration
+                Manual Mode Operation
               </Typography>
               <Typography variant="caption" color="text.secondary" sx={{ display: "block", lineHeight: 1.5 }}>
-                On the Vercel Hobby plan, Vercel Cron runs once daily (0 3 * * *) as a safety net. Frequent 5-minute
-                queue processing runs via GitHub Actions (.github/workflows/tick.yml) using your repository secrets.
-                PostgreSQL atomic SKIP LOCKED transaction locking ensures zero overlap between runs.
+                In Manual Mode, invitations are dispatched through assigned family senders via WhatsApp links with zero third-party messaging API dependencies.
               </Typography>
             </Box>
 
@@ -487,6 +610,36 @@ export default function SettingsPage() {
                   Copy
                 </Button>
               </Box>
+            </Box>
+          </Paper>
+
+          {/* Vercel Manual Instructions & Coming Soon Notice */}
+          <Paper elevation={0} sx={{ p: 3, mb: 3, border: `1px solid ${tokens.neutral.border}`, borderRadius: 2, bgcolor: tokens.neutral.subtle }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1 }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                Automated DNS Verification
+              </Typography>
+              <Chip
+                label="Coming soon"
+                size="small"
+                variant="outlined"
+                sx={{
+                  color: tokens.neutral.textSecondary,
+                  borderColor: tokens.neutral.border,
+                  fontWeight: 600,
+                  fontSize: "0.75rem",
+                  height: 22,
+                }}
+              />
+            </Box>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5, lineHeight: 1.6 }}>
+              Automated DNS provisioning via the Vercel API is coming soon. To attach a custom domain today, configure it directly in your Vercel project:
+            </Typography>
+            <Box component="ol" sx={{ pl: 2.5, m: 0, color: tokens.neutral.textSecondary, fontSize: "0.85rem", lineHeight: 1.7 }}>
+              <li>Open your <strong>Vercel Project Dashboard</strong> &rarr; <strong>Settings</strong> &rarr; <strong>Domains</strong>.</li>
+              <li>Add your custom domain (e.g. <code>arjunandmeera.com</code>).</li>
+              <li>In your DNS registrar (Cloudflare, GoDaddy, Namecheap), add a <strong>CNAME</strong> record pointing to <code>cname.vercel-dns.com</code> (or an <strong>A</strong> record pointing to <code>76.76.21.21</code>).</li>
+              <li>Once verified in Vercel, enter the domain below to assign it to this wedding tenant.</li>
             </Box>
           </Paper>
 
@@ -715,6 +868,30 @@ export default function SettingsPage() {
       {/* TAB 3: USAGE REPORT & COST CALCULATOR */}
       {tabIndex === 3 && (
         <Box>
+          {/* Coming Soon Notice */}
+          <Paper elevation={0} sx={{ p: 2.5, mb: 3, border: `1px solid ${tokens.neutral.border}`, borderRadius: 2, bgcolor: tokens.neutral.subtle }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 0.5 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+                WhatsApp Business API Billing & Meta Cost Analytics
+              </Typography>
+              <Chip
+                label="Coming soon"
+                size="small"
+                variant="outlined"
+                sx={{
+                  color: tokens.neutral.textSecondary,
+                  borderColor: tokens.neutral.border,
+                  fontWeight: 600,
+                  fontSize: "0.75rem",
+                  height: 22,
+                }}
+              />
+            </Box>
+            <Typography variant="body2" color="text.secondary">
+              Automated API message logging and Meta billing calculations are coming soon. In v1 manual mode, invitations sent via family phones incur zero messaging API fees.
+            </Typography>
+          </Paper>
+
           {/* Controls Bar */}
           <Paper elevation={0} sx={{ p: 3, mb: 3, border: `1px solid ${tokens.neutral.border}`, borderRadius: 2 }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, flexWrap: "wrap", gap: 2 }}>
@@ -849,7 +1026,7 @@ export default function SettingsPage() {
               </Alert>
 
               <Grid container spacing={2}>
-                <Grid item xs={12} sm={4}>
+                <Grid item xs={12} sm={6} md={3}>
                   <Card elevation={0} sx={{ border: `1px solid ${tokens.neutral.border}`, borderRadius: 2 }}>
                     <CardContent>
                       <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
@@ -865,7 +1042,7 @@ export default function SettingsPage() {
                   </Card>
                 </Grid>
 
-                <Grid item xs={12} sm={4}>
+                <Grid item xs={12} sm={6} md={3}>
                   <Card elevation={0} sx={{ border: `1px solid ${tokens.neutral.border}`, borderRadius: 2 }}>
                     <CardContent>
                       <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
@@ -881,7 +1058,7 @@ export default function SettingsPage() {
                   </Card>
                 </Grid>
 
-                <Grid item xs={12} sm={4}>
+                <Grid item xs={12} sm={6} md={3}>
                   <Card elevation={0} sx={{ border: `1px solid ${tokens.neutral.border}`, borderRadius: 2 }}>
                     <CardContent>
                       <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
@@ -893,6 +1070,33 @@ export default function SettingsPage() {
                       <Typography variant="caption" color="text.secondary">
                         {health.dailyCap.sentToday} of {health.dailyCap.weddingCap} used today
                       </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+                <Grid item xs={12} sm={6} md={3}>
+                  <Card elevation={0} sx={{ border: `1px solid ${tokens.neutral.border}`, borderRadius: 2 }}>
+                    <CardContent>
+                      <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+                        WhatsApp Business API
+                      </Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 700, mt: 0.5, color: tokens.neutral.textPrimary }}>
+                        {health.whatsappApi ? health.whatsappApi.label : "Not enabled (coming soon)"}
+                      </Typography>
+                      <Box sx={{ mt: 1 }}>
+                        <Chip
+                          label="Coming soon"
+                          size="small"
+                          variant="outlined"
+                          sx={{
+                            color: tokens.neutral.textSecondary,
+                            borderColor: tokens.neutral.border,
+                            fontWeight: 600,
+                            fontSize: "0.75rem",
+                            height: 22,
+                          }}
+                        />
+                      </Box>
                     </CardContent>
                   </Card>
                 </Grid>

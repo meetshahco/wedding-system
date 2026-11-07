@@ -1,5 +1,6 @@
 import { prisma } from "./prisma";
 import { getSendingMethod, checkDailyCaps, getWeddingDailyCap } from "./sending-settings";
+import { isWhatsAppApiEnabled } from "./features";
 
 export interface EventHeadcount {
   id: string;
@@ -511,6 +512,10 @@ export interface HealthCheckResult {
     remaining: number;
     status: "ok" | "capped";
   };
+  whatsappApi: {
+    status: "ok" | "not_enabled";
+    label: string;
+  };
   details: string[];
 }
 
@@ -591,6 +596,16 @@ export async function getHealthCheck(weddingId?: string): Promise<HealthCheckRes
     overallStatus = "DEGRADED";
   }
 
+  const apiActive = isWhatsAppApiEnabled();
+  const whatsappApi = {
+    status: apiActive ? ("ok" as const) : ("not_enabled" as const),
+    label: apiActive ? "Active & Configured" : "Not enabled (coming soon)",
+  };
+
+  if (!apiActive) {
+    details.push("WhatsApp Business API is not enabled (manual family senders active in v1).");
+  }
+
   return {
     status: overallStatus,
     timestamp: new Date().toISOString(),
@@ -610,6 +625,7 @@ export async function getHealthCheck(weddingId?: string): Promise<HealthCheckRes
       remaining,
       status: capStatus,
     },
+    whatsappApi,
     details,
   };
 }

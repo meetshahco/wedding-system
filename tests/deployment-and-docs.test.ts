@@ -7,7 +7,7 @@ import { GET, POST } from "@/app/api/cron/tick/route";
 describe("Phase 13: Deployment, Documentation & Configuration Integrity", () => {
   const rootDir = process.cwd();
 
-  it("verifies vercel.json is valid and configures /api/cron/tick once-daily schedule (0 3 * * *) for Hobby plan", () => {
+  it("verifies vercel.json is valid JSON with $schema and no crons block for Hobby plan deployment", () => {
     const vercelJsonPath = path.join(rootDir, "vercel.json");
     expect(fs.existsSync(vercelJsonPath)).toBe(true);
 
@@ -15,25 +15,12 @@ describe("Phase 13: Deployment, Documentation & Configuration Integrity", () => 
     const parsed = JSON.parse(content);
 
     expect(parsed.$schema).toBe("https://openapi.vercel.sh/vercel.json");
-    expect(Array.isArray(parsed.crons)).toBe(true);
-    expect(parsed.crons.length).toBeGreaterThanOrEqual(1);
-
-    const cronTick = parsed.crons.find((c: { path: string }) => c.path === "/api/cron/tick");
-    expect(cronTick).toBeDefined();
-    expect(cronTick.schedule).toBe("0 3 * * *");
+    expect(parsed.crons).toBeUndefined();
   });
 
-  it("verifies .github/workflows/tick.yml exists and configures 5-minute schedule with repository secrets", () => {
+  it("verifies no automated cron dependency in github workflows (tick.yml removed)", () => {
     const workflowPath = path.join(rootDir, ".github/workflows/tick.yml");
-    expect(fs.existsSync(workflowPath)).toBe(true);
-
-    const content = fs.readFileSync(workflowPath, "utf-8");
-    expect(content).toContain("*/5 * * * *");
-    expect(content).toContain("workflow_dispatch");
-    expect(content).toContain("ubuntu-latest");
-    expect(content).toContain("secrets.APP_URL");
-    expect(content).toContain("secrets.CRON_SECRET");
-    expect(content).toContain("/api/cron/tick");
+    expect(fs.existsSync(workflowPath)).toBe(false);
   });
 
   it("verifies /api/cron/tick route security: constant-time comparison, requires CRON_SECRET, rejects unauthenticated with 401", async () => {

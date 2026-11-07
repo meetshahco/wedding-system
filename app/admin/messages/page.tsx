@@ -602,26 +602,58 @@ export default function MessagesAndRemindersPage() {
             <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
               Configured WhatsApp Templates ({templates.length})
             </Typography>
-            <Button
-              variant="contained"
-              size="small"
-              onClick={() => {
-                setEditingTemplateId(null);
-                setTemplateKey("");
-                setTemplateLanguage("en");
-                setTemplateCategory("Utility");
-                setTemplateBody("");
-                setTemplateModalOpen(true);
-              }}
-              startIcon={<Add />}
-              sx={{
-                bgcolor: tokens.primary.main,
-                color: tokens.neutral.white,
-                "&:hover": { bgcolor: tokens.primary.dark },
-              }}
-            >
-              Add Template
-            </Button>
+            <Box sx={{ display: "flex", gap: 1.5, alignItems: "center" }}>
+              <Tooltip title="Direct sync with Meta WhatsApp Business Account for template approvals is coming soon. In v1 manual mode, message templates render directly for family senders.">
+                <span>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    disabled
+                    startIcon={<Refresh />}
+                    sx={{
+                      borderColor: tokens.neutral.border,
+                      color: tokens.neutral.textSecondary,
+                      textTransform: "none",
+                      minHeight: 36,
+                    }}
+                  >
+                    Sync with Meta
+                  </Button>
+                </span>
+              </Tooltip>
+              <Chip
+                label="Coming soon"
+                size="small"
+                variant="outlined"
+                sx={{
+                  color: tokens.neutral.textSecondary,
+                  borderColor: tokens.neutral.border,
+                  fontWeight: 600,
+                  fontSize: "0.75rem",
+                  height: 22,
+                }}
+              />
+              <Button
+                variant="contained"
+                size="small"
+                onClick={() => {
+                  setEditingTemplateId(null);
+                  setTemplateKey("");
+                  setTemplateLanguage("en");
+                  setTemplateCategory("Utility");
+                  setTemplateBody("");
+                  setTemplateModalOpen(true);
+                }}
+                startIcon={<Add />}
+                sx={{
+                  bgcolor: tokens.primary.main,
+                  color: tokens.neutral.white,
+                  "&:hover": { bgcolor: tokens.primary.dark },
+                }}
+              >
+                Add Template
+              </Button>
+            </Box>
           </Box>
 
           <Grid container spacing={2}>
