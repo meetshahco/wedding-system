@@ -30,6 +30,8 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       data: {
         accessToken: newAccessToken,
         revokedAt: null, // Clear revocation on regeneration
+        failedPinAttempts: 0,
+        lockedUntil: null,
       },
     });
 

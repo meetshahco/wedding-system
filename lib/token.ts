@@ -19,7 +19,7 @@ export async function generateUniqueToken(): Promise<string> {
  */
 export async function generateUniqueCode(weddingId?: string): Promise<string> {
   for (let i = 0; i < 1000; i++) {
-    const code = String(Math.floor(Math.random() * 9000) + 1000);
+    const code = String(crypto.randomInt(1000, 10000));
     const existing = await prisma.guest.findFirst({
       where: {
         code,
@@ -39,5 +39,5 @@ export function makeRawToken(): string {
 }
 
 export function makeRawCode(): string {
-  return String(Math.floor(Math.random() * 9000) + 1000);
+  return String(crypto.randomInt(1000, 10000));
 }

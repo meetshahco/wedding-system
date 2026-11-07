@@ -46,30 +46,24 @@ async function main() {
 
   console.log(`✅  Wedding tenant created: ${wedding.coupleName1} & ${wedding.coupleName2} (${wedding.slug})`);
 
-  // 2. Users (OWNER, MANAGER, VIEWER)
-  const defaultPassword = process.env.ADMIN_PASSWORD || "changeme";
-  const defaultPasswordHash = hashPassword(defaultPassword);
+  // 2. Initial Owner from Environment Variables
+  const ownerEmail = (process.env.OWNER_EMAIL || "owner@weddings.test").toLowerCase().trim();
+  const rawOwnerPassword = process.env.OWNER_PASSWORD || crypto.randomBytes(9).toString("base64url");
+  const ownerPasswordHash = hashPassword(rawOwnerPassword);
 
   const owner = await prisma.user.upsert({
-    where: { email: "owner@weddings.test" },
-    update: { passwordHash: defaultPasswordHash },
-    create: {
-      email: "owner@weddings.test",
-      name: "Studio Owner",
-      passwordHash: defaultPasswordHash,
+    where: { email: ownerEmail },
+    update: {
+      passwordHash: ownerPasswordHash,
+      mustChangePassword: true,
       globalRole: "OWNER",
-      isActive: true,
     },
-  });
-
-  const manager = await prisma.user.upsert({
-    where: { email: "manager@weddings.test" },
-    update: { passwordHash: defaultPasswordHash },
     create: {
-      email: "manager@weddings.test",
-      name: "Wedding Manager",
-      passwordHash: defaultPasswordHash,
-      globalRole: "MANAGER",
+      email: ownerEmail,
+      name: "Studio Owner",
+      passwordHash: ownerPasswordHash,
+      globalRole: "OWNER",
+      mustChangePassword: true,
       isActive: true,
       weddingAccess: {
         create: {
@@ -80,25 +74,10 @@ async function main() {
     },
   });
 
-  await prisma.user.upsert({
-    where: { email: "viewer@weddings.test" },
-    update: { passwordHash: defaultPasswordHash },
-    create: {
-      email: "viewer@weddings.test",
-      name: "Family Viewer",
-      passwordHash: defaultPasswordHash,
-      globalRole: "USER",
-      isActive: true,
-      weddingAccess: {
-        create: {
-          weddingId: wedding.id,
-          role: "VIEWER",
-        },
-      },
-    },
-  });
-
-  console.log(`✅  Users seeded (owner: ${owner.email}, manager: ${manager.email})`);
+  console.log(`✅  Owner seeded: ${owner.email}`);
+  if (!process.env.OWNER_PASSWORD) {
+    console.log(`🔑  Temporary owner password: ${rawOwnerPassword} (forced change on first login)`);
+  }
 
   // 3. Events (scoped to wedding)
   const existingEvents = await prisma.event.findMany({ where: { weddingId: wedding.id } });

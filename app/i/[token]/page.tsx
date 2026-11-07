@@ -18,7 +18,6 @@ import {
   Map,
   AccessTime,
   LocationOn,
-  CheckCircleOutline,
   SearchOff,
 } from "@mui/icons-material";
 import Link from "next/link";
@@ -131,6 +130,18 @@ export default async function InvitePage({ params }: PageProps) {
     day: "numeric",
   });
 
+  // Determine greeting based on wedding's forwardGreetingRule setting
+  const greetingRule = wedding.forwardGreetingRule || "FIRST_NAME";
+  let greeting = "Welcome,";
+  if (greetingRule === "FIRST_NAME") {
+    const firstName = guest.name.trim().split(/\s+/)[0];
+    greeting = `Dear ${firstName},`;
+  } else if (greetingRule === "FAMILY") {
+    greeting = `Dear ${guest.name},`;
+  } else {
+    greeting = "Welcome,";
+  }
+
   return (
     <Box
       sx={{
@@ -210,34 +221,17 @@ export default async function InvitePage({ params }: PageProps) {
             mb: 3,
           }}
         >
-          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1 }}>
+          <Box sx={{ mb: 1 }}>
             <Typography variant="h6" sx={{ fontWeight: 700 }}>
-              Dear {guest.name},
+              {greeting}
             </Typography>
-            {accessLevel && (
-              <Chip
-                label={accessLevel.name}
-                size="small"
-                variant="outlined"
-                sx={{ fontWeight: 600 }}
-              />
-            )}
           </Box>
 
-          <Typography variant="body1" sx={{ color: tokens.neutral.textSecondary, lineHeight: 1.6, mb: 2 }}>
+          <Typography variant="body1" sx={{ color: tokens.neutral.textSecondary, lineHeight: 1.6 }}>
             {guest.pax > 1
               ? `We joyfully invite you and your family to join us in celebrating our marriage. We have reserved ${guest.pax} seats in your honour.`
               : "We joyfully invite you to celebrate our wedding. We have reserved a seat in your honour."}
           </Typography>
-
-          <Divider sx={{ my: 1.5 }} />
-
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <CheckCircleOutline fontSize="small" sx={{ color: tokens.status.success }} />
-            <Typography variant="caption" sx={{ color: tokens.neutral.textSecondary }}>
-              Invitation code: <strong>{guest.code}</strong>
-            </Typography>
-          </Box>
         </Paper>
 
         {/* Schedule & Events Section */}

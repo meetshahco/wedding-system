@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { ManualLinkProvider } from "@/lib/providers/manual-link-provider";
 import { resolveTemplateForGuest, DEFAULT_TEMPLATES } from "@/lib/template-renderer";
 import { getInviteUrl } from "@/lib/url-builder";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 interface RouteParams {
   params: Promise<{ accessToken: string }>;
@@ -37,6 +38,19 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
       );
     }
 
+    // Check if sender is locked out due to previous failed PIN attempts
+    if (sender.lockedUntil && sender.lockedUntil > new Date()) {
+      const remainingSeconds = Math.ceil((sender.lockedUntil.getTime() - Date.now()) / 1000);
+      return NextResponse.json(
+        {
+          error: `Sender portal is temporarily locked due to repeated incorrect PIN attempts. Please try again in ${remainingSeconds} seconds.`,
+          locked: true,
+          lockedUntil: sender.lockedUntil,
+        },
+        { status: 423 }
+      );
+    }
+
     // PIN check if configured on sender
     if (sender.pin) {
       const pinHeader = req.headers.get("x-sender-pin");
@@ -50,11 +64,72 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
         );
       }
 
-      if (enteredPin !== sender.pin) {
+      // Shared DB rate limiting: 5 PIN attempts per 15 minutes per IP + Sender
+      const clientIp =
+        req.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
+        req.headers.get("x-real-ip") ||
+        "unknown";
+      const rateLimitKey = `${sender.id}:${clientIp}`;
+
+      const { allowed, resetAt } = await checkRateLimit(
+        rateLimitKey,
+        "sender_pin",
+        5,
+        15 * 60 * 1000
+      );
+
+      if (!allowed) {
         return NextResponse.json(
-          { error: "Incorrect PIN. Please try again.", pinRequired: true },
+          {
+            error: `Too many PIN attempts. Please try again after ${resetAt.toLocaleTimeString()}.`,
+            rateLimited: true,
+          },
+          { status: 429 }
+        );
+      }
+
+      if (enteredPin !== sender.pin) {
+        const attempts = (sender.failedPinAttempts || 0) + 1;
+        const willLock = attempts >= 5;
+        const lockDuration = 15 * 60 * 1000;
+        const lockedUntil = willLock ? new Date(Date.now() + lockDuration) : null;
+
+        await prisma.sender.update({
+          where: { id: sender.id },
+          data: {
+            failedPinAttempts: attempts,
+            lockedUntil,
+          },
+        });
+
+        if (willLock) {
+          return NextResponse.json(
+            {
+              error: "Sender portal locked for 15 minutes due to 5 consecutive failed PIN attempts.",
+              locked: true,
+            },
+            { status: 423 }
+          );
+        }
+
+        return NextResponse.json(
+          {
+            error: `Incorrect PIN. ${Math.max(0, 5 - attempts)} attempt(s) remaining before lockout.`,
+            pinRequired: true,
+          },
           { status: 401 }
         );
+      }
+
+      // PIN is valid: reset failed attempts and lockout
+      if (sender.failedPinAttempts > 0 || sender.lockedUntil) {
+        await prisma.sender.update({
+          where: { id: sender.id },
+          data: {
+            failedPinAttempts: 0,
+            lockedUntil: null,
+          },
+        });
       }
     }
 

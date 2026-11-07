@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { LoginSchema } from "@/lib/zod-schemas";
 import { checkRateLimit } from "@/lib/rate-limit";
-import { verifyPassword } from "@/lib/crypto-passwords";
+import { verifyPassword, hashPassword, needsRehash } from "@/lib/crypto-passwords";
 import { logAuditEvent } from "@/lib/audit";
 
 function getClientIp(req: NextRequest): string {
@@ -72,6 +72,15 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Automatic rehash to OWASP 210,000 iterations if stored with older scheme
+  if (needsRehash(user.passwordHash)) {
+    const upgradedHash = hashPassword(password);
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { passwordHash: upgradedHash },
+    });
+  }
+
   // Resolve default active wedding
   let activeWeddingId: string | undefined = undefined;
   if (user.weddingAccess.length > 0) {
@@ -92,6 +101,7 @@ export async function POST(req: NextRequest) {
   session.name = user.name;
   session.globalRole = user.globalRole;
   session.activeWeddingId = activeWeddingId;
+  session.mustChangePassword = user.mustChangePassword;
   session.isLoggedIn = true;
   await session.save();
 
@@ -106,6 +116,7 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({
     ok: true,
+    mustChangePassword: user.mustChangePassword,
     user: {
       id: user.id,
       email: user.email,

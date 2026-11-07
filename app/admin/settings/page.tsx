@@ -30,6 +30,10 @@ import {
   TableRow,
   IconButton,
   Tooltip,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  FormLabel,
 } from "@mui/material";
 import {
   Save,
@@ -73,6 +77,7 @@ export default function SettingsPage() {
   const [coupleName2, setCoupleName2] = useState("");
   const [weddingDate, setWeddingDate] = useState("");
   const [accentColor, setAccentColor] = useState(tokens.primary.main);
+  const [forwardGreetingRule, setForwardGreetingRule] = useState<"FIRST_NAME" | "FAMILY" | "NONE">("FIRST_NAME");
   const [sendingMethod, setSendingMethod] = useState<"mock" | "whatsapp_cloud" | "manual">("manual");
   const [dailyCap, setDailyCap] = useState(250);
   const [enableWhatsAppApi, setEnableWhatsAppApi] = useState(false);
@@ -111,6 +116,7 @@ export default function SettingsPage() {
           data.wedding.weddingDate ? new Date(data.wedding.weddingDate).toISOString().split("T")[0] : ""
         );
         setAccentColor(data.wedding.accentColor || tokens.primary.main);
+        setForwardGreetingRule(data.wedding.forwardGreetingRule || "FIRST_NAME");
         setSendingMethod(data.sendingMethod || "manual");
         setDailyCap(data.dailyCap || 250);
         setChecklist(data.checklist);
@@ -157,6 +163,7 @@ export default function SettingsPage() {
           coupleName2,
           weddingDate,
           accentColor,
+          forwardGreetingRule,
           sendingMethod,
           dailyCap,
         }),
@@ -375,6 +382,65 @@ export default function SettingsPage() {
                   size="small"
                   helperText="Accent override for guest portal (defaults to theme primary)"
                 />
+              </Grid>
+              <Grid item xs={12}>
+                <FormControl component="fieldset" sx={{ mt: 1 }}>
+                  <FormLabel component="legend" sx={{ fontWeight: 600, fontSize: "0.875rem", color: tokens.neutral.textPrimary, mb: 1 }}>
+                    Forwarded Invite Greeting Rule
+                  </FormLabel>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+                    Controls how the guest is greeted when opening an invitation link. If a guest forwards their personal link to someone else, this prevents exposing full family greetings or internal details.
+                  </Typography>
+                  <RadioGroup
+                    value={forwardGreetingRule}
+                    onChange={(e) => setForwardGreetingRule(e.target.value as "FIRST_NAME" | "FAMILY" | "NONE")}
+                  >
+                    <FormControlLabel
+                      value="FIRST_NAME"
+                      control={<Radio size="small" />}
+                      label={
+                        <Box>
+                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                            First Name Only (Recommended)
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            Displays &quot;Dear [First Name]&quot; (e.g. &quot;Dear Priya&quot;).
+                          </Typography>
+                        </Box>
+                      }
+                      sx={{ mb: 1 }}
+                    />
+                    <FormControlLabel
+                      value="FAMILY"
+                      control={<Radio size="small" />}
+                      label={
+                        <Box>
+                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                            Full Guest / Family Name
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            Displays the full name as entered on the guest list (e.g. &quot;Dear Sharma Family&quot;).
+                          </Typography>
+                        </Box>
+                      }
+                      sx={{ mb: 1 }}
+                    />
+                    <FormControlLabel
+                      value="NONE"
+                      control={<Radio size="small" />}
+                      label={
+                        <Box>
+                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                            Generic Greeting
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            Displays &quot;Welcome&quot; or &quot;Dear Guest&quot; without any personal name.
+                          </Typography>
+                        </Box>
+                      }
+                    />
+                  </RadioGroup>
+                </FormControl>
               </Grid>
             </Grid>
 

@@ -8,17 +8,31 @@ export interface SessionData {
   name: string;
   globalRole: "OWNER" | "MANAGER" | "USER";
   activeWeddingId?: string;
+  mustChangePassword?: boolean;
   isLoggedIn: boolean;
 }
 
-const SESSION_OPTIONS = {
-  password: process.env.SESSION_SECRET ?? "fallback-dev-secret-change-in-prod-at-least-32-chars",
+export function getSessionPassword(): string {
+  if (process.env.SESSION_SECRET) {
+    return process.env.SESSION_SECRET;
+  }
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("CRITICAL SECURITY CONFIGURATION: SESSION_SECRET environment variable is missing in production.");
+  }
+  return "dev-only-fallback-secret-at-least-32-chars-long";
+}
+
+export const SESSION_OPTIONS = {
+  get password() {
+    return getSessionPassword();
+  },
   cookieName: "wedding_admin_session",
   cookieOptions: {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax" as const,
     maxAge: 60 * 60 * 24 * 7, // 7 days
+    path: "/",
   },
 };
 

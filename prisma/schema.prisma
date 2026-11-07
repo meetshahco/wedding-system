@@ -26,14 +26,15 @@ enum WeddingRole {
 }
 
 model User {
-  id           String      @id @default(cuid())
-  email        String      @unique
-  name         String
-  passwordHash String?     // null if invited but hasn't set password yet
-  globalRole   GlobalRole  @default(USER)
-  isActive     Boolean     @default(true)
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  id                 String      @id @default(cuid())
+  email              String      @unique
+  name               String
+  passwordHash       String?     // null if invited but hasn't set password yet
+  globalRole         GlobalRole  @default(USER)
+  isActive           Boolean     @default(true)
+  mustChangePassword Boolean     @default(false)
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
 
   weddingAccess WeddingAccess[]
   invitesSent   UserInvite[]    @relation("InvitedBy")
@@ -102,16 +103,23 @@ model AuditLog {
 // Wedding (Tenant)
 // ---------------------------------------------------------------------------
 
+enum GreetingRule {
+  FIRST_NAME
+  FAMILY
+  NONE
+}
+
 model Wedding {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  coupleName1 String
-  coupleName2 String
-  weddingDate DateTime
-  accentColor String   @default("#111111")
-  archived    Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                  String       @id @default(cuid())
+  slug                String       @unique
+  coupleName1         String
+  coupleName2         String
+  weddingDate         DateTime
+  accentColor         String       @default("#111111")
+  forwardGreetingRule GreetingRule @default(FIRST_NAME)
+  archived            Boolean      @default(false)
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
 
   weddingAccess    WeddingAccess[]
   events           Event[]
@@ -238,18 +246,20 @@ model Guest {
 // ---------------------------------------------------------------------------
 
 model Sender {
-  id              String    @id @default(cuid())
-  wedding         Wedding   @relation(fields: [weddingId], references: [id], onDelete: Cascade)
-  weddingId       String
-  name            String
-  phone           String?
-  accessToken     String    @unique
-  pin             String?   // optional 4-digit PIN for access
-  expiresAt       DateTime?
-  revokedAt       DateTime?
-  messageOverride String?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id                String    @id @default(cuid())
+  wedding           Wedding   @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  weddingId         String
+  name              String
+  phone             String?
+  accessToken       String    @unique
+  pin               String?   // optional 4-digit PIN for access
+  failedPinAttempts Int       @default(0)
+  lockedUntil       DateTime?
+  expiresAt         DateTime?
+  revokedAt         DateTime?
+  messageOverride   String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
   guests          Guest[]
 

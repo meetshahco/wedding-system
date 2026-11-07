@@ -4,8 +4,20 @@ import { getIronSession } from "iron-session";
 import type { SessionData } from "@/lib/auth";
 import { resolveHost, getPrimaryDomainRedirect } from "@/lib/domains/domain-resolver";
 
+function getMiddlewareSessionPassword(): string {
+  if (process.env.SESSION_SECRET) {
+    return process.env.SESSION_SECRET;
+  }
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("CRITICAL SECURITY ERROR: SESSION_SECRET is missing in production.");
+  }
+  return "dev-only-fallback-secret-at-least-32-chars-long";
+}
+
 const SESSION_OPTIONS = {
-  password: process.env.SESSION_SECRET ?? "fallback-dev-secret-change-in-prod-at-least-32-chars",
+  get password() {
+    return getMiddlewareSessionPassword();
+  },
   cookieName: "wedding_admin_session",
   cookieOptions: {
     httpOnly: true,
@@ -17,6 +29,24 @@ const SESSION_OPTIONS = {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const host = request.headers.get("host") || "";
+
+  // CSRF Protection: Verify Origin matches Host on state-changing requests to /api/admin/*
+  if (
+    pathname.startsWith("/api/admin") &&
+    ["POST", "PUT", "PATCH", "DELETE"].includes(request.method)
+  ) {
+    const origin = request.headers.get("origin");
+    if (origin) {
+      try {
+        const originHost = new URL(origin).host;
+        if (host && originHost !== host) {
+          return NextResponse.json({ error: "Forbidden: Cross-site request rejected" }, { status: 403 });
+        }
+      } catch {
+        return NextResponse.json({ error: "Forbidden: Invalid origin header" }, { status: 403 });
+      }
+    }
+  }
 
   // 1. Resolve host
   const resolution = await resolveHost(host);

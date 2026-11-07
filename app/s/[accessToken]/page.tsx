@@ -78,7 +78,7 @@ export default function SenderPage({
   const [data, setData] = useState<SenderData | null>(null);
   const [errorState, setErrorState] = useState<{
     message: string;
-    type: "notFound" | "expired" | "revoked" | "generic";
+    type: "notFound" | "expired" | "revoked" | "locked" | "generic";
   } | null>(null);
 
   // PIN state
@@ -110,6 +110,16 @@ export default function SenderPage({
       if (res.status === 401 && json.pinRequired) {
         setPinRequired(true);
         if (json.error) setPinError(json.error);
+        setLoading(false);
+        return;
+      }
+
+      if (res.status === 423 || res.status === 429) {
+        if (enteredPin) {
+          setPinError(json.error);
+        } else {
+          setErrorState({ message: json.error || "Sender portal locked.", type: "locked" });
+        }
         setLoading(false);
         return;
       }
@@ -213,6 +223,9 @@ export default function SenderPage({
           {errorState.type === "expired" && (
             <EventBusy sx={{ fontSize: 52, color: tokens.status.warning, mb: 1.5 }} />
           )}
+          {errorState.type === "locked" && (
+            <Lock sx={{ fontSize: 52, color: tokens.status.error, mb: 1.5 }} />
+          )}
           {errorState.type === "notFound" && (
             <SearchOff sx={{ fontSize: 52, color: tokens.neutral.textSecondary, mb: 1.5 }} />
           )}
@@ -225,6 +238,8 @@ export default function SenderPage({
               ? "Link Revoked"
               : errorState.type === "expired"
               ? "Link Expired"
+              : errorState.type === "locked"
+              ? "Access Temporarily Locked"
               : "Sender Portal Unavailable"}
           </Typography>
 

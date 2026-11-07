@@ -27,6 +27,7 @@ export async function GET(req: NextRequest) {
         coupleName2: wedding.coupleName2,
         weddingDate: wedding.weddingDate,
         accentColor: wedding.accentColor,
+        forwardGreetingRule: wedding.forwardGreetingRule,
       },
       sendingMethod,
       dailyCap,
@@ -53,6 +54,9 @@ export async function PUT(req: NextRequest) {
     const coupleName2 = typeof body.coupleName2 === "string" ? body.coupleName2.trim() : wedding.coupleName2;
     const weddingDate = body.weddingDate ? new Date(body.weddingDate) : wedding.weddingDate;
     const accentColor = typeof body.accentColor === "string" && body.accentColor.trim() ? body.accentColor.trim() : wedding.accentColor;
+    const forwardGreetingRule = ["FIRST_NAME", "FAMILY", "NONE"].includes(body.forwardGreetingRule)
+      ? body.forwardGreetingRule
+      : wedding.forwardGreetingRule;
     const sendingMethod = body.sendingMethod as SendingMethod | undefined;
     const dailyCap = typeof body.dailyCap === "number" || typeof body.dailyCap === "string" ? parseInt(String(body.dailyCap), 10) : undefined;
 
@@ -78,6 +82,7 @@ export async function PUT(req: NextRequest) {
         coupleName2,
         weddingDate,
         accentColor,
+        forwardGreetingRule,
       },
     });
 

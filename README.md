@@ -144,10 +144,13 @@ npm run dev
 npm run worker
 ```
 
-### 6. Default Admin Login
-Navigate to [http://localhost:3000/login](http://localhost:3000/login):
-- **Email:** `owner@weddings.test`
-- **Password:** `Password123!`
+### 6. Initial Owner Login
+Set `OWNER_EMAIL` and `OWNER_PASSWORD` in your `.env` or pass them during seed:
+```bash
+OWNER_EMAIL="owner@weddings.test" OWNER_PASSWORD="YourSecurePassword123" npm run db:seed
+```
+Navigate to [http://localhost:3000/login](http://localhost:3000/login).
+On first login, the owner will be prompted to set a permanent, secure password before accessing the system (`mustChangePassword: true`).
 
 ---
 
