@@ -23,6 +23,21 @@ describe("Phase 13: Deployment, Documentation & Configuration Integrity", () => 
     expect(fs.existsSync(workflowPath)).toBe(false);
   });
 
+  it("verifies CI workflow exists for push and pull request validation", () => {
+    const ciPath = path.join(rootDir, ".github/workflows/ci.yml");
+    expect(fs.existsSync(ciPath)).toBe(true);
+
+    const content = fs.readFileSync(ciPath, "utf-8");
+    expect(content).toContain("pull_request");
+    expect(content).toContain("npm run build");
+  });
+
+  it("verifies postinstall script in package.json runs prisma generate", () => {
+    const pkgPath = path.join(rootDir, "package.json");
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
+    expect(pkg.scripts.postinstall).toBe("prisma generate");
+  });
+
   it("verifies /api/cron/tick route security: constant-time comparison, requires CRON_SECRET, rejects unauthenticated with 401", async () => {
     const originalSecret = process.env.CRON_SECRET;
 

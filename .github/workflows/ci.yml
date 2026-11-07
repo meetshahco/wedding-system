@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  check:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: wedding_user
+          POSTGRES_PASSWORD: wedding_password
+          POSTGRES_DB: wedding_system
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: "postgresql://wedding_user:wedding_password@localhost:5432/wedding_system?schema=public"
+      SESSION_SECRET: "ci-test-session-secret-at-least-32-chars-long"
+      CRON_SECRET: "ci-test-cron-secret-at-least-32-chars"
+      PLATFORM_DOMAIN: "weddings.test"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prisma Generate
+        run: npx prisma generate
+
+      - name: Push Database Schema
+        run: npx prisma db push --skip-generate
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Run Tests
+        run: npx vitest run
+
+      - name: Production Build
+        run: npm run build
+
