@@ -670,12 +670,35 @@ function init3D(){
   sun.position.set(-2.5,4.5,3.2);
   scene.add(sun);
 
+  /* iPhone browsers turn the faint, nearly transparent edges of a canvas drawing into specks of random colour.
+     So every texture is read back, and wherever a pixel is faint its colour is replaced with the drawing's own
+     main colour, then the pixels are uploaded directly instead of as a canvas. */
+  function cleanTex(c){
+    var w=c.width,h=c.height,src;
+    try{src=c.getContext('2d').getImageData(0,0,w,h).data;}catch(e){return new THREE.CanvasTexture(c);}
+    var r=0,g=0,b=0,k=0,i;
+    for(i=0;i<src.length;i+=4)if(src[i+3]>=200){r+=src[i];g+=src[i+1];b+=src[i+2];k++;}
+    if(k){r=Math.round(r/k);g=Math.round(g/k);b=Math.round(b/k);}else{r=g=b=255;}
+    var out=new Uint8Array(w*h*4),y,x,si,di,a,t;
+    for(y=0;y<h;y++)for(x=0;x<w;x++){
+      si=(y*w+x)*4;di=((h-1-y)*w+x)*4;a=src[si+3];
+      if(a>=200){out[di]=src[si];out[di+1]=src[si+1];out[di+2]=src[si+2];}
+      else{t=a/200;out[di]=Math.round(r+(src[si]-r)*t*t);out[di+1]=Math.round(g+(src[si+1]-g)*t*t);out[di+2]=Math.round(b+(src[si+2]-b)*t*t);}
+      out[di+3]=a;
+    }
+    var tex=new THREE.DataTexture(out,w,h,THREE.RGBAFormat);
+    tex.magFilter=THREE.LinearFilter;
+    var pot=(w&(w-1))===0&&(h&(h-1))===0;
+    tex.generateMipmaps=pot;tex.minFilter=pot?THREE.LinearMipmapLinearFilter:THREE.LinearFilter;
+    tex.needsUpdate=true;
+    return tex;
+  }
   function radialTex(size,stops){
     var c=document.createElement('canvas');c.width=c.height=size;var g=c.getContext('2d');
     var gr=g.createRadialGradient(size/2,size/2,0,size/2,size/2,size/2);
     stops.forEach(function(s){gr.addColorStop(s[0],s[1]);});
     g.fillStyle=gr;g.fillRect(0,0,size,size);
-    return new THREE.CanvasTexture(c);
+    return cleanTex(c);
   }
 
   /* Petals: soft, slightly translucent shading written by hand so it stays cheap on phones */
@@ -784,7 +807,7 @@ function init3D(){
     g.fillStyle='#DAD88E';g.fillRect(0,0,64,64);
     g.fillStyle='#A8A75C';
     [[32,32],[32,18],[44,25],[44,39],[32,46],[20,39],[20,25],[32,8],[50,17],[53,34],[44,50],[20,50],[11,34],[14,17]].forEach(function(p){g.beginPath();g.arc(p[0],p[1],2.6,0,6.3);g.fill();});
-    return new THREE.CanvasTexture(c);
+    return cleanTex(c);
   }
   var podSide=new THREE.MeshLambertMaterial({color:0xCFCB80});
   var podMats=[podSide,new THREE.MeshLambertMaterial({map:podTex()}),podSide];
@@ -982,7 +1005,7 @@ function init3D(){
       for(var s=-1;s<=1;s+=2){var b=a+s*.1;g.beginPath();g.moveTo(128+cx*74,128+sy*74);g.lineTo(128+Math.cos(b)*124,128+Math.sin(b)*124);g.stroke();}
     }
     g.strokeStyle='rgba(70,115,95,.3)';g.lineWidth=4;g.beginPath();g.arc(128,128,125,0,Math.PI*2);g.stroke();
-    return new THREE.CanvasTexture(c);
+    return cleanTex(c);
   }
   var padGeo=new THREE.CircleGeometry(1,56);padGeo.rotateX(-Math.PI/2);
   (function(){
@@ -1007,7 +1030,7 @@ function init3D(){
     var gr=g.createRadialGradient(24,66,2,24,56,42);
     gr.addColorStop(0,'rgba(255,250,225,1)');gr.addColorStop(.3,'rgba(255,205,90,1)');gr.addColorStop(.75,'rgba(255,140,40,.9)');gr.addColorStop(1,'rgba(255,120,30,0)');
     g.fillStyle=gr;g.beginPath();g.moveTo(24,4);g.bezierCurveTo(44,40,42,74,24,90);g.bezierCurveTo(6,74,4,40,24,4);g.fill();
-    return new THREE.CanvasTexture(c);
+    return cleanTex(c);
   }
   var diyaGeo=new THREE.LatheGeometry([[0,0],[.07,0],[.115,.03],[.125,.058],[.108,.062],[.06,.032],[0,.03]].map(function(p){return new THREE.Vector2(p[0],p[1]);}),20);
   var diyaMat=new THREE.MeshPhongMaterial({color:0xC9973A,specular:0xFFE7A0,shininess:55,side:THREE.DoubleSide});
@@ -1101,7 +1124,7 @@ function init3D(){
     g.lineWidth=1.8;for(k=0;k<16;k++)petal(154,230,k*Math.PI/8-Math.PI/2,.2);
     for(k=0;k<8;k++){a=P(106,k*Math.PI/4-Math.PI/2);g.beginPath();g.arc(a[0],a[1],7,0,6.2832);g.stroke();}
     for(k=0;k<48;k++){a=P(240,k*Math.PI/24);g.beginPath();g.arc(a[0],a[1],1.8,0,6.2832);g.fill();}
-    return new THREE.CanvasTexture(c);
+    return cleanTex(c);
   }
   var mandalaMat=new THREE.SpriteMaterial({map:mandalaTex(),color:0xD9A441,transparent:true,opacity:0,depthWrite:false,fog:false});
   var mandala=new THREE.Sprite(mandalaMat);mandala.position.set(0,1.95,-2.2);mandala.scale.set(5.2,5.2,1);mandala.renderOrder=2;scene.add(mandala);
@@ -1120,7 +1143,7 @@ function init3D(){
     function dome(x,w,h){g.beginPath();g.moveTo(x-w/2,384);g.bezierCurveTo(x-w/2,384-h*1.2,x+w/2,384-h*1.2,x+w/2,384);g.fill();g.beginPath();g.arc(x,384-h*.93,5,0,6.2832);g.fill();}
     spire(512,170,290);spire(330,120,200);spire(694,120,200);spire(190,90,140);spire(834,90,140);
     dome(420,110,110);dome(604,110,110);dome(260,90,80);dome(764,90,80);
-    return new THREE.CanvasTexture(c);
+    return cleanTex(c);
   }
   var templeMat=new THREE.SpriteMaterial({map:templeTex(),color:0xE7C58A,transparent:true,opacity:0,depthWrite:false,fog:false});
   var temple=new THREE.Sprite(templeMat);temple.center.set(.5,0);temple.position.set(0,-.1,-14);temple.scale.set(17,6.4,1);temple.renderOrder=0;scene.add(temple);
@@ -1183,7 +1206,7 @@ function init3D(){
     g.translate(32,32);g.rotate(.6);
     var gr=g.createLinearGradient(0,-26,0,26);gr.addColorStop(0,'#FFFFFF');gr.addColorStop(1,'#E4E4E4');
     g.fillStyle=gr;g.beginPath();g.moveTo(0,-27);g.bezierCurveTo(19,-10,16,17,0,27);g.bezierCurveTo(-16,17,-19,-10,0,-27);g.fill();
-    return new THREE.CanvasTexture(c);
+    return cleanTex(c);
   }
   var MN=small?36:64,mg=new THREE.BufferGeometry(),mp=new Float32Array(MN*3),mv=new Float32Array(MN*2),i;
   for(i=0;i<MN;i++){mp[i*3]=(R()-.5)*14;mp[i*3+1]=R()*5;mp[i*3+2]=(R()-.5)*10-.5;mv[i*2]=R()*6.28;mv[i*2+1]=.14+R()*.2;}
