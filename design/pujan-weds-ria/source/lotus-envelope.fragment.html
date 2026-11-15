@@ -1240,6 +1240,7 @@ function init3D(){
   var ENV=(function(){
     var dom=document.getElementById('envelope'),tap=document.getElementById('seal'),hint=dom?dom.querySelector('.env-hint'):null;
     if(!dom||!tap)return null;
+    function beat(a,b,t){var x=clamp((t-a)/(b-a),0,1);return .5-.5*Math.cos(Math.PI*x);}
     function sstep(a,b,x){var t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t);}
     var es=new THREE.Scene(),FOV=26,TF=Math.tan(FOV/2*Math.PI/180);
     var ec=new THREE.PerspectiveCamera(FOV,1,.05,30);ec.position.set(0,0,1/TF);ec.lookAt(0,0,0);
@@ -1445,7 +1446,7 @@ function init3D(){
         ' col*=1.0-shd*0.3;',
         ' float d=length(vec2((uv.x-0.5)*uEA,uv.y-0.5));',
         ' col+=vec3(1.0,0.78,0.48)*smoothstep(uP,uP-0.2,d)*uSeam*0.22;',
-        ' col=mix(col,vec3(0.97,0.84,0.66)*(0.9+0.12*exp(-d*d*5.0)),uInner*0.85);',
+        ' col=mix(col,vec3(0.98,0.85,0.60)*(0.9+0.12*exp(-d*d*5.0)),uInner*0.9);',
         ' gl_FragColor=vec4(col,uFade);',
         '}'].join('\n');
       var SEAL=[
@@ -1473,9 +1474,9 @@ function init3D(){
         ' float d=length(vec2((uv.x-0.5)*uEA,uv.y-0.5));float m=smoothstep(uP,uP-0.16,d);',
         ' float lead=exp(-pow((d-(uP-0.06))/0.035,2.0))*step(0.02,uP)*(1.0-smoothstep(0.55,0.78,uP));',
         ' float sm=smoothstep(0.088,0.102,d);',
-        ' vec3 c=(vec3(1.0,0.96,0.84)*g.r*(m*0.85+lead*1.8)+vec3(1.0,0.72,0.38)*g.g*(m*0.55+lead*0.6))*uSeam*sm;',
-        ' c+=vec3(1.0,0.92,0.74)*g.b*0.9*uCrack;',
-        ' c+=vec3(1.0,0.84,0.58)*(exp(-d*d*60.0)*0.55+exp(-d*d*7.0)*0.16)*uBloom;',
+        ' vec3 c=(vec3(1.0,0.95,0.82)*g.r*(m*0.8+lead*1.5)+vec3(1.0,0.80,0.50)*g.g*(m*0.5+lead*0.55))*uSeam*sm;',
+        ' c+=vec3(1.0,0.90,0.66)*g.b*0.85*uCrack;',
+        ' c+=vec3(1.0,0.84,0.54)*(exp(-d*d*40.0)*0.3+exp(-d*d*6.0)*0.1)*uBloom;',
         ' gl_FragColor=vec4(c*uFade,1.0);',
         '}'].join('\n');
       var BACK=[
@@ -1542,9 +1543,11 @@ function init3D(){
     function applyPose(){
       if(!pivots.top)return;
       var t=st.run?st.t:(st.done?9:0);
-      var k=ease3(clamp((t-1.7)/2.0,0,1)),kb=ease3(clamp((t-1.78)/2.0,0,1)),ks=ease3(clamp((t-1.95)/1.9,0,1));
-      pivots.top.rotation.x=-2.5*k;pivots.bottom.rotation.x=2.5*kb;
-      var press=1-.045*Math.exp(-Math.pow((t-.14)/.12,2))*(st.run?1:0);
+      /* the petals unfold outward and drift apart, like a lotus opening, rather than flipping over */
+      var k=beat(2.2,4.6,t),kb=beat(2.28,4.68,t);
+      pivots.top.rotation.x=-.6*k;pivots.top.position.y=1+1.4*k;
+      pivots.bottom.rotation.x=.6*kb;pivots.bottom.position.y=-1-1.4*kb;
+      var press=1-.035*Math.sin(Math.PI*clamp(t/.5,0,1))*(st.run?1:0);
       halves.forEach(function(h){h.scale.set(press,press,1);});
     }
 
@@ -1586,16 +1589,25 @@ function init3D(){
         U.L.value.set(-.5+.12*Math.sin(tt*.31)+pX*.5,.62+.07*Math.sin(tt*.23)-pY*.3,.68);
         if(st.run){
           st.t+=dt;var t=st.t;
-          U.crack.value=clamp((t-.06)/.3,0,1)*(1-clamp((t-1.85)/.5,0,1));
-          U.seam.value=clamp((t-.15)/.45,0,1)*(1-ease3(clamp((t-1.62)/.42,0,1)));
-          U.p.value=ease3(clamp((t-.18)/1.35,0,1))*.8;
-          U.bloom.value=ease3(clamp((t-1.3)/.5,0,1))*(1-.8*ease3(clamp((t-2.2)/1.3,0,1)));
-          U.shade.value=1-clamp((t-1.7)/.7,0,1);
-          U.inner.value=ease3(clamp((t-1.75)/.9,0,1));
-          U.fade.value=1-ease3(clamp((t-2.7)/1.1,0,1));U.bfade.value=1-ease3(clamp((t-1.9)/.6,0,1));
-          if(!st.lit&&t>.55){st.lit=true;light();}
-          if(!st.opened&&t>2.35){st.opened=true;startOpen();}
-          if(t>4.1)finish();
+          /* 0.0  the seal is pressed
+             0.3  a hairline of light opens in the seal
+             0.6  the light travels out along both seams
+             1.7  it gathers into a warm glow at the centre
+             2.2  the petals unfold and drift apart, the inside fills with the same light
+             2.4  the pond behind begins to light
+             3.4  the envelope dissolves into the lit pond
+             3.9  the lotus begins to bloom  */
+          U.crack.value=beat(.3,1.1,t)*(1-beat(2.2,2.9,t));
+          U.seam.value=beat(.55,1.0,t)*(1-beat(2.3,3.1,t));
+          U.p.value=beat(.6,2.0,t)*.8;
+          U.bloom.value=beat(1.5,2.6,t)*(1-beat(2.7,3.8,t));
+          U.shade.value=1-beat(2.2,3.0,t);
+          U.inner.value=beat(2.1,3.4,t);
+          U.bfade.value=1-beat(2.4,3.2,t);
+          U.fade.value=1-beat(3.4,4.9,t);
+          if(!st.lit&&t>2.4){st.lit=true;light();}
+          if(!st.opened&&t>3.9){st.opened=true;startOpen();}
+          if(t>5)finish();
         }
         applyPose();
       },
@@ -1686,7 +1698,7 @@ function init3D(){
     var nm=document.querySelector('.hero .names');
     if(nm){var nr=nm.getBoundingClientRect();html.style.setProperty('--ty',Math.round(window.innerHeight*.6-(nr.top+nr.height/2))+'px');}
     if(reduce){state.openT=9;state.t0-=9000;html.classList.add('opened','named');html.classList.remove('locked');return;}
-    timers.push(setTimeout(function(){html.classList.add('flash');},1300/SLOW));
+    if(!ENV)timers.push(setTimeout(function(){html.classList.add('flash');},1300/SLOW));
     timers.push(setTimeout(function(){html.classList.add('named');},1500/SLOW));
     timers.push(setTimeout(function(){html.classList.add('opened');html.classList.remove('locked');},2700/SLOW));
   }
@@ -1729,7 +1741,7 @@ function init3D(){
         dust.P[dq*3]+=dustV[dq*3]*dt;dust.P[dq*3+1]=Math.max(.04,dust.P[dq*3+1]+dustV[dq*3+1]*dt);dust.P[dq*3+2]+=dustV[dq*3+2]*dt;
       }
       dust.geo.attributes.position.needsUpdate=true;
-      dust.mat.uniforms.uOpacity.value=clamp(1.15-dustT/3.4,0,1);
+      dust.mat.uniforms.uOpacity.value=clamp((ENV?.8:1.15)-dustT/3.4,0,1);
       if(dustT>3.9){dustT=-1;dust.mat.uniforms.uOpacity.value=0;}
     }
     /* the reveal: a ring of light travels outward and everything it passes comes alive */
@@ -1777,7 +1789,7 @@ function init3D(){
     sky.scale.set(SKYD*TAN*camera.aspect*1.02,SKYD*TAN*1.02,1);sky.position.set(-sxEff*2*SKYD*TAN*camera.aspect,cur.sy*2*SKYD*TAN,-SKYD);
 
     /* atmosphere follows the chapter */
-    var Lf=state.lit?ease3(clamp(((now-state.l0)/1000-.1)/1.9,0,1)):0;dimU.value=1-Lf;
+    var Lf=state.lit?.5-.5*Math.cos(Math.PI*clamp((now-state.l0)/1000/2.6,0,1)):0;dimU.value=1-Lf;
     tmpB.copy(DIMB).lerp(out.c,Lf);tmpT.copy(DIMT).lerp(out.top,Lf);
     bg.copy(tmpB);scene.fog.color.copy(tmpB);
     wu.uHorizon.value.copy(tmpB);wu.uShallow.value.copy(tmpB);
