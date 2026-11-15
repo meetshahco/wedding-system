@@ -19,6 +19,7 @@ The 3D scene uses three.js r128, loaded from cdnjs. Fonts come from Google Fonts
 | `site/siddhchakra-yantra.png` | The cleaned Siddhchakra yantra sketch used on the pujan card |
 | `source/lotus-invitation.fragment.html` | The same page in the form published as a Claude artifact (no doctype or head) |
 | `source/siddhchakra-yantra-original.png` | The yantra image as the client supplied it, 505 by 661 pixels |
+| `experiments/envelope/` | An experimental opening: a lotus envelope sealed in wax that opens in a line of light. Ready to host on its own, with its own copy of the yantra |
 | `previous-versions/` | Earlier saved versions, in case a direction needs to be recovered |
 
 ## How to host it
