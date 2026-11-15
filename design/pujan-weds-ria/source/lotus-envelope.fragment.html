@@ -1306,22 +1306,8 @@ function init3D(){
         g.beginPath();g.arc(0,0,r*.06,0,6.2832);g.fillStyle='rgba(0,0,0,.4)';g.fill();
         g.restore();
       }
-      /* top petal flap: a lotus crest with two buds and pond leaves */
-      leaf(X(4),Y(9),S*24,.45,1.1);leaf(X(97),Y(6),S*19,.45,2.3);
-      stem([[X(50),Y(46)],[X(44),Y(40)],[X(28),Y(39)],[X(24),Y(29)]],S*1.05,.6);bud(X(24),Y(29),-.45,S*9.5);
-      stem([[X(50),Y(46)],[X(56),Y(40)],[X(72),Y(39)],[X(76),Y(29)]],S*1.05,.6);bud(X(76),Y(29),.45,S*9.5);
-      stem([[X(50),Y(47)],[X(50.6),Y(42)],[X(49.4),Y(37)],[X(50),Y(31)]],S*1.25,.65);
-      flower(X(50),Y(31),S*25,1);
-      /* bottom petal flap: the pond, with leaves, buds and a half open flower */
-      leaf(X(12),Y(93),S*26,.45,4.4);leaf(X(90),Y(96),S*23,.45,5.0);leaf(X(52),Y(104),S*18,.4,4.7);
-      stem([[X(34),Y(99)],[X(31),Y(89)],[X(38),Y(81)],[X(33),Y(72)]],S*1,.58);bud(X(33),Y(72),-.25,S*8.5);
-      stem([[X(68),Y(99)],[X(72),Y(90)],[X(64),Y(83)],[X(68),Y(76)]],S*1,.58);bud(X(68),Y(76),.22,S*7.5);
-      stem([[X(51),Y(98)],[X(49),Y(90)],[X(52),Y(84)],[X(50),Y(77)]],S*1.2,.62);flower(X(50),Y(77),S*15,.72);
-      /* side flaps: a slender bud on its stem */
-      [[0,1],[100,-1]].forEach(function(sd){var x0=sd[0],dr=sd[1];
-        stem([[X(x0+dr*7),Y(70)],[X(x0+dr*11),Y(60)],[X(x0+dr*7),Y(52)],[X(x0+dr*11),Y(41)]],S*.85,.55);
-        bud(X(x0+dr*11),Y(41),dr*.25,S*6);leaf(X(x0+dr*5),Y(63),S*8,.42,dr>0?-.5:3.6);
-      });
+      /* a single small lotus, blind embossed on the top flap */
+      g.strokeStyle='#fff';g.lineWidth=S*.4;g.lineJoin='round';lotusIcon(g,X(50),Y(29),S*11);
     }
 
     function build(ea){
@@ -1333,9 +1319,9 @@ function init3D(){
 
       /* relief: soft raised artwork, engraved veins, raised border lines along each free edge */
       var raw=cv(CW,CH),veins=[];drawArt(raw.getContext('2d'),CW,CH,veins);
-      var hc=cv(CW,CH),hg=hc.getContext('2d');blurInto(hc,raw,S*1.5);hg.globalAlpha=.3;hg.drawImage(raw,0,0);hg.globalAlpha=1;
+      var hc=cv(CW,CH),hg=hc.getContext('2d');blurInto(hc,raw,S*.9);hg.globalAlpha=.35;hg.drawImage(raw,0,0);hg.globalAlpha=1;
       hg.globalCompositeOperation='destination-out';hg.strokeStyle='rgba(0,0,0,.42)';hg.lineWidth=S*.22;hg.lineCap='round';
-      veins.forEach(function(v){hg.save();hg.translate(v[0],v[1]);hg.rotate(v[2]);hg.beginPath();hg.moveTo(0,-v[3]*.14);hg.lineTo(0,-v[3]*.8);hg.stroke();hg.restore();});
+      veins.length=0;veins.forEach(function(v){hg.save();hg.translate(v[0],v[1]);hg.rotate(v[2]);hg.beginPath();hg.moveTo(0,-v[3]*.14);hg.lineTo(0,-v[3]*.8);hg.stroke();hg.restore();});
       hg.globalCompositeOperation='source-over';
       var fc=cv(CW,CH),fg=fc.getContext('2d');
       function px(p){return [p[0]/100*CW,p[1]/100*CH];}
@@ -1349,12 +1335,7 @@ function init3D(){
         return out;
       }
       function line(g,pts,w,style){g.beginPath();pts.forEach(function(p,i){i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]);});g.lineWidth=w;g.strokeStyle=style;g.lineJoin='round';g.lineCap='round';g.stroke();}
-      ['top','bottom','left','right'].forEach(function(k){
-        var gap=k==='top'||k==='bottom'?S*2.6:S*1.9;
-        line(hg,inset(k,gap),S*.5,'rgba(255,255,255,.95)');
-        line(fg,edge(k).map(px),S*.7,'#fff');
-        if(k==='top'||k==='bottom')line(fg,inset(k,gap),S*.26,'#fff');
-      });
+      ['top','bottom'].forEach(function(k){line(fg,edge(k).map(px),S*.42,'#fff');});
       /* under the seal the borders stop, so the flap tips stay clean when the seal breaks apart */
       [hg,fg].forEach(function(g){g.save();g.globalCompositeOperation='destination-out';g.beginPath();g.arc(CW/2,CH/2,RS/2*CH*1.02,0,6.2832);g.fill();g.restore();});
       var tPaper=pack(CW,CH,[alphaOf(hc),alphaOf(fc),null,null]);
@@ -1368,8 +1349,7 @@ function init3D(){
         else polys.forEach(function(poly){g.beginPath();poly.forEach(function(p,i){var x=p[0]/100*SW,y=p[1]/100*SH;i?g.lineTo(x,y):g.moveTo(x,y);});g.closePath();g.fill();});
         g.restore();return alphaOf(c);
       }
-      var tShadow=pack(SW,SH,[cast([outline('top')],0,SH*.006,SH*.016),cast([outline('bottom')],0,SH*.004,SH*.013),
-        cast([outline('left'),outline('right')],0,SH*.003,SH*.014),cast(null,0,SH*.012,SH*.03,true)]);
+      var tShadow=pack(SW,SH,[cast([outline('top')],0,SH*.007,SH*.02),cast([outline('bottom')],0,SH*.005,SH*.018),null,cast(null,0,SH*.012,SH*.028,true)]);
 
       /* where the light escapes: the visible part of every seam, and the crack across the seal */
       var GH=1024,GW=Math.round(GH*ea),pt=outline('top'),pb=outline('bottom');
@@ -1379,10 +1359,10 @@ function init3D(){
           if(hid){if(cur.length>1)out.push(cur);cur=[];}else cur.push([p[0]/100*GW,p[1]/100*GH]);});
         if(cur.length>1)out.push(cur);return out;
       }
-      var seams=[].concat(runs('top'),runs('bottom'),runs('left'),runs('right'));
+      var seams=[].concat(runs('top'),runs('bottom'));
       var core=cv(GW,GH),cg=core.getContext('2d'),wide=cv(GW,GH),wg=wide.getContext('2d');
       seams.forEach(function(r){line(cg,r,GH*.0019,'#fff');line(wg,r,GH*.004,'#fff');});
-      var halo=cv(GW,GH);blurInto(halo,wide,GH*.028);blurInto(halo,wide,GH*.075,.75);
+      var halo=cv(GW,GH);blurInto(halo,wide,GH*.016);blurInto(halo,wide,GH*.04,.55);
       var crack=cv(GW,GH),kg=crack.getContext('2d'),kw=cv(GW,GH),kwg=kw.getContext('2d'),jag=JAG.map(function(j){return [GW/2+j[0]*RS/2*GH,GH/2-j[1]*RS/2*GH];});
       line(kwg,jag,GH*.004,'#fff');blurInto(crack,kw,GH*.016);line(kg,jag,GH*.0013,'#fff');
       var tGlow=pack(GW,GH,[alphaOf(core),alphaOf(halo),alphaOf(crack),null]);
@@ -1403,11 +1383,10 @@ function init3D(){
 
       /* the wax seal: a pressed rim, a ring of beads, a lotus and the monogram leafed in gold */
       var N=512,sc=cv(N,N),sg=sc.getContext('2d');sg.strokeStyle='#fff';sg.fillStyle='#fff';sg.lineJoin='round';sg.lineCap='round';
-      sg.lineWidth=7;sg.beginPath();sg.arc(256,256,180,0,6.2832);sg.stroke();
-      for(i=0;i<40;i++){var aa=i/40*6.2832;sg.beginPath();sg.arc(256+Math.cos(aa)*161,256+Math.sin(aa)*161,3.4,0,6.2832);sg.fill();}
-      sg.lineWidth=4.5;lotusIcon(sg,256,182,46);
-      sg.font='400 168px "Pinyon Script","Snell Roundhand",cursive';sg.textAlign='center';sg.textBaseline='alphabetic';
-      sg.fillText('P',198,330);sg.fillText('R',322,334);sg.font='400 92px "Pinyon Script","Snell Roundhand",cursive';sg.fillText('&',262,312);
+      sg.lineWidth=4;sg.beginPath();sg.arc(256,256,176,0,6.2832);sg.stroke();
+      sg.lineWidth=5.5;lotusIcon(sg,256,248,92);
+      sg.font='italic 400 64px "Cormorant Garamond",Georgia,serif';sg.textAlign='center';sg.textBaseline='alphabetic';
+      sg.fillText('P  &  R',256,338);
       var sb=cv(N,N);blurInto(sb,sc,5);
       var rel=alphaOf(sb),gold=alphaOf(sc),sd=new Uint8Array(N*N*4),rn=mulberry(9);
       for(y=0;y<N;y++)for(x=0;x<N;x++){
@@ -1441,16 +1420,16 @@ function init3D(){
         ' float wrap=clamp((dot(N,L)+0.3)/1.3,0.0,1.0);',
         ' vec4 sh=texture2D(tShadow,uv);',
         ' float shd=max(max(sh.r*uSW.r,sh.g*uSW.g),max(sh.b*uSW.b,sh.a*uSW.a))*uShade;',
-        ' vec3 alb=mix(vec3(0.925,0.895,0.845),vec3(0.965,0.942,0.898),fr)*(0.975+0.05*nz.r);',
-        ' float lf=0.93+0.09*clamp(vWP.y*0.5+0.5,0.0,1.0);',
-        ' vec3 col=alb*mix(0.80+0.16*wrap,0.52+0.55*wrap,fr)*lf;',
+        ' vec3 alb=mix(vec3(0.955,0.935,0.895),vec3(0.985,0.968,0.932),fr)*(0.982+0.036*nz.r);',
+        ' float lf=0.97+0.04*clamp(vWP.y*0.5+0.5,0.0,1.0);',
+        ' vec3 col=alb*mix(0.84+0.12*wrap,0.74+0.30*wrap,fr)*lf;',
         ' col+=vec3(0.10,0.06,0.02)*uSeam*(1.0-fr);',
         ' col+=vec3(1.0,0.98,0.94)*pow(max(dot(N,Hv),0.0),22.0)*0.05;',
         ' float foil=pm.g*fr;float sp=pow(max(dot(N,Hv),0.0),60.0);',
         ' vec3 gold=vec3(0.76,0.58,0.29);',
         ' vec3 fc=gold*(0.38+0.6*wrap)+vec3(1.0,0.9,0.62)*sp*1.5+gold*0.22*pow(1.0-max(dot(N,V),0.0),2.0);',
         ' col=mix(col,fc,foil);',
-        ' col*=1.0-shd*0.4;',
+        ' col*=1.0-shd*0.26;',
         ' float d=length(vec2((uv.x-0.5)*uEA,uv.y-0.5));float m=smoothstep(uP,uP-0.16,d);',
         ' vec4 gw=texture2D(tGlow,uv);',
         ' col+=vec3(1.0,0.80,0.50)*(gw.g*0.5+gw.r*0.3)*m*uSeam*smoothstep(0.088,0.102,d);',
@@ -1462,8 +1441,8 @@ function init3D(){
         'void main(){',
         ' vec2 uv=vUv;float f=texture2D(tLiner,vec2(uv.x*uEA,uv.y)*4.4).r;vec4 nz=texture2D(tNoise,vec2(uv.x*uEA,uv.y)*5.0);',
         ' vec4 sh=texture2D(tShadow,uv);float shd=max(max(sh.r,sh.g),sh.b)*uShade;',
-        ' vec3 col=mix(vec3(0.86,0.71,0.66)*(0.97+0.05*nz.r),vec3(0.86,0.70,0.42),f*0.85)*0.88;',
-        ' col*=1.0-shd*0.55;',
+        ' vec3 col=vec3(0.935,0.910,0.862)*(0.982+0.036*nz.r)+0.0*f;',
+        ' col*=1.0-shd*0.3;',
         ' float d=length(vec2((uv.x-0.5)*uEA,uv.y-0.5));',
         ' col+=vec3(1.0,0.78,0.48)*smoothstep(uP,uP-0.2,d)*uSeam*0.22;',
         ' col=mix(col,vec3(0.97,0.84,0.66)*(0.9+0.12*exp(-d*d*5.0)),uInner*0.85);',
@@ -1479,7 +1458,7 @@ function init3D(){
         ' vec3 N=normalize(normalize(vN)-(normalize(vT)*hx+normalize(vB)*hy)*11.0);',
         ' vec3 L=normalize(uL);vec3 V=normalize(cameraPosition-vWP);vec3 Hv=normalize(L+V);',
         ' float wrap=clamp((dot(N,L)+0.4)/1.4,0.0,1.0);float nh=max(dot(N,Hv),0.0);',
-        ' vec3 alb=mix(vec3(0.86,0.66,0.62),vec3(0.64,0.38,0.35),smoothstep(0.3,0.85,s.r));',
+        ' vec3 alb=mix(vec3(0.90,0.74,0.70),vec3(0.72,0.50,0.46),smoothstep(0.3,0.85,s.r));',
         ' vec3 col=alb*(0.42+0.68*wrap)+vec3(1.0,0.86,0.82)*pow(nh,26.0)*0.16+vec3(1.0)*pow(nh,120.0)*0.5;',
         ' vec3 gold=vec3(0.82,0.64,0.34);',
         ' col=mix(col,gold*(0.4+0.6*wrap)+vec3(1.0,0.92,0.7)*pow(nh,46.0)*1.3,s.g*0.92);',
@@ -1503,9 +1482,9 @@ function init3D(){
         'uniform sampler2D tNoise;uniform float uFade;uniform float uEA;uniform float uAsp;varying vec2 vUv;',
         'void main(){',
         ' vec2 p=(vUv-0.5)*vec2(uAsp,1.0)*2.0;vec4 nz=texture2D(tNoise,vUv*vec2(uAsp,1.0)*3.0);',
-        ' vec3 c=mix(vec3(0.89,0.84,0.75),vec3(0.76,0.68,0.56),clamp(length(p*vec2(0.42,0.62)),0.0,1.0))*(0.97+0.05*nz.r);',
+        ' vec3 c=mix(vec3(0.95,0.93,0.89),vec3(0.89,0.86,0.80),clamp(length(p*vec2(0.42,0.62)),0.0,1.0))*(0.985+0.03*nz.r);',
         ' vec2 q=abs(p)-vec2(uEA,1.0);float sd=length(max(q,0.0))+min(max(q.x,q.y),0.0);',
-        ' c*=1.0-0.38*exp(-max(sd,0.0)*8.0);',
+        ' c*=1.0-0.16*exp(-max(sd,0.0)*7.0);',
         ' gl_FragColor=vec4(c,uFade);',
         '}'].join('\n');
 
@@ -1531,7 +1510,7 @@ function init3D(){
       var liner=new THREE.Mesh(new THREE.PlaneGeometry(2*ea,2),new THREE.ShaderMaterial({vertexShader:VS,fragmentShader:LINER,transparent:true,
         uniforms:{tLiner:{value:tLiner},tShadow:{value:tShadow},tNoise:{value:tNoise},uInner:U.inner,uFade:U.fade,uShade:U.shade,uEA:U.ea,uP:U.p,uSeam:U.seam}}));
       root.add(liner);
-      var P={top:[0,1,.014],bottom:[0,-1,.010],left:[-ea,0,.004],right:[ea,0,.006]};
+      var P={top:[0,1,.014],bottom:[0,-1,.008]};
       var W4={top:new THREE.Vector4(0,0,0,1),bottom:new THREE.Vector4(1,0,0,1),left:new THREE.Vector4(1,1,0,0),right:new THREE.Vector4(1,1,0,0)};
       Object.keys(P).forEach(function(k){
         var pv=new THREE.Group();pv.position.set(P[k][0],P[k][1],P[k][2]);
@@ -1564,7 +1543,7 @@ function init3D(){
       if(!pivots.top)return;
       var t=st.run?st.t:(st.done?9:0);
       var k=ease3(clamp((t-1.7)/2.0,0,1)),kb=ease3(clamp((t-1.78)/2.0,0,1)),ks=ease3(clamp((t-1.95)/1.9,0,1));
-      pivots.top.rotation.x=-2.5*k;pivots.bottom.rotation.x=2.5*kb;pivots.left.rotation.y=-2.3*ks;pivots.right.rotation.y=2.3*ks;
+      pivots.top.rotation.x=-2.5*k;pivots.bottom.rotation.x=2.5*kb;
       var press=1-.045*Math.exp(-Math.pow((t-.14)/.12,2))*(st.run?1:0);
       halves.forEach(function(h){h.scale.set(press,press,1);});
     }
@@ -1582,7 +1561,7 @@ function init3D(){
     }
     function markReady(){if(st.ready)return;st.ready=true;dom.classList.remove('env-wait');dom.classList.add('env-ready');}
 
-    var fp=(document.fonts&&document.fonts.load)?document.fonts.load('400 100px "Pinyon Script"'):Promise.resolve();
+    var fp=(document.fonts&&document.fonts.load)?document.fonts.load('italic 400 64px "Cormorant Garamond"'):Promise.resolve();
     Promise.race([fp,new Promise(function(r){setTimeout(r,1600);})]).then(function(){},function(){}).then(function(){
       fontsOk=true;if(EA>0){build(EA);root.children[0].scale.set(U.asp.value*1.06,1.06,1);markReady();}
     });
