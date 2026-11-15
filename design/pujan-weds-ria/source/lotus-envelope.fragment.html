@@ -1283,7 +1283,7 @@ function init3D(){
 
     /* ---- the blind embossed artwork: lotus flowers, buds and pond leaves ---- */
     function drawArt(g,CW,CH,veins){
-      var X=function(x){return x/100*CW;},Y=function(y){return y/100*CH;},S=CW/100;
+      var X=function(x){return x/100*CW;},Y=function(y){return y/100*CH;},S=Math.min(CW,CH*.62)/100;
       function petal(cx,cy,ang,L,w,lev){
         g.save();g.translate(cx,cy);g.rotate(ang);petalPath(g,L,w);
         g.globalCompositeOperation='destination-out';g.lineWidth=S*.85;g.strokeStyle='#000';g.stroke();
@@ -1314,7 +1314,7 @@ function init3D(){
       if(root){es.remove(root);root.traverse(function(o){if(o.geometry)o.geometry.dispose();});}
       tex.forEach(function(t){t.dispose();});tex=[];halves=[];
       builtEA=ea;U.ea.value=ea;
-      var CH=small?1800:2048,CW=Math.round(CH*ea),S=CW/100;
+      var CH=Math.round(Math.min(small?1800:2048,3000/Math.max(ea,.01))),CW=Math.round(CH*ea),S=Math.min(CW,CH*.62)/100;
       var X=function(x){return x/100*CW;},Y=function(y){return y/100*CH;};
 
       /* relief: soft raised artwork, engraved veins, raised border lines along each free edge */
@@ -1555,7 +1555,7 @@ function init3D(){
 
     function resize(Wd,Hd,asp){
       ec.aspect=asp;ec.updateProjectionMatrix();U.asp.value=asp;
-      EA=Math.min(asp,.62);layout(Wd,Hd);
+      EA=asp;layout(Wd,Hd);
       if(root){var b=root.children[0];if(b&&b.userData.back)b.scale.set(asp*1.06,1.06,1);}
       if(fontsOk&&Math.abs(EA-builtEA)>.02){build(EA);var b2=root.children[0];b2.scale.set(asp*1.06,1.06,1);markReady();}
     }
