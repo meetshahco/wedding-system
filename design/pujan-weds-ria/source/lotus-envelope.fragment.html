@@ -189,11 +189,14 @@ html.env-on,html.env-on body{overflow:hidden}
 .times dd{margin:0;font:500 clamp(17px,5vw,20px)/1.35 var(--serif);color:var(--leaf)}
 .after{font:italic 400 17px/1.4 var(--serif);color:var(--ink2);margin-top:.3em;text-wrap:balance}
 /* events with an outfit picture: one column, the picture full width */
-/* the outfit picture runs nearly edge to edge and melts into the paper, with no frame */
-.feature.outfit{background:none;width:calc(100% + 2*clamp(22px,4vw,48px) - 30px);margin-inline:calc(15px - clamp(22px,4vw,48px));justify-self:center}
-.feature.outfit img{border-radius:0;
-  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 93%,transparent 100%),linear-gradient(180deg,transparent 0,#000 9%,#000 91%,transparent 100%);
-  -webkit-mask-composite:source-in;mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 93%,transparent 100%),linear-gradient(180deg,transparent 0,#000 9%,#000 91%,transparent 100%);mask-composite:intersect}
+/* the outfit figures stand straight on the card: a warm glow behind them, petals drifting, and a gold ground line with a lotus */
+.feature.outfit{position:relative;isolation:isolate;padding:6% 3% 28px;
+  background:radial-gradient(58% 52% at 50% 56%,rgba(255,220,150,.34),rgba(255,220,150,0) 72%)}
+.feature.outfit::before{content:"";position:absolute;inset:0 0 18px;z-index:-1;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='170' viewBox='0 0 400 170' preserveAspectRatio='none'%3E%3Cg transform='translate%2816 36%29 rotate%28-30%29 scale%281%29'%3E%3Cpath d='M0 -6C3.6 -3 3.6 3 0 6C-3.6 3 -3.6 -3 0 -6Z' fill='%23F3B6C8' fill-opacity='.85'/%3E%3Cpath d='M0 -5V4' stroke='%23fff' stroke-opacity='.6' stroke-width='.5'/%3E%3C/g%3E%3Cg transform='translate%2852 128%29 rotate%2840%29 scale%280.8%29'%3E%3Cpath d='M0 -6C3.6 -3 3.6 3 0 6C-3.6 3 -3.6 -3 0 -6Z' fill='%23F7C9A4' fill-opacity='.85'/%3E%3Cpath d='M0 -5V4' stroke='%23fff' stroke-opacity='.6' stroke-width='.5'/%3E%3C/g%3E%3Cg transform='translate%2896 16%29 rotate%2815%29 scale%280.7%29'%3E%3Cpath d='M0 -6C3.6 -3 3.6 3 0 6C-3.6 3 -3.6 -3 0 -6Z' fill='%23F3B6C8' fill-opacity='.85'/%3E%3Cpath d='M0 -5V4' stroke='%23fff' stroke-opacity='.6' stroke-width='.5'/%3E%3C/g%3E%3Cg transform='translate%28304 20%29 rotate%28-20%29 scale%280.8%29'%3E%3Cpath d='M0 -6C3.6 -3 3.6 3 0 6C-3.6 3 -3.6 -3 0 -6Z' fill='%23F7C9A4' fill-opacity='.85'/%3E%3Cpath d='M0 -5V4' stroke='%23fff' stroke-opacity='.6' stroke-width='.5'/%3E%3C/g%3E%3Cg transform='translate%28352 104%29 rotate%2835%29 scale%281%29'%3E%3Cpath d='M0 -6C3.6 -3 3.6 3 0 6C-3.6 3 -3.6 -3 0 -6Z' fill='%23F3B6C8' fill-opacity='.85'/%3E%3Cpath d='M0 -5V4' stroke='%23fff' stroke-opacity='.6' stroke-width='.5'/%3E%3C/g%3E%3Cg transform='translate%28384 40%29 rotate%28-45%29 scale%280.7%29'%3E%3Cpath d='M0 -6C3.6 -3 3.6 3 0 6C-3.6 3 -3.6 -3 0 -6Z' fill='%23F3B6C8' fill-opacity='.85'/%3E%3Cpath d='M0 -5V4' stroke='%23fff' stroke-opacity='.6' stroke-width='.5'/%3E%3C/g%3E%3Cg transform='translate%28208 8%29 rotate%2810%29 scale%280.6%29'%3E%3Cpath d='M0 -6C3.6 -3 3.6 3 0 6C-3.6 3 -3.6 -3 0 -6Z' fill='%23F7C9A4' fill-opacity='.85'/%3E%3Cpath d='M0 -5V4' stroke='%23fff' stroke-opacity='.6' stroke-width='.5'/%3E%3C/g%3E%3Cg transform='translate%28256 148%29 rotate%28-15%29 scale%280.7%29'%3E%3Cpath d='M0 -6C3.6 -3 3.6 3 0 6C-3.6 3 -3.6 -3 0 -6Z' fill='%23F3B6C8' fill-opacity='.85'/%3E%3Cpath d='M0 -5V4' stroke='%23fff' stroke-opacity='.6' stroke-width='.5'/%3E%3C/g%3E%3Cg transform='translate%28144 152%29 rotate%2825%29 scale%280.6%29'%3E%3Cpath d='M0 -6C3.6 -3 3.6 3 0 6C-3.6 3 -3.6 -3 0 -6Z' fill='%23F7C9A4' fill-opacity='.85'/%3E%3Cpath d='M0 -5V4' stroke='%23fff' stroke-opacity='.6' stroke-width='.5'/%3E%3C/g%3E%3C/svg%3E") center/100% 100% no-repeat;opacity:.75}
+.feature.outfit::after{content:"";position:absolute;left:4%;right:4%;bottom:6px;height:24px;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='24' viewBox='0 0 60 24'%3E%3Crect x='0' y='0' width='60' height='24' fill='%23FFFDF9'/%3E%3Cg fill='%23FFF6E2' stroke='%23C9A65A' stroke-width='1.1' stroke-linejoin='round'%3E%3Cpath d='M30 4C26 9 26 15 30 19C34 15 34 9 30 4Z'/%3E%3Cpath d='M30 19C24 18 20 14 19 9C24 10 28 14 30 19Z'/%3E%3Cpath d='M30 19C36 18 40 14 41 9C36 10 32 14 30 19Z'/%3E%3Cpath d='M30 19C22 20 16 17 14 13C20 13 26 15 30 19Z'/%3E%3Cpath d='M30 19C38 20 44 17 46 13C40 13 34 15 30 19Z'/%3E%3C/g%3E%3C/svg%3E") center/60px 24px no-repeat,linear-gradient(90deg,rgba(201,166,90,0),var(--gold-line) 22%,var(--gold-line) 78%,rgba(201,166,90,0)) center/100% 1px no-repeat}
+.feature.outfit img{position:relative;filter:drop-shadow(0 10px 8px rgba(110,72,28,.16))}
+.feature.outfit img::after{content:none}
 .place b{font-weight:500;color:var(--ink)}
 .date{font:italic 400 21px/1.4 var(--serif);color:var(--ink2);margin-bottom:.2em}
 .ename{font-weight:400;margin-bottom:.2em}
@@ -480,25 +483,25 @@ var EVENTS=[
    fx:{sky:0xFCEFD2,top:0xFFFBF2,mist:[0xFFE6B0,0xFFF3D6],mo:.4,tp:.6,md:.75,fall:.2,rise:.8,spark:0xE8B04A,petal:0xFFFFFF,halo:0xFFDF9A,ho:.8,spd:.6},
    tint:['#FBF3DF','#F1DFB4','#8F6A22'],sketchShape:'arch',photoShape:'circle'},
   {id:'rang',name:'Rang and Rituals',style:'rang',crest:'rang',n:['#D98A00','#D9456B'],day:'Friday',date:'11 December 2026',time:'3:30 pm onwards',venue:'Rajhans Feriado',area:'Poolside',sketch:'venue-rajhans.webp',map:MAPS('Rajhans Feriado, Dandi Road, Kachhol','ChIJbYyRElK14TsRzGwVFPPO2eQ'),
-   outfit:{src:'outfit-rang_rituals.jpg',w:1280,h:714,alt:'Outfit ideas for Rang and Rituals'},
+   outfit:{src:'outfit-rang_rituals.webp',w:1167,h:613,alt:'Outfit ideas for Rang and Rituals'},
    fx:{sky:0xFFEDB5,top:0xFFDCE8,mist:[0xFFAEC9,0xFFDC70],mo:.5,fall:1,petal:0xF7B733,halo:0xFFD9A0,ho:.4,spd:1.5},
    tint:['#FFF1CC','#FBD98A','#B36B00'],sketchShape:'ogee',photoShape:'petal',
    dress:{title:'Marigold and sunshine',note:'Bright yellows and oranges that are happy to get a little colour on them.',
      swatches:[['#F5B921','Marigold'],['#F28C38','Tangerine'],['#FFE08A','Haldi'],['#FFFFFF','White']]}},
   {id:'mehandi',name:'Mehandi',style:'wave',crest:'paisley',n:['#4E6B1F','#4E6B1F'],day:'Saturday',date:'12 December 2026',time:'10:00 am onwards',venue:'OTLO',area:'Aambli ni Pol',sketch:'venue-ambli.webp',map:MAPS('Aambli ni Pol, Kachhol','ChIJZ7QU78q14TsRZwOaIPGklRc'),
-   outfit:{src:'outfit-mehendi.jpg',w:1280,h:714,alt:'Outfit ideas for the Mehendi'},
+   outfit:{src:'outfit-mehendi.webp',w:1167,h:627,alt:'Outfit ideas for the Mehendi'},
    fx:{sky:0xEAF4DC,top:0xD5EAC6,mist:[0xB7D98A,0xE6F2B4],mo:.55,fall:.8,petal:0x9CBF5E,halo:0xE8F5C8,ho:.4,spd:.8},
    tint:['#EEF5DC','#D3E3B0','#4E6B1F'],sketchShape:'pill',photoShape:'arch',
    dress:{title:'Henna greens and fuchsia',note:'Leafy greens with a pop of pink. Short or loose sleeves make the henna easier.',
      swatches:[['#6B8E23','Henna'],['#A9C46C','Pista'],['#D9368B','Fuchsia'],['#F6E7B4','Cream']]}},
   {id:'night',name:'Symphony Night',style:'foil',crest:'music',n:['#2B2F6B','#B8923A'],day:'Saturday',date:'12 December 2026',time:'5:30 pm onwards',venue:'The Lawn',area:'Aambli ni Pol',sketch:'venue-ambli.webp',map:MAPS('Aambli ni Pol, Kachhol','ChIJZ7QU78q14TsRZwOaIPGklRc'),
-   outfit:{src:'outfit-symphony_night.jpg',w:1280,h:714,alt:'Outfit ideas for Symphony Night'},
+   outfit:{src:'outfit-symphony_night.webp',w:1138,h:670,alt:'Outfit ideas for Symphony Night'},
    fx:{sky:0x1B1F3B,top:0x0C0E22,mist:[0x4B3F8F,0x2B3A7A],mo:.45,fall:0,rise:1,spark:0xFFD98A,halo:0xFFC870,ho:.25,spd:.6,night:.9},
    tint:['#E4E5F4','#BFC2E6','#2B2F6B'],sketchShape:'petal',photoShape:'ogee',
    dress:{title:'Midnight and gold',note:'Deep blues and black with shimmer. Dress to dance.',
      swatches:[['#1B1F3B','Midnight'],['#2B2F6B','Indigo'],['#C9A65A','Gold'],['#111111','Black']]}},
   {id:'steps',name:'The Seven Steps',style:'steps',crest:'fire',n:['#9E1F33','#9E1F33'],day:'Sunday',date:'13 December 2026',time:'',times:[['Baraat','10:30 am onwards'],['Hasta Melap','12:39 pm onwards']],venue:'Avadh Utopia',area:'Dumas Road, Surat',sketch:'venue-avadh.webp',map:MAPS('Avadh Utopia, Dumas Road, Surat','ChIJ5wPU2bdS4DsRe0ZU-9Vuf0c'),
-   outfit:{src:'outfit-wedding.jpg',w:1280,h:714,alt:'Outfit ideas for The Seven Steps'},
+   outfit:{src:'outfit-wedding.webp',w:1167,h:614,alt:'Outfit ideas for The Seven Steps'},
    fx:{sky:0xFBDDD0,top:0xF7C6BC,mist:[0xFFC08A,0xF7A3A3],mo:.45,fall:.3,rise:1,spark:0xF07A2A,petal:0xD9456B,halo:0xFFC27A,ho:.8,spd:1},
    tint:['#F9DEE0','#EDB4BB','#9E1F33'],sketchShape:'ogee',photoShape:'circle',
    dress:{title:'Reds, maroon and gold',note:'Traditional and grand, for the wedding ceremony itself.',
