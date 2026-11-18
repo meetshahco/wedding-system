@@ -1872,11 +1872,11 @@ function init3D(){
   canvas.style.cursor='pointer';
 
   var timers=[];
+  function light(){if(!state.lit){state.lit=true;state.l0=performance.now();}}
   function startOpen(){
     if(state.opening)return;
     state.opening=true;state.openT=0;state.hoverT=0;state.t0=performance.now();
-    if(!state.lit){state.lit=true;state.l0=performance.now();}
-    if(ENV)ENV.light();
+    light();
     canvas.style.cursor='default';
     html.classList.add('opening');
     var nm=document.querySelector('.hero .names');
