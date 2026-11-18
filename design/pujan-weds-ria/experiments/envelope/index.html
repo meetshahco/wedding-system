@@ -167,6 +167,16 @@ html.env-on,html.env-on body{overflow:hidden}
 .head{grid-area:head}
 .info{grid-area:info}
 .wear-part{grid-area:wear;margin-top:26px}
+/* the venue rises out of the bottom of the card: a faint sketch, flush to the card's edges, fading upward,
+   with the Where details resting on its faded top */
+.sketched .event{grid-template-areas:"head" "info" "wear" "venue";padding-bottom:0}
+.venue-art{grid-area:venue;position:relative;display:block;margin:30px calc(-1 * clamp(22px,4vw,48px)) 0;border-radius:0 0 18px 18px;overflow:hidden;z-index:1;
+  background:linear-gradient(180deg,rgba(255,253,249,0) 0,var(--paper) 30%)}
+.venue-text{position:relative;z-index:1;display:grid;gap:6px;justify-items:center;padding:0 clamp(22px,4vw,48px)}
+.venue-img{display:block;width:100%;height:auto;margin-top:-18%;opacity:.6;
+  -webkit-mask-image:linear-gradient(0deg,#000 0,#000 32%,transparent 78%);mask-image:linear-gradient(0deg,#000 0,#000 32%,transparent 78%)}
+.venue-text .place,.venue-text .label{text-shadow:0 0 6px var(--paper),0 0 12px var(--paper),0 0 18px var(--paper)}
+@media (min-width:761px){.venue-art{margin-top:36px}.venue-img{margin-top:-12%}}
 .event .art{grid-area:art}
 /* a card with a featured sketch keeps it beside the details on wide screens */
 .featured .event{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);grid-template-rows:auto 1fr;grid-template-areas:"head art" "info art";column-gap:clamp(20px,4vw,44px)}
@@ -177,7 +187,8 @@ html.env-on,html.env-on body{overflow:hidden}
 .part{display:grid;gap:6px;justify-items:center}
 .part+.part{margin-top:22px}
 .label{font:italic 400 18px/1.3 var(--serif);color:var(--gold);font-weight:400}
-.place{display:flex;align-items:center;justify-content:center;gap:10px;font-size:16.5px;color:var(--ink2);text-wrap:balance}
+.place{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;font-size:16.5px;color:var(--ink2);text-wrap:balance}
+.place .pin{order:-1}
 .place-name{min-width:0}
 .pin{flex:none;display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;color:var(--rose);
   background:var(--paper);box-shadow:0 0 0 1px rgba(168,58,96,.4);position:relative;transition:background .2s ease,color .2s ease}
@@ -484,29 +495,29 @@ var EVENTS=[
    feature:{src:'siddhchakra-yantra.png',w:1010,h:1322,alt:'Sketch of the Shri Siddhchakra Mahayantra'},n:['#A07A2E','#C39A45'],day:'Sunday',date:'6 December 2026',time:'8:30 am onwards',venue:'Rivulet Jirawala Parshwanath Derasar',area:'New Magdalla, Surat',map:MAPS('Shree Jirawala Parshwanath Bhagwan Jain temple, New Magdalla, Surat','ChIJLaX9ZMZN4DsRBEi5JGl2dl4'),
    after:'Followed by lunch at the Banquet Hall, Rivulet Apartment, 12:30 pm onwards',
    fx:{sky:0xFCEFD2,top:0xFFFBF2,mist:[0xFFE6B0,0xFFF3D6],mo:.4,tp:.6,md:.75,fall:.2,rise:.8,spark:0xE8B04A,petal:0xFFFFFF,halo:0xFFDF9A,ho:.8,spd:.6},
-   tint:['#FBF3DF','#F1DFB4','#8F6A22'],sketchShape:'arch',photoShape:'circle',sketch:'',photo:''},
-  {id:'rang',name:'Rang and Rituals',style:'rang',crest:'rang',n:['#D98A00','#D9456B'],day:'Friday',date:'11 December 2026',time:'3:30 pm onwards',venue:'Rajhans Feriado',area:'Poolside',map:MAPS('Rajhans Feriado, Dandi Road, Kachhol','ChIJbYyRElK14TsRzGwVFPPO2eQ'),
+   tint:['#FBF3DF','#F1DFB4','#8F6A22'],sketchShape:'arch',photoShape:'circle'},
+  {id:'rang',name:'Rang and Rituals',style:'rang',crest:'rang',n:['#D98A00','#D9456B'],day:'Friday',date:'11 December 2026',time:'3:30 pm onwards',venue:'Rajhans Feriado',area:'Poolside',sketch:'venue-rajhans.webp',map:MAPS('Rajhans Feriado, Dandi Road, Kachhol','ChIJbYyRElK14TsRzGwVFPPO2eQ'),
    outfit:{src:'outfit-rang_rituals.jpg',w:1280,h:714,alt:'Outfit ideas for Rang and Rituals'},
    fx:{sky:0xFFEDB5,top:0xFFDCE8,mist:[0xFFAEC9,0xFFDC70],mo:.5,fall:1,petal:0xF7B733,halo:0xFFD9A0,ho:.4,spd:1.5},
-   tint:['#FFF1CC','#FBD98A','#B36B00'],sketchShape:'ogee',photoShape:'petal',sketch:'',photo:'',
+   tint:['#FFF1CC','#FBD98A','#B36B00'],sketchShape:'ogee',photoShape:'petal',
    dress:{title:'Marigold and sunshine',note:'Bright yellows and oranges that are happy to get a little colour on them.',
      swatches:[['#F5B921','Marigold'],['#F28C38','Tangerine'],['#FFE08A','Haldi'],['#FFFFFF','White']]}},
-  {id:'mehandi',name:'Mehandi',style:'wave',crest:'paisley',n:['#4E6B1F','#4E6B1F'],day:'Saturday',date:'12 December 2026',time:'10:00 am onwards',venue:'OTLO',area:'Aambli ni Pol',map:MAPS('Aambli ni Pol, Kachhol','ChIJZ7QU78q14TsRZwOaIPGklRc'),
+  {id:'mehandi',name:'Mehandi',style:'wave',crest:'paisley',n:['#4E6B1F','#4E6B1F'],day:'Saturday',date:'12 December 2026',time:'10:00 am onwards',venue:'OTLO',area:'Aambli ni Pol',sketch:'venue-ambli.webp',map:MAPS('Aambli ni Pol, Kachhol','ChIJZ7QU78q14TsRZwOaIPGklRc'),
    outfit:{src:'outfit-mehendi.jpg',w:1280,h:714,alt:'Outfit ideas for the Mehendi'},
    fx:{sky:0xEAF4DC,top:0xD5EAC6,mist:[0xB7D98A,0xE6F2B4],mo:.55,fall:.8,petal:0x9CBF5E,halo:0xE8F5C8,ho:.4,spd:.8},
-   tint:['#EEF5DC','#D3E3B0','#4E6B1F'],sketchShape:'pill',photoShape:'arch',sketch:'',photo:'',
+   tint:['#EEF5DC','#D3E3B0','#4E6B1F'],sketchShape:'pill',photoShape:'arch',
    dress:{title:'Henna greens and fuchsia',note:'Leafy greens with a pop of pink. Short or loose sleeves make the henna easier.',
      swatches:[['#6B8E23','Henna'],['#A9C46C','Pista'],['#D9368B','Fuchsia'],['#F6E7B4','Cream']]}},
-  {id:'night',name:'Symphony Night',style:'foil',crest:'music',n:['#2B2F6B','#B8923A'],day:'Saturday',date:'12 December 2026',time:'5:30 pm onwards',venue:'The Lawn',area:'Aambli ni Pol',map:MAPS('Aambli ni Pol, Kachhol','ChIJZ7QU78q14TsRZwOaIPGklRc'),
+  {id:'night',name:'Symphony Night',style:'foil',crest:'music',n:['#2B2F6B','#B8923A'],day:'Saturday',date:'12 December 2026',time:'5:30 pm onwards',venue:'The Lawn',area:'Aambli ni Pol',sketch:'venue-ambli.webp',map:MAPS('Aambli ni Pol, Kachhol','ChIJZ7QU78q14TsRZwOaIPGklRc'),
    outfit:{src:'outfit-symphony_night.jpg',w:1280,h:714,alt:'Outfit ideas for Symphony Night'},
    fx:{sky:0x1B1F3B,top:0x0C0E22,mist:[0x4B3F8F,0x2B3A7A],mo:.45,fall:0,rise:1,spark:0xFFD98A,halo:0xFFC870,ho:.25,spd:.6,night:.9},
-   tint:['#E4E5F4','#BFC2E6','#2B2F6B'],sketchShape:'petal',photoShape:'ogee',sketch:'',photo:'',
+   tint:['#E4E5F4','#BFC2E6','#2B2F6B'],sketchShape:'petal',photoShape:'ogee',
    dress:{title:'Midnight and gold',note:'Deep blues and black with shimmer. Dress to dance.',
      swatches:[['#1B1F3B','Midnight'],['#2B2F6B','Indigo'],['#C9A65A','Gold'],['#111111','Black']]}},
-  {id:'steps',name:'The Seven Steps',style:'steps',crest:'fire',n:['#9E1F33','#9E1F33'],day:'Sunday',date:'13 December 2026',time:'',times:[['Baraat','10:30 am onwards'],['Hasta Melap','12:39 pm onwards']],venue:'Avadh Utopia',area:'Dumas Road, Surat',map:MAPS('Avadh Utopia, Dumas Road, Surat','ChIJ5wPU2bdS4DsRe0ZU-9Vuf0c'),
+  {id:'steps',name:'The Seven Steps',style:'steps',crest:'fire',n:['#9E1F33','#9E1F33'],day:'Sunday',date:'13 December 2026',time:'',times:[['Baraat','10:30 am onwards'],['Hasta Melap','12:39 pm onwards']],venue:'Avadh Utopia',area:'Dumas Road, Surat',sketch:'venue-avadh.webp',map:MAPS('Avadh Utopia, Dumas Road, Surat','ChIJ5wPU2bdS4DsRe0ZU-9Vuf0c'),
    outfit:{src:'outfit-wedding.jpg',w:1280,h:714,alt:'Outfit ideas for The Seven Steps'},
    fx:{sky:0xFBDDD0,top:0xF7C6BC,mist:[0xFFC08A,0xF7A3A3],mo:.45,fall:.3,rise:1,spark:0xF07A2A,petal:0xD9456B,halo:0xFFC27A,ho:.8,spd:1},
-   tint:['#F9DEE0','#EDB4BB','#9E1F33'],sketchShape:'ogee',photoShape:'circle',sketch:'',photo:'',
+   tint:['#F9DEE0','#EDB4BB','#9E1F33'],sketchShape:'ogee',photoShape:'circle',
    dress:{title:'Reds, maroon and gold',note:'Traditional and grand, for the wedding ceremony itself.',
      swatches:[['#9E1F33','Maroon'],['#C2283F','Sindoor red'],['#C9A65A','Gold'],['#FFF6E3','Ivory']]}}
 ];
@@ -519,7 +530,7 @@ function frameHTML(shape,label,img){
   var host=document.getElementById('chapters');
   EVENTS.forEach(function(ev,i){
     var sec=document.createElement('section');
-    sec.className='chapter '+(i%2?'right':'left')+(ev.feature?' featured':'');
+    sec.className='chapter '+(i%2?'right':'left')+(ev.feature?' featured':'')+(ev.sketch?' sketched':'');
     sec.id='ch-'+ev.id;
     sec.style.setProperty('--t1',ev.tint[0]);
     sec.style.setProperty('--t2',ev.tint[1]);
@@ -554,10 +565,12 @@ function frameHTML(shape,label,img){
         '<div class="info">'+
           '<div class="rule"></div>'+
           '<section class="part"><h4 class="label">When</h4>'+whenHTML+'</section>'+
-          '<section class="part"><h4 class="label">Where</h4>'+whereHTML+'</section>'+
+          (ev.sketch?'':'<section class="part"><h4 class="label">Where</h4>'+whereHTML+'</section>')+
         '</div>'+
         (ev.outfit?'<section class="part wear-part"><h4 class="label">What to wear</h4>'+imgHTML+'</section>':
          ev.feature?'<div class="art feature-art">'+imgHTML+'</div>':'')+
+        (ev.sketch?'<section class="part venue-art"><div class="venue-text"><h4 class="label">Where</h4>'+whereHTML+'</div>'+
+          '<img class="venue-img" src="'+esc(ev.sketch)+'" width="1000" height="500" alt="" loading="lazy" decoding="async"></section>':'')+
       '</article>';
     host.appendChild(sec);
   });
