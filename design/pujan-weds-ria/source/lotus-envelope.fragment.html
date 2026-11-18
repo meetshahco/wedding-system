@@ -1548,239 +1548,227 @@ function init3D(){
       [[-1.2,.62],[1.2,.62],[-.62,.85],[.62,.85],[0,1]].forEach(function(p){g.save();g.translate(cx,cy);g.rotate(p[0]);petalPath(g,s*p[1],s*.34);g.stroke();g.restore();});
     }
 
-    /* ---- the blind embossed artwork: lotus flowers, buds and pond leaves ---- */
-    /* ---- the relief: everything is drawn as raised paper heights, never as lines of ink.
-       g is the flap relief (mandap, baraat, borders), b is the body relief (mehendi hands).
-       All units are relative to the envelope's centre, so the composition fits any screen. ---- */
+    /* ---- the relief: every motif is pressed into the paper as raised, softly domed shapes with fine grooves.
+       The top flap carries a garden of lotuses and flowers on curling vines; the bottom flap carries Indian
+       ethnic motifs: a toran of mango leaves and bells, paisleys, diyas and a kalash. The paper beneath is an
+       all over damask of rosettes and small flowers. g is the flap relief, b is the paper beneath,
+       f takes the petal ring round the seal. All units are relative to the envelope's centre. ---- */
     function drawArt(g,b,f,fb,CW,CH){
-      var S=Math.min(CW,CH*.62)/100,A=Math.min(S,CH/215),HW=CW/2/A,HH=CH/2/A;
-      function lv(c,a){c.fillStyle='rgba(255,255,255,'+a+')';}
-      function cut(c,w,a){c.save();c.globalCompositeOperation='destination-out';c.strokeStyle='rgba(0,0,0,'+(a||.55)+')';c.lineWidth=w;c.lineCap='round';c.lineJoin='round';c.stroke();c.restore();}
-      function raise(c,w,a){c.save();c.strokeStyle='rgba(255,255,255,'+a+')';c.lineWidth=w;c.lineCap='round';c.lineJoin='round';c.stroke();c.restore();}
-      function dot(c,x,y,r,a){lv(c,a);c.beginPath();c.arc(x,y,r,0,6.2832);c.fill();}
-      function petalShape(c,x,y,ang,L,w){c.save();c.translate(x,y);c.rotate(ang);c.beginPath();c.moveTo(0,0);c.bezierCurveTo(w*.95,-L*.22,w*.72,-L*.78,0,-L);c.bezierCurveTo(-w*.72,-L*.78,-w*.95,-L*.22,0,0);c.restore();}
-
+      var S=Math.min(CW,CH*.62)/100,A=Math.min(S,CH/215),HW=CW/2/A,HH=CH/2/A,RSa=RS/2*CH/A,R=mulberry(77);
       [g,b,f,fb].forEach(function(c){c.save();c.translate(CW/2,CH/2);c.scale(A,A);});
-      function fo(c,a){c.fillStyle='rgba(255,255,255,'+(a||1)+')';}
-      function foS(c,w,a){c.save();c.strokeStyle='rgba(255,255,255,'+(a||1)+')';c.lineWidth=w;c.lineCap='round';c.lineJoin='round';c.stroke();c.restore();}
-      var RSa=RS/2*CH/A;
+      function fill(c,a){c.fillStyle='rgba(255,255,255,'+a+')';c.fill();}
+      function raise(c,w,a){c.save();c.strokeStyle='rgba(255,255,255,'+a+')';c.lineWidth=w;c.lineCap='round';c.lineJoin='round';c.stroke();c.restore();}
+      function cut(c,w,a){c.save();c.globalCompositeOperation='destination-out';c.strokeStyle='rgba(0,0,0,'+(a||.5)+')';c.lineWidth=w;c.lineCap='round';c.lineJoin='round';c.stroke();c.restore();}
+      function dot(c,x,y,r,a){c.beginPath();c.arc(x,y,r,0,6.2832);fill(c,a);}
+      /* a raised shape with a soft dome: fill, then a smaller copy on top, then a fine groove round the edge */
+      function pillow(c,path,a,cx,cy,k){path();fill(c,a);c.save();c.translate(cx,cy);c.scale(k||.62,k||.62);c.translate(-cx,-cy);path();fill(c,.16);c.restore();path();cut(c,.18,.4);}
+      function petal(c,L,w){c.beginPath();c.moveTo(0,0);c.bezierCurveTo(w*.95,-L*.22,w*.72,-L*.78,0,-L);c.bezierCurveTo(-w*.72,-L*.78,-w*.95,-L*.22,0,0);}
 
-      /* --- an all-over damask on the flaps: a fine raised diamond trellis with a tiny flower at every crossing --- */
+      /* occupancy, so motifs never pile on each other and the filler finds the gaps */
+      var GS=1.4,GW=Math.ceil(2*HW/GS)+2,GH=Math.ceil(2*HH/GS)+2,occ={g:new Uint8Array(GW*GH),b:new Uint8Array(GW*GH)};
+      function cells(x,y,r,fn){var i0=Math.floor((x-r+HW)/GS),i1=Math.floor((x+r+HW)/GS),j0=Math.floor((y-r+HH)/GS),j1=Math.floor((y+r+HH)/GS);
+        for(var j=j0;j<=j1;j++)for(var i=i0;i<=i1;i++){if(i<0||j<0||i>=GW||j>=GH)continue;var cx=(i+.5)*GS-HW,cy=(j+.5)*GS-HH;if((cx-x)*(cx-x)+(cy-y)*(cy-y)<=r*r)if(fn(j*GW+i)===false)return false;}return true;}
+      function mark(k,x,y,r){cells(x,y,r,function(i){occ[k][i]=1;});}
+      function free(k,x,y,r){return cells(x,y,r,function(i){return occ[k][i]?false:true;});}
+
+      /* ---------- flowers ---------- */
+      function lotus(c,x,y,s,ang){
+        c.save();c.translate(x,y);c.rotate(ang||0);
+        [[-.78,.92],[-.28,1],[.28,1],[.78,.92]].forEach(function(p){c.save();c.rotate(p[0]);pillow(c,function(){petal(c,s*p[1],s*.4);},.3,0,-s*p[1]*.5,.6);c.restore();});
+        [[-1.22,.58],[1.22,.58],[-.66,.84],[.66,.84],[0,1.04]].forEach(function(p){c.save();c.rotate(p[0]);
+          pillow(c,function(){petal(c,s*p[1],s*.37);},.46,0,-s*p[1]*.48,.58);
+          c.beginPath();c.moveTo(0,-s*p[1]*.16);c.lineTo(0,-s*p[1]*.74);cut(c,s*.022,.42);c.restore();});
+        c.beginPath();c.ellipse(0,s*.04,s*.36,s*.1,0,0,6.2832);fill(c,.5);c.beginPath();c.ellipse(0,s*.04,s*.36,s*.1,0,0,6.2832);cut(c,.16,.4);
+        c.restore();
+      }
+      function rosette(c,x,y,r,a){
+        a=a||1;c.save();c.translate(x,y);
+        for(var k=0;k<8;k++){c.save();c.rotate(k*Math.PI/4);pillow(c,function(){petal(c,r,r*.46);},.4*a,0,-r*.5,.55);c.restore();}
+        for(k=0;k<8;k++){c.save();c.rotate(k*Math.PI/4+Math.PI/8);pillow(c,function(){petal(c,r*.64,r*.36);},.48*a,0,-r*.32,.55);c.restore();}
+        dot(c,0,0,r*.24,.62*a);c.beginPath();c.arc(0,0,r*.24,0,6.2832);cut(c,.16,.45);
+        for(k=0;k<6;k++){var t=k/6*6.2832;dot(c,Math.cos(t)*r*.11,Math.sin(t)*r*.11,r*.035,.3);}
+        c.restore();
+      }
+      function flower5(c,x,y,r,rot){
+        c.save();c.translate(x,y);c.rotate(rot||0);
+        for(var k=0;k<5;k++){c.save();c.rotate(k/5*6.2832);var pf=function(){c.beginPath();c.ellipse(0,-r*.52,r*.34,r*.5,0,0,6.2832);};pillow(c,pf,.42,0,-r*.52,.5);c.restore();}
+        dot(c,0,0,r*.24,.6);c.beginPath();c.arc(0,0,r*.24,0,6.2832);cut(c,.14,.4);
+        c.restore();
+      }
+      function leaf(c,x,y,L,ang,bend){
+        bend=bend||0;c.save();c.translate(x,y);c.rotate(ang);
+        var w=L*.3,pf=function(){c.beginPath();c.moveTo(0,0);c.bezierCurveTo(w*1.1,-L*.25+bend,w*.8,-L*.8,bend,-L);c.bezierCurveTo(-w*.7,-L*.8,-w*1.05,-L*.25-bend*.3,0,0);};
+        pillow(c,pf,.42,bend*.4,-L*.5,.55);
+        c.beginPath();c.moveTo(0,-L*.06);c.quadraticCurveTo(bend*.6,-L*.55,bend,-L*.94);cut(c,L*.03,.5);
+        for(var k=1;k<=4;k++){var t=k/5.2,yy=-L*t,mx=bend*t*.8;c.beginPath();c.moveTo(mx,yy);c.lineTo(mx+w*.62,yy-L*.12);c.moveTo(mx,yy);c.lineTo(mx-w*.62,yy-L*.12);cut(c,L*.018,.42);}
+        c.restore();
+      }
+      function bud(c,x,y,s,ang){
+        c.save();c.translate(x,y);c.rotate(ang);
+        pillow(c,function(){petal(c,s,s*.5);},.48,0,-s*.45,.55);
+        c.beginPath();c.moveTo(-s*.18,-s*.2);c.quadraticCurveTo(-s*.12,-s*.65,0,-s*.92);cut(c,s*.04,.45);
+        c.beginPath();c.moveTo(s*.18,-s*.2);c.quadraticCurveTo(s*.12,-s*.65,0,-s*.92);cut(c,s*.04,.45);
+        c.restore();
+      }
+      function sprig(c,x,y,r,ang){
+        c.save();c.translate(x,y);c.rotate(ang);
+        c.beginPath();c.moveTo(0,r*.95);c.quadraticCurveTo(r*.3,0,0,-r*.55);raise(c,.5,.45);
+        leaf(c,r*.05,r*.45,r*.6,-.95,r*.06);leaf(c,r*.12,r*.1,r*.55,.9,-r*.05);
+        bud(c,0,-r*.42,r*.6,.05);
+        c.restore();
+      }
+      function cluster(c,x,y,r){
+        var n=Math.max(5,Math.round(r*r*.9)),pts=[],t=0;
+        while(pts.length<n&&t<n*30){t++;var a=R()*6.2832,d=Math.sqrt(R())*r,px=x+Math.cos(a)*d,py=y+Math.sin(a)*d;
+          if(pts.every(function(q){return (q[0]-px)*(q[0]-px)+(q[1]-py)*(q[1]-py)>1.5*1.5;}))pts.push([px,py]);}
+        pts.forEach(function(q,i){dot(c,q[0],q[1],.62,.5);if(i%3===0){c.beginPath();c.arc(q[0],q[1],.3,0,6.2832);cut(c,.12,.5);}});
+      }
+      function tendril(c,x,y,r,dir,a0){
+        c.beginPath();for(var t=0;t<=1;t+=.04){var an=a0+dir*t*7,rr=r*(1-t*.82);var px=x+Math.cos(an)*rr,py=y+Math.sin(an)*rr;t?c.lineTo(px,py):c.moveTo(px,py);}raise(c,.55,.45);
+      }
+
+      /* ---------- Indian motifs ---------- */
+      function paisley(c,x,y,s,ang){
+        c.save();c.translate(x,y);c.rotate(ang||0);
+        var pf=function(k){k=k||1;c.beginPath();c.moveTo(0,s*.7*k);c.bezierCurveTo(-s*.66*k,s*.7*k,-s*.66*k,-s*.08*k,-s*.12*k,-s*.38*k);c.bezierCurveTo(s*.18*k,-s*.6*k,s*.36*k,-s*.84*k,s*.62*k,-s*.98*k);c.bezierCurveTo(s*.48*k,-s*.62*k,s*.66*k,-s*.3*k,s*.58*k,s*.14*k);c.bezierCurveTo(s*.52*k,s*.56*k,s*.26*k,s*.7*k,0,s*.7*k);};
+        pillow(c,function(){pf(1);},.44,0,s*.12,.6);
+        c.save();c.translate(0,s*.16);pf(.7);c.restore();cut(c,.2,.45);
+        rosette(c,0,s*.2,s*.26,.9);
+        for(var k=0;k<14;k++){var a=-.4+k/13*4.6;dot(c,Math.cos(a+1.6)*s*.78,s*.18+Math.sin(a+1.6)*s*.7,.42,.5);}
+        c.restore();
+      }
+      function diya(c,x,y,s){
+        c.save();c.translate(x,y);
+        var bowl=function(){c.beginPath();c.moveTo(-s,0);c.quadraticCurveTo(-s*.82,s*.62,0,s*.66);c.quadraticCurveTo(s*.82,s*.62,s*1.12,-s*.12);c.quadraticCurveTo(s*.6,0,-s,0);};
+        pillow(c,bowl,.5,0,s*.3,.6);
+        c.beginPath();c.moveTo(-s*.8,s*.22);c.quadraticCurveTo(0,s*.52,s*.86,s*.18);cut(c,.2,.45);
+        for(var k=0;k<5;k++)dot(c,-s*.5+k*s*.25,s*.36+Math.sin(k/4*Math.PI)*s*.06,.32,.5);
+        c.beginPath();c.moveTo(-s*.3,s*.66);c.lineTo(-s*.42,s*.86);c.lineTo(s*.42,s*.86);c.lineTo(s*.3,s*.66);fill(c,.42);
+        var fl=function(){c.beginPath();c.moveTo(s*.82,-s*.12);c.bezierCurveTo(s*1.2,-s*.4,s*1.0,-s*.78,s*.92,-s*1.12);c.bezierCurveTo(s*.66,-s*.74,s*.5,-s*.36,s*.82,-s*.12);};
+        pillow(c,fl,.55,s*.86,-s*.48,.5);
+        c.restore();
+      }
+      function bell(c,x,y,s){
+        c.save();c.translate(x,y);
+        c.beginPath();c.arc(0,-s*1.08,s*.16,0,6.2832);raise(c,.3,.5);
+        var bf=function(){c.beginPath();c.moveTo(-s*.2,-s*.9);c.bezierCurveTo(-s*.52,-s*.78,-s*.46,-s*.1,-s*.66,s*.28);c.lineTo(s*.66,s*.28);c.bezierCurveTo(s*.46,-s*.1,s*.52,-s*.78,s*.2,-s*.9);c.closePath();};
+        pillow(c,bf,.5,0,-s*.25,.55);
+        [-s*.42,s*.06].forEach(function(yy){c.beginPath();c.moveTo(-s*.5,yy);c.lineTo(s*.5,yy);cut(c,.16,.45);});
+        dot(c,0,s*.42,s*.13,.55);
+        c.restore();
+      }
+      function mango(c,x,y,L,ang){leaf(c,x,y,L,ang,L*.08);}
+      function kalash(c,x,y,s){
+        c.save();c.translate(x,y);
+        [-1.05,-.52,0,.52,1.05].forEach(function(a){mango(c,0,-s*.5,s*.62,a);});
+        var cn=function(){c.beginPath();c.ellipse(0,-s*.86,s*.24,s*.3,0,0,6.2832);};pillow(c,cn,.55,0,-s*.86,.55);
+        for(var k=-2;k<=2;k++){c.beginPath();c.moveTo(k*s*.07,-s*1.1);c.quadraticCurveTo(k*s*.11,-s*.86,k*s*.07,-s*.6);cut(c,.12,.35);}
+        var pot=function(){c.beginPath();c.moveTo(-s*.28,-s*.48);c.lineTo(s*.28,-s*.48);c.bezierCurveTo(s*.2,-s*.32,s*.78,-s*.2,s*.72,s*.22);c.bezierCurveTo(s*.66,s*.66,s*.3,s*.78,0,s*.78);c.bezierCurveTo(-s*.3,s*.78,-s*.66,s*.66,-s*.72,s*.22);c.bezierCurveTo(-s*.78,-s*.2,-s*.2,-s*.32,-s*.28,-s*.48);c.closePath();};
+        pillow(c,pot,.5,0,s*.2,.6);
+        c.beginPath();c.ellipse(0,-s*.48,s*.36,s*.07,0,0,6.2832);raise(c,.4,.55);
+        [s*.02,s*.42].forEach(function(yy){c.beginPath();c.moveTo(-s*.66,yy);c.quadraticCurveTo(0,yy+s*.08,s*.66,yy);cut(c,.18,.45);});
+        rosette(c,0,s*.22,s*.17,.9);
+        for(k=0;k<9;k++)dot(c,-s*.52+k*s*.13,s*.56,.3,.5);
+        c.restore();
+      }
+      function marigold(c,x,y,r){
+        for(var ring=0;ring<3;ring++){var rr=r*(1-ring*.3),n=8+8*(2-ring);
+          for(var k=0;k<n;k++){var a=k/n*6.2832+ring*.3;c.beginPath();c.ellipse(x+Math.cos(a)*rr*.72,y+Math.sin(a)*rr*.72,rr*.26,rr*.16,a,0,6.2832);fill(c,.32+ring*.06);}}
+        dot(c,x,y,r*.18,.6);
+      }
+
+      /* ---------- top flap: a garden of lotuses on curling vines ---------- */
+      var top0=-HH+3,top1=-RSa*1.5;
       (function(){
-        var sp=7,x,y,k;
-        for(k=-60;k<=60;k++){
-          g.beginPath();g.moveTo(k*sp-HH*1.2,-HH*1.2);g.lineTo(k*sp+HH*1.2,HH*1.2);raise(g,.22,.11);
-          g.beginPath();g.moveTo(k*sp+HH*1.2,-HH*1.2);g.lineTo(k*sp-HH*1.2,HH*1.2);raise(g,.22,.11);
-        }
-        for(y=-HH;y<=HH;y+=sp)for(x=-HW-sp;x<=HW+sp;x+=sp){
-          var ox=(Math.round((y+HH)/sp)%2)?sp/2:0,cx=x+ox,cy=y;
-          for(var q=0;q<4;q++){g.save();g.translate(cx,cy);g.rotate(q*Math.PI/2);g.beginPath();g.ellipse(0,-.9,.45,.8,0,0,6.2832);lv(g,.2);g.fill();g.restore();}
-        }
-        /* keep the scenes, bands and the ring round the seal clear of it */
-        g.save();g.globalCompositeOperation='destination-out';g.fillStyle='#000';
-        function rr(x0,y0,x1,y1,r){g.beginPath();g.moveTo(x0+r,y0);g.arcTo(x1,y0,x1,y1,r);g.arcTo(x1,y1,x0,y1,r);g.arcTo(x0,y1,x0,y0,r);g.arcTo(x0,y0,x1,y0,r);g.closePath();g.fill();}
-        rr(-31,-90,31,-27,6);rr(-47,37,47,91,6);
-        g.fillRect(-HW-2,-HH-2,2*HW+4,15);g.fillRect(-HW-2,HH-12,2*HW+4,14);
-        g.beginPath();g.arc(0,0,RSa*1.6,0,6.2832);g.fill();
-        g.restore();
+        var lam=46,amp=5.2,rows=[],y;
+        for(y=-HH+14;y<top1+2;y+=26)rows.push(y);
+        rows.forEach(function(y0,ri){
+          var ph=(ri%2)*lam/2+ (ri%3)*7;
+          function vy(x){return y0+amp*Math.sin((x+ph)/lam*6.2832);}
+          g.beginPath();for(var x=-HW-4;x<=HW+4;x+=.8){x===-HW-4?g.moveTo(x,vy(x)):g.lineTo(x,vy(x));}raise(g,.9,.45);
+          /* blooms rise from the crests, rosettes hang below the troughs */
+          for(var k=-6;k<=12;k++){
+            var xc=-ph+lam*(.25+k*.5)-0,crest=k%2===0;if(xc<-HW-10||xc>HW+10)continue;var yc=vy(xc);
+            if(crest){var s=10.5+R()*2;g.beginPath();g.moveTo(xc,yc);g.quadraticCurveTo(xc+2,yc-3,xc,yc-5.4);raise(g,.8,.45);lotus(g,xc,yc-5,s,(R()-.5)*.2);mark('g',xc,yc-10,s*.95);}
+            else{var rr=4.6+R();g.beginPath();g.moveTo(xc,yc);g.lineTo(xc,yc+3);raise(g,.7,.45);rosette(g,xc,yc+3+rr,rr);mark('g',xc,yc+3+rr,rr+.8);}
+          }
+          /* leaves along the vine, and a curl of tendril here and there */
+          for(var x2=-HW;x2<=HW;x2+=5.5){var y2=vy(x2),tg=Math.atan2(vy(x2+.5)-y2,.5),up=(Math.round(x2/5.5)%2)?1:-1;
+            var lx=x2+Math.cos(tg-up*Math.PI/2)*4.2,ly=y2+Math.sin(tg-up*Math.PI/2)*4.2;
+            if(free('g',lx,ly,3.2)){leaf(g,x2,y2,7+R()*1.4,tg+up*(Math.PI/2-.55)+Math.PI/2*(up>0?0:0)-(up>0?0:Math.PI),up*1.2);mark('g',lx,ly,3.4);}
+            else if(free('g',x2,y2+up*3.4,2.2)&&R()<.5){tendril(g,x2+1,y2+up*3.2,2.6,up,R()*6);mark('g',x2,y2+up*3.4,2.4);}
+          }
+        });
       })();
 
-      /* --- gold foil: a lotus of fine petals opening around the seal --- */
+      /* ---------- bottom flap: toran, paisley vine, diyas and kalash, a marigold border ---------- */
+      var bot0=RSa*1.5,bot1=HH-3;
+      (function(){
+        /* toran of mango leaves and bells */
+        var ty=bot0+4,x;
+        g.beginPath();g.moveTo(-HW,ty);g.lineTo(HW,ty);raise(g,1,.5);
+        for(x=-HW;x<=HW;x+=1.6)dot(g,x,ty-1.5,.38,.42);
+        for(x=-HW+2,k=0;x<=HW;x+=6.2,k++){
+          if(k%3===2){g.beginPath();g.moveTo(x,ty);g.lineTo(x,ty+2.4);raise(g,.35,.5);bell(g,x,ty+5.2,3.2);mark('g',x,ty+5,3.6);}
+          else{mango(g,x,ty+.4,7.4,Math.PI+(k%3?-.12:.12));mark('g',x,ty+4,3.2);}
+        }
+        mark('g',0,ty,0);
+        /* paisley vine */
+        var py0=ty+24,lam=34,amp=4;
+        function vy(x){return py0+amp*Math.sin(x/lam*6.2832);}
+        g.beginPath();for(x=-HW-4;x<=HW+4;x+=.8){x===-HW-4?g.moveTo(x,vy(x)):g.lineTo(x,vy(x));}raise(g,.85,.45);
+        for(var k=-8;k<=12;k++){var xc=lam*(.25+k*.5);if(xc<-HW-8||xc>HW+8)continue;var yc=vy(xc),up=k%2===0;
+          paisley(g,xc,yc+(up?-7.4:7.4),6.6,up?-.35:Math.PI-.35);mark('g',xc,yc+(up?-7.4:7.4),6.4);}
+        for(x=-HW;x<=HW;x+=lam/2){var y3=vy(x);if(free('g',x,y3,3)){flower5(g,x,y3,2.8,R());mark('g',x,y3,3.1);}}
+        /* diyas on a ledge, the kalash at the centre */
+        var ly=py0+29,sp=20,n=Math.floor(HW/sp);
+        g.beginPath();g.moveTo(-HW,ly);g.lineTo(HW,ly);raise(g,1.2,.5);for(x=-HW;x<=HW;x+=2)dot(g,x,ly+1.8,.45,.45);
+        kalash(g,0,ly-8.6,9.5);mark('g',0,ly-10,10);
+        for(var j=1;j<=n+1;j++)[-1,1].forEach(function(d){var dx=d*j*sp;if(Math.abs(dx)>HW+6)return;
+          if(j%2){diya(g,dx-2,ly-5.6,7);mark('g',dx,ly-7,8.2);}else{marigold(g,dx,ly-5.6,4.6);mark('g',dx,ly-5.6,5.2);}});
+        /* border of marigolds and small lotuses along the bottom edge */
+        var by=bot1-5;
+        for(x=-HW+3,k=0;x<=HW;x+=8,k++){if(k%2){marigold(g,x,by,3);mark('g',x,by,3.4);}else{lotus(g,x,by+2.2,4.6,0);mark('g',x,by-1,3.6);}}
+      })();
+
+      /* ---------- fill every gap left on the flaps with small flowers, clusters, buds and dots ---------- */
+      function fillGaps(c,k,y0,y1,tries){
+        for(var t=0;t<tries;t++){
+          var x=-HW+R()*2*HW,y=y0+R()*(y1-y0),q=R(),rr=t<tries*.5?(q<.5?5:4.2):(q<.4?3.4:q<.8?2.7:1.7);
+          if(Math.hypot(x,y)<RSa*1.55)continue;
+          if(!free(k,x,y,rr+.5))continue;
+          var pick=R();
+          if(rr>=5){sprig(c,x,y,rr,R()*6.2832);}
+          else if(rr>=4){if(pick<.55)rosette(c,x,y,rr-.5);else if(pick<.85)flower5(c,x,y,rr-.6,R()*6);else cluster(c,x,y,rr-1);}
+          else if(rr>=3){if(pick<.6)flower5(c,x,y,rr-.3,R()*6);else bud(c,x,y+rr*.5,rr*1.6,(R()-.5)*1.2);}
+          else if(rr>=2.5){if(pick<.7)flower5(c,x,y,rr-.3,R()*6);else leaf(c,x,y+rr*.8,rr*1.9,(R()-.5)*2,0);}
+          else dot(c,x,y,.62,.5);
+          mark(k,x,y,rr+.3);
+        }
+      }
+      fillGaps(g,'g',top0,top1+2,5200);
+      fillGaps(g,'g',bot0-2,bot1,5200);
+
+      /* ---------- the paper beneath: a damask of rosettes, small flowers and paisleys ---------- */
+      (function(){
+        var sp=16,x,y,row=0;
+        for(y=-HH-sp;y<=HH+sp;y+=sp*.75,row++)for(x=-HW-sp;x<=HW+sp;x+=sp){
+          var cx=x+(row%2?sp/2:0);
+          if(row%2){rosette(b,cx,y,4.6);}else{paisley(b,cx,y,3.8,row%4?.4:-.4);}
+          mark('b',cx,y,5.2);
+        }
+        fillGaps(b,'b',-HH,HH,2600);
+      })();
+
+      /* ---------- around the seal: a clean ring, then a ring of pressed petals ---------- */
+      g.save();g.globalCompositeOperation='destination-out';g.beginPath();g.arc(0,0,RSa*1.5,0,6.2832);g.fillStyle='#000';g.fill();g.restore();
       (function(){
         var n=16,r1=RSa*1.08,r2=RSa*1.42,k;
         for(k=0;k<n;k++){var a=k/n*6.2832;f.save();f.rotate(a);
-          f.beginPath();f.moveTo(0,-r1);f.bezierCurveTo(RSa*.2,-r1-RSa*.18,RSa*.12,-r2+RSa*.12,0,-r2);f.bezierCurveTo(-RSa*.12,-r2+RSa*.12,-RSa*.2,-r1-RSa*.18,0,-r1);foS(f,.32,.95);
-          f.beginPath();f.moveTo(0,-r1-RSa*.12);f.lineTo(0,-r2+RSa*.16);foS(f,.18,.7);
-          f.restore();
-          var a2=(k+.5)/n*6.2832;f.beginPath();f.arc(Math.sin(a2)*r2*.97,-Math.cos(a2)*r2*.97,.42,0,6.2832);fo(f,.95);f.fill();
-        }
-        for(k=0;k<40;k++){var a3=k/40*6.2832;f.beginPath();f.arc(Math.sin(a3)*(r2+1.8),-Math.cos(a3)*(r2+1.8),.24,0,6.2832);fo(f,.85);f.fill();}
+          f.beginPath();f.moveTo(0,-r1);f.bezierCurveTo(RSa*.2,-r1-RSa*.18,RSa*.12,-r2+RSa*.12,0,-r2);f.bezierCurveTo(-RSa*.12,-r2+RSa*.12,-RSa*.2,-r1-RSa*.18,0,-r1);
+          f.save();f.strokeStyle='#fff';f.lineWidth=.34;f.stroke();f.restore();f.restore();
+          var a2=(k+.5)/n*6.2832;f.beginPath();f.arc(Math.sin(a2)*r2*.97,-Math.cos(a2)*r2*.97,.42,0,6.2832);f.fillStyle='#fff';f.fill();}
       })();
-
-      /* --- gold foil lotuses with buds on curling stems, beside the mandap --- */
-      function foilLotus(c,x,y,s,rot){
-        c.save();c.translate(x,y);c.rotate(rot||0);
-        [[-1.25,.56],[1.25,.56],[-.66,.82],[.66,.82],[0,1]].forEach(function(p){petalShape(c,0,0,p[0],s*p[1],s*.36);foS(c,s*.05,1);});
-        [[-.66,.82],[.66,.82],[0,1]].forEach(function(p){c.save();c.rotate(p[0]);c.beginPath();c.moveTo(0,-s*.1);c.lineTo(0,-s*p[1]*.7);foS(c,s*.03,.7);c.restore();});
-        c.beginPath();c.ellipse(0,s*.08,s*.5,s*.11,0,0,6.2832);foS(c,s*.04,.9);
-        c.restore();
-      }
-      function foilBud(c,x,y,s,rot){c.save();c.translate(x,y);c.rotate(rot||0);c.beginPath();c.moveTo(0,-s);c.bezierCurveTo(s*.6,-s*.7,s*.5,0,0,0);c.bezierCurveTo(-s*.5,0,-s*.6,-s*.7,0,-s);foS(c,s*.08,1);c.beginPath();c.moveTo(0,-s*.85);c.lineTo(0,-s*.15);foS(c,s*.05,.7);c.restore();}
-      [-1,1].forEach(function(d){
-        f.beginPath();f.moveTo(d*36,-40);f.bezierCurveTo(d*44,-52,d*30,-62,d*38,-76);foS(f,.3,.9);
-        f.beginPath();f.moveTo(d*37.5,-55);f.quadraticCurveTo(d*44,-58,d*45,-63);foS(f,.24,.85);
-        foilLotus(f,d*38,-77,7.5,d*.08);foilBud(f,d*45,-63,3.2,d*.5);
-        f.save();f.translate(d*35,-46);f.rotate(-d*.9);f.beginPath();f.ellipse(0,-2.2,1.2,2.4,0,0,6.2832);foS(f,.24,.85);f.restore();
-        for(var q=0;q<5;q++){f.beginPath();f.arc(d*(31+q*.2),-88+q*2.4,.32,0,6.2832);fo(f,.85);f.fill();}
-      });
-
-      /* --- a toran of mango leaves and blossoms across the top --- */
-      (function(){
-        var y=-HH+5.5,x;
-        g.beginPath();g.moveTo(-HW,y);g.lineTo(HW,y);raise(g,.9,.5);
-        f.beginPath();f.moveTo(-HW,y);f.lineTo(HW,y);foS(f,.5,1);f.beginPath();f.moveTo(-HW,y-2.2);f.lineTo(HW,y-2.2);foS(f,.2,.85);
-        for(x=-HW+3;x<HW;x+=4.6){
-          var i=Math.round((x+HW)/4.6);
-          if(i%2){petalShape(g,x,y+.4,Math.PI,6.2,2.3);lv(g,.5);g.fill();petalShape(f,x,y+.4,Math.PI,6.2,2.3);fo(f,.92);f.fill();g.beginPath();g.moveTo(x,y+1);g.lineTo(x,y+5.6);cut(g,.28,.5);}
-          else{dot(g,x,y+2.4,1.5,.55);g.beginPath();g.arc(x,y+2.4,.8,0,6.2832);cut(g,.25,.5);}
-        }
-      })();
-
-      /* --- the mandap, with the couple at the sacred fire --- */
-      g.save();g.translate(0,-25);g.scale(.92,.92);
-      lv(g,.45);g.fillRect(-28,-3,56,3);lv(g,.25);g.fillRect(-24,-6,48,3);
-      [-22,-15,15,22].forEach(function(x,i){
-        var a=(i===1||i===2)?.28:.5;lv(g,a);
-        g.fillRect(x-1.3,-35,2.6,29);g.fillRect(x-2,-8,4,2);g.fillRect(x-2.1,-36.6,4.2,2);
-        [-14,-21,-28].forEach(function(y){g.beginPath();g.moveTo(x-1.3,y);g.lineTo(x+1.3,y);cut(g,.35,.5);dot(g,x,y-3.5,.55,.35);});
-      });
-      lv(g,.5);g.fillRect(-29,-40.5,58,3.6);
-      lv(g,.3);for(var sx=-27;sx<27;sx+=4){g.beginPath();g.arc(sx+2,-36.9,2,0,Math.PI);g.fill();}
-      lv(g,.5);g.beginPath();g.moveTo(-19,-40.5);g.bezierCurveTo(-19,-50,-8,-55,0,-60);g.bezierCurveTo(8,-55,19,-50,19,-40.5);g.closePath();g.fill();
-      f.save();f.translate(0,-25);f.scale(.92,.92);
-      f.beginPath();f.moveTo(-19,-40.5);f.bezierCurveTo(-19,-50,-8,-55,0,-60);f.bezierCurveTo(8,-55,19,-50,19,-40.5);foS(f,.5,1);
-      f.beginPath();f.moveTo(-29,-40.5);f.lineTo(29,-40.5);foS(f,.45,1);f.beginPath();f.moveTo(-28,-3);f.lineTo(28,-3);foS(f,.45,1);
-      f.beginPath();f.arc(0,-61.6,1.7,0,6.2832);fo(f);f.fill();f.fillRect(-.45,-67,.9,5);f.beginPath();f.arc(0,-67.4,.75,0,6.2832);f.fill();
-      [-22,22].forEach(function(x){f.beginPath();f.moveTo(x-4.6,-40.5);f.quadraticCurveTo(x,-49.5,x+4.6,-40.5);foS(f,.35,.95);f.beginPath();f.arc(x,-49.6,.8,0,6.2832);fo(f);f.fill();});
-      f.beginPath();f.moveTo(0,-16.5);f.quadraticCurveTo(2.3,-11.8,0,-9.6);f.quadraticCurveTo(-2.3,-11.8,0,-16.5);fo(f);f.fill();
-      f.restore();
-      /* a carved jaali across the dome */
-      g.save();g.beginPath();g.moveTo(-18,-41.5);g.bezierCurveTo(-18,-50,-7.6,-54.4,0,-58.6);g.bezierCurveTo(7.6,-54.4,18,-50,18,-41.5);g.closePath();g.clip();
-      for(var jd=-40;jd<=40;jd+=2.6){g.beginPath();g.moveTo(jd,-41);g.lineTo(jd+18,-59);cut(g,.22,.4);g.beginPath();g.moveTo(jd,-41);g.lineTo(jd-18,-59);cut(g,.22,.4);}
-      g.restore();
-      lv(g,.3);g.fillRect(-19.6,-44,39.2,1.6);
-      /* garlands swagged between the pillars */
-      [[-22,-15],[-15,15],[15,22]].forEach(function(p){var a=p[0]+1.4,b2=p[1]-1.4,n=Math.round((b2-a)/1.25);
-        for(var i=0;i<=n;i++){var t=i/n,x=a+(b2-a)*t,y=-35+Math.sin(Math.PI*t)*(p[1]-p[0]>10?5:2.4);dot(g,x,y,.42,.42);}});
-      dot(g,0,-61.6,1.7,.6);lv(g,.6);g.fillRect(-.45,-67,.9,5);dot(g,0,-67.4,.75,.6);
-      [-22,22].forEach(function(x){lv(g,.45);g.beginPath();g.moveTo(x-4.6,-40.5);g.quadraticCurveTo(x,-49.5,x+4.6,-40.5);g.fill();dot(g,x,-49.6,.8,.5);});
-      /* the couple */
-      function seated(x,dir,bride){
-        if(bride){lv(g,.24);g.beginPath();g.ellipse(x-dir*1.3,-16.5,3.5,7,0,0,6.2832);g.fill();}
-        lv(g,.55);g.beginPath();g.moveTo(x-3.6,-6);g.bezierCurveTo(x-3.8,-12,x-2.6,-17,x-1.8,-18.5);g.lineTo(x+1.8,-18.5);g.bezierCurveTo(x+2.6,-17,x+3.8,-12,x+3.6,-6);g.closePath();g.fill();
-        dot(g,x,-21,2,.6);dot(g,x+dir*3.3,-11.2,.95,.6);
-        if(!bride){lv(g,.62);g.beginPath();g.ellipse(x,-22.6,2.5,1.6,0,0,6.2832);g.fill();g.beginPath();g.moveTo(x+.4,-24);g.quadraticCurveTo(x+2.4,-27,x+1,-28.6);raise(g,.6,.6);}
-        g.beginPath();g.moveTo(x-3,-9);g.quadraticCurveTo(x,-8,x+3,-9);cut(g,.28,.45);
-      }
-      seated(-8,1,true);seated(8,-1,false);
-      lv(g,.5);g.fillRect(-2.8,-9.2,5.6,3.2);lv(g,.35);g.fillRect(-3.4,-6.2,6.8,.9);
-      lv(g,.72);g.beginPath();g.moveTo(0,-16.5);g.quadraticCurveTo(2.3,-11.8,0,-9.6);g.quadraticCurveTo(-2.3,-11.8,0,-16.5);g.fill();
-      g.restore();
-
-      /* --- the baraat: the groom on a decorated horse under a chhatri, a dhol player and a dancer --- */
-      g.save();g.translate(0,84);g.scale(1.05,1.05);
-      lv(g,.3);g.fillRect(-42,0,84,1.1);for(var gx=-40;gx<=40;gx+=4)dot(g,gx,2.5,.55,.35);
-      /* horse */
-      lv(g,.44);g.beginPath();g.moveTo(-10,-15.2);g.bezierCurveTo(-14.6,-14.6,-15,-9,-13.4,-4.6);g.bezierCurveTo(-12.8,-8.4,-12,-11.4,-10.2,-12.6);g.closePath();g.fill();
-      lv(g,.5);g.beginPath();
-      g.ellipse(-.6,-13.2,9.2,4.4,0,0,6.2832);g.moveTo(-3.2,-13.8);g.ellipse(-7.4,-13.8,3.6,4.3,0,0,6.2832);g.moveTo(9.2,-14.6);g.ellipse(5.8,-14.6,3.6,4.1,-.2,0,6.2832);
-      g.moveTo(5.2,-17.4);g.bezierCurveTo(7.6,-21,8.6,-25.4,10.6,-27.8);g.bezierCurveTo(11.6,-29,13.4,-29,15.4,-26.8);g.lineTo(17.7,-23);g.quadraticCurveTo(17.6,-21.6,16.4,-21.6);
-      g.lineTo(14,-22.6);g.bezierCurveTo(12.6,-22,11.6,-20.4,10.8,-17.6);g.lineTo(9.4,-13.4);g.closePath();
-      g.moveTo(12,-28.4);g.lineTo(12.4,-31);g.lineTo(13.4,-28.6);g.closePath();
-      g.fill();
-      [[[6.4,-10.4],[8.8,-6.4],[7.2,-3.6]],[[4.2,-10.4],[4.4,-5],[4.8,0]],[[-6.6,-10.4],[-7.8,-5.4],[-6.6,0]],[[-9,-10.4],[-9.6,-5],[-9.6,0]]].forEach(function(L){
-        g.beginPath();g.moveTo(L[0][0],L[0][1]);for(var q=1;q<L.length;q++)g.lineTo(L[q][0],L[q][1]);raise(g,1.6,.5);
-        dot(g,L[L.length-1][0],L[L.length-1][1],.9,.55);
-      });
-      /* mane, bridle, plume and a beaded chest strap */
-      g.beginPath();g.moveTo(10.4,-27.4);g.bezierCurveTo(8.6,-25,7.4,-21.4,6,-18);cut(g,.3,.45);
-      g.beginPath();g.moveTo(13.2,-27.6);g.lineTo(14.6,-22.4);g.moveTo(12.8,-25.4);g.lineTo(16.4,-24.6);cut(g,.24,.5);
-      lv(g,.62);g.beginPath();g.moveTo(12.4,-28.6);g.quadraticCurveTo(10.6,-32.8,13,-35);g.quadraticCurveTo(13.8,-31.6,12.4,-28.6);g.fill();
-      for(var cs=0;cs<=8;cs++){var ct=cs/8;dot(g,9.6+ct*1.4-Math.sin(ct*3.1)*1.6,-20+ct*7.6,.38,.42);}
-      /* saddle cloth with a scalloped hem and a row of beads */
-      lv(g,.28);g.beginPath();g.moveTo(-6.2,-17.4);g.lineTo(5.2,-17.4);g.lineTo(5.6,-10);
-      for(var hx=5.6;hx>-6.4;hx-=1.5)g.arc(hx-.75,-10,.75,0,Math.PI);
-      g.closePath();g.fill();
-      for(var bx=-5;bx<=4.4;bx+=1.6)dot(g,bx,-11.2,.36,.4);
-      g.beginPath();g.moveTo(-6.2,-15.4);g.lineTo(5.3,-15.4);cut(g,.25,.45);
-      /* the groom */
-      lv(g,.6);g.beginPath();g.moveTo(-2,-17);g.lineTo(-1.6,-24.2);g.lineTo(1.8,-24.2);g.lineTo(2.4,-17);g.closePath();g.fill();
-      g.beginPath();g.moveTo(1,-17.2);g.lineTo(2.6,-12);raise(g,1.5,.55);
-      dot(g,.2,-26.1,1.7,.65);lv(g,.66);g.beginPath();g.ellipse(.2,-27.5,2.1,1.4,0,0,6.2832);g.fill();
-      g.beginPath();g.moveTo(1.3,-28.4);g.lineTo(2.6,-31.2);raise(g,.5,.6);
-      for(var sh=-1;sh<=1.2;sh+=.55){g.beginPath();g.moveTo(.2+sh,-26.6);g.lineTo(.2+sh,-24.6);cut(g,.18,.4);}
-      /* the chhatri held above him */
-      g.beginPath();g.moveTo(-4,-16);g.lineTo(-1.4,-37.2);raise(g,.5,.45);
-      lv(g,.5);g.beginPath();g.moveTo(-9.6,-35.2);g.quadraticCurveTo(-1.2,-44.4,7.2,-35.2);g.closePath();g.fill();
-      f.save();f.translate(0,84);f.scale(1.05,1.05);
-      f.beginPath();f.moveTo(-9.6,-35.2);f.quadraticCurveTo(-1.2,-44.4,7.2,-35.2);f.closePath();fo(f,.95);f.fill();
-      f.beginPath();f.arc(-1.2,-42,.7,0,6.2832);f.fill();
-      f.beginPath();f.moveTo(-42,.55);f.lineTo(42,.55);foS(f,.4,1);
-      f.beginPath();f.moveTo(12.4,-28.6);f.quadraticCurveTo(10.6,-32.8,13,-35);f.quadraticCurveTo(13.8,-31.6,12.4,-28.6);fo(f);f.fill();
-      f.restore();
-      lv(g,.32);for(var ux=-9;ux<7;ux+=2){g.beginPath();g.arc(ux+1,-35.2,1,0,Math.PI);g.fill();}
-      for(var ur=-2;ur<=2;ur++){g.beginPath();g.moveTo(-1.2+ur*.2,-41.6);g.lineTo(-1.2+ur*4,-35.4);cut(g,.22,.4);}
-      dot(g,-1.2,-42,.7,.55);
-      /* the dhol player */
-      function standing(x){
-        lv(g,.5);g.beginPath();g.rect(x-1.5,-7.2,1.2,7.2);g.rect(x+.3,-7.2,1.2,7.2);g.fill();
-        lv(g,.56);g.beginPath();g.moveTo(x-1.8,-18.2);g.lineTo(x+1.8,-18.2);g.lineTo(x+3.1,-6.6);g.quadraticCurveTo(x,-5.8,x-3.1,-6.6);g.closePath();g.fill();
-        g.beginPath();g.moveTo(x,-18);g.lineTo(x,-7);cut(g,.2,.4);g.beginPath();g.moveTo(x-2.4,-12);g.lineTo(x+2.4,-12);cut(g,.24,.45);
-        dot(g,x,-20.4,1.65,.6);lv(g,.64);g.beginPath();g.ellipse(x,-21.8,2.05,1.25,0,0,6.2832);g.fill();
-        g.beginPath();g.moveTo(x+1.2,-22.6);g.quadraticCurveTo(x+2.6,-21.4,x+2.8,-19.2);raise(g,.45,.5);}
-      standing(-26);
-      lv(g,.62);g.beginPath();g.ellipse(-26,-12.2,4.8,2.4,0,0,6.2832);g.fill();
-      g.beginPath();for(var zz=0;zz<7;zz++){var zx=-29.6+zz*1.2;g.lineTo(zx,zz%2?-10.4:-14);}cut(g,.22,.45);
-      g.beginPath();g.moveTo(-24.4,-17);g.lineTo(-21.6,-21);g.lineTo(-20.2,-24);raise(g,.9,.55);
-      g.beginPath();g.moveTo(-20.2,-24);g.lineTo(-21.4,-27.6);raise(g,.38,.55);
-      /* the dancer */
-      standing(26);
-      [[[24.6,-17],[22.4,-21],[23,-25.2]],[[27.4,-17],[29.6,-21],[29,-25.2]]].forEach(function(L){g.beginPath();g.moveTo(L[0][0],L[0][1]);g.lineTo(L[1][0],L[1][1]);g.lineTo(L[2][0],L[2][1]);raise(g,.9,.55);});
-      g.restore();
-
-      /* --- a border of small lotuses along the bottom --- */
-      (function(){
-        var y=HH-6,x,i=0;
-        for(x=-HW+5;x<HW-2;x+=9,i++){
-          if(i%2===0){[[-1.2,.6],[1.2,.6],[-.62,.85],[.62,.85],[0,1]].forEach(function(p){petalShape(g,x,y,p[0],4.2*p[1],1.5);lv(g,.42);g.fill();petalShape(f,x,y,p[0],4.2*p[1],1.5);foS(f,.22,1);});}
-          else{lv(g,.38);g.beginPath();g.moveTo(x,y-3.4);g.bezierCurveTo(x+3,y-3.2,x+3.2,y+.4,x,y+.6);g.bezierCurveTo(x-2.2,y+.4,x-2,y-2,x,y-1.6);g.closePath();g.fill();dot(g,x+.2,y-1.4,.5,.3);}
-        }
-        g.beginPath();g.moveTo(-HW,y+1.6);g.lineTo(HW,y+1.6);raise(g,.5,.4);
-        f.beginPath();f.moveTo(-HW,y+1.6);f.lineTo(HW,y+1.6);foS(f,.4,1);f.beginPath();f.moveTo(-HW,y+3.6);f.lineTo(HW,y+3.6);foS(f,.2,.85);
-      })();
-
-      /* --- mehendi hands on the paper beneath the flaps, at either side --- */
-      function hand(cx,cy,flip){
-        b.save();b.translate(cx,cy);b.scale(flip,1);b.rotate(.1);
-        lv(b,.5);b.beginPath();
-        b.ellipse(0,.6,5.1,6.2,0,0,6.2832);
-        b.ellipse(-3.4,-9,1.18,4.3,-.05,0,6.2832);b.ellipse(-1,-10,1.24,4.7,0,0,6.2832);
-        b.ellipse(1.5,-9.4,1.18,4.2,.04,0,6.2832);b.ellipse(3.8,-7.3,1.02,3.3,.2,0,6.2832);
-        b.ellipse(6,-2.9,1.22,3.4,.75,0,6.2832);
-        b.rect(-3.8,4,7.6,9);b.fill();
-        /* the henna, pressed in: a mandala on the palm, bands on the fingers and wrist */
-        [2.9,1.6].forEach(function(r){b.beginPath();b.arc(0,.6,r,0,6.2832);cut(b,.26,.6);});
-        for(var k=0;k<8;k++){var a=k/8*6.2832;b.beginPath();b.ellipse(Math.cos(a)*4,.6+Math.sin(a)*4,.85,.45,a,0,6.2832);cut(b,.22,.55);}
-        dot(b,0,.6,.55,.4);
-        [[-3.4,-7.6],[-1,-8.4],[1.5,-7.8],[3.7,-6.2]].forEach(function(f){b.beginPath();b.moveTo(f[0]-1,f[1]);b.lineTo(f[0]+1,f[1]);cut(b,.22,.55);b.beginPath();b.moveTo(f[0]-1,f[1]-1.2);b.lineTo(f[0]+1,f[1]-1.2);cut(b,.22,.55);});
-        [6.2,7.6,9].forEach(function(y){b.beginPath();b.moveTo(-3.8,y);b.lineTo(3.8,y);cut(b,.22,.55);});
-        for(var wx=-3.2;wx<3.4;wx+=1.3){b.beginPath();b.arc(wx,10.6,.55,0,Math.PI);cut(b,.2,.5);}
-        b.restore();
-      }
-      /* --- the paper beneath the flaps: an ogee jaal in gold foil with a small lotus in every cell --- */
-      (function(){
-        var cw=11,chh=15,x,y,k;
-        for(x=-HW-cw;x<=HW+cw;x+=cw){
-          [1,-1].forEach(function(sg){
-            fb.beginPath();
-            for(y=-HH-chh;y<=HH+chh;y+=.8){var px=x+sg*(cw/2)*Math.sin((y/chh)*Math.PI);y===-HH-chh?fb.moveTo(px,y):fb.lineTo(px,y);}
-            foS(fb,.26,.9);
-          });
-        }
-        for(y=-HH;y<=HH+chh;y+=chh)for(x=-HW-cw;x<=HW+cw;x+=cw){
-          var cx=x+cw/2,cy=y+chh/2;
-          [[-1.15,.6],[1.15,.6],[-.6,.85],[.6,.85],[0,1]].forEach(function(p){petalShape(fb,cx,cy+1.2,p[0],2.6*p[1],.95);foS(fb,.16,.95);});
-          fb.beginPath();fb.arc(x,y,.45,0,6.2832);fo(fb,.95);fb.fill();
-        }
-        /* medallions for the hands */
-        [-1,1].forEach(function(d){
-          var hx=d*(HW-13),hy=1;
-          fb.save();fb.globalCompositeOperation='destination-out';fb.beginPath();fb.arc(hx,hy,13.6,0,6.2832);fb.fillStyle='#000';fb.fill();fb.restore();
-          fb.beginPath();fb.arc(hx,hy,12.6,0,6.2832);foS(fb,.3,1);fb.beginPath();fb.arc(hx,hy,13.5,0,6.2832);foS(fb,.18,.9);
-          for(k=0;k<36;k++){var a=k/36*6.2832;fb.beginPath();fb.arc(hx+Math.cos(a)*13.05,hy+Math.sin(a)*13.05,.2,0,6.2832);fo(fb,.9);fb.fill();}
-        });
-      })();
-      hand(-HW+13,1,1);hand(HW-13,1,-1);
 
       [g,b,f,fb].forEach(function(c){c.restore();});
     }
