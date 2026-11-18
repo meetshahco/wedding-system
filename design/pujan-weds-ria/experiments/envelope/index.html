@@ -354,6 +354,16 @@ html.viewing,html.viewing body{overflow:hidden}
 .family li{font:500 clamp(19px,5.4vw,23px)/1.35 var(--serif);color:var(--ink)}
 .hashtag{font:500 clamp(20px,5.6vw,24px)/1.4 var(--serif);letter-spacing:.02em}
 .tag{font:400 24px/1.5 'Tiro Devanagari Hindi',var(--serif);color:var(--gold);margin-top:.5em}
+.fabs{position:fixed;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:20;display:grid;gap:12px;
+  opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .8s ease,transform .8s ease}
+.opened .fabs{opacity:1;pointer-events:auto;transform:none}
+.fab{width:44px;height:44px;border-radius:50%;border:1.2px solid var(--gold);background:transparent;color:var(--gold);padding:0;cursor:pointer;
+  display:grid;place-items:center;filter:drop-shadow(0 0 6px rgba(255,255,255,.9))}
+.fab svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.fab .off{display:none}
+.fab[aria-pressed="false"] .on{display:none}
+.fab[aria-pressed="false"] .off{display:inline}
+.fab:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 .link{background:none;border:0;font:inherit;color:var(--rose);text-decoration:underline;cursor:pointer;padding:8px}
 .fine{font-size:14px;color:var(--ink2);margin-top:1em}
 
@@ -494,11 +504,18 @@ html.viewing,html.viewing body{overflow:hidden}
       <div class="rule"></div>
       <p class="line">We look forward to celebrating with you.</p>
       <p class="tag hashtag">#HamariPuRiKahani</p>
-      <button class="link" id="replay" type="button">Replay the opening</button>
-      <p class="fine" id="diag"></p>
     </div>
   </footer>
 </main>
+
+<div class="fabs" aria-label="Page controls">
+  <button class="fab" id="sound" type="button" aria-pressed="true" aria-label="Turn music off">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.2L11.5 6v12l-4.3-3.5H4z"/><path class="on" d="M15 9.2a4 4 0 0 1 0 5.6M17.6 6.8a7.4 7.4 0 0 1 0 10.4"/><path class="off" d="M15.5 9.5l5 5M20.5 9.5l-5 5"/></svg>
+  </button>
+  <button class="fab" id="replay" type="button" aria-label="Replay the opening">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 12a6.5 6.5 0 1 0 2-4.7"/><path d="M5 4.5v3.6h3.6"/></svg>
+  </button>
+</div>
 
 <div id="lightbox" hidden>
   <button class="btn" id="lb-close" type="button">Close</button>
@@ -880,6 +897,23 @@ try{api=init3D();}catch(err){if(window.console)console.error(err);why=String(err
 if(!api)fallback(why||'it could not start');
 
 document.getElementById('open').addEventListener('click',function(){if(api)api.open();});
+/* Music: set MUSIC to the track's file name once the family picks one. It starts with the opening tap and the
+   sound button turns it on and off. Until a track is set the button only remembers the choice. */
+var MUSIC='';
+var soundBtn=document.getElementById('sound'),soundOn=true,track=null;
+function playTrack(){
+  if(!MUSIC||!soundOn)return;
+  if(!track){track=new Audio(MUSIC);track.loop=true;track.volume=.55;}
+  var pr=track.play();if(pr&&pr.catch)pr.catch(function(){});
+}
+soundBtn.addEventListener('click',function(){
+  soundOn=!soundOn;soundBtn.setAttribute('aria-pressed',soundOn?'true':'false');
+  soundBtn.setAttribute('aria-label',soundOn?'Turn music off':'Turn music on');
+  if(soundOn)playTrack();else if(track)track.pause();
+});
+document.getElementById('seal')&&document.getElementById('seal').addEventListener('click',playTrack);
+document.addEventListener('visibilitychange',function(){if(!track)return;if(document.hidden)track.pause();else if(soundOn&&html.classList.contains('opened'))playTrack();});
+
 document.getElementById('replay').addEventListener('click',function(){
   if(!api)return;
   api.reset();
