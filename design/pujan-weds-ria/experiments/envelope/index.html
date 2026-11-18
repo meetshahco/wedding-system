@@ -1358,21 +1358,15 @@ function init3D(){
     halfW=halfH*camera.aspect;
     if(canopy){camera.remove(canopy);canopy.traverse(function(o){if(o.isInstancedMesh)o.dispose();});}
     canopy=new THREE.Group();enders=[];
-    var phone=camera.aspect<.8,upp=2*halfH/Math.max(1,H),step=(phone?50:60)*upp,N=Math.floor((halfW-14*upp)/step),top=halfH-36*upp,beads=[];
-    var wide=clamp((camera.aspect-.6)/.8,0,1),dMax=mix(.11,.3,wide);
+    var upp=2*halfH/Math.max(1,H),step=64*upp,N=Math.floor((halfW-10*upp)/step),top=halfH-36*upp,beads=[];
     for(var j=-N;j<=N;j++){
-      var x=j*step,n=Math.min(1,Math.abs(x)/halfW);
-      /* a pointed Indian arch: short over the middle, falling away to the sides, with a soft cusp in each half */
-      var arch=Math.pow(n,1.55),cusp=.16*Math.pow(Math.sin(Math.PI*Math.min(1,n*1.6)),2)*(1-n);
-      var len=mix(.02,dMax,clamp(arch+cusp*.35,0,1))*(.92+.16*hash(j*2.3+7));
-      var isBell=j===0||hash(j*1.9+11)<.4,lot=null;
-      if(!isBell){lot=hangLotus(j,.85+.3*hash(j*4.3+5));len=Math.max(.03,len-.012);}
+      /* one lotus, one bell, all the way across */
+      var x=j*step,odd=((j%2)+2)%2,u=clamp((Math.abs(x)/halfW-.35)/.65,0,1);
+      var len=mix(.03,mix(.075,.27,clamp((camera.aspect-.6)/.8,0,1)),u*u*(3-2*u))*(.8+.4*(((j*7)%5+5)%5)/4);
       for(var b=.012;b<len;b+=.016)beads.push([x,top-b]);
       var en;
-      if(isBell){en=new THREE.Mesh(bellGeo,brass);en.scale.setScalar(1.25);}else en=lot;
+      if(odd){en=new THREE.Mesh(bellGeo,brass);en.scale.setScalar(1.25);}else en=hangLotus(j,.9+.2*hash(j*4.3+5));
       en.position.set(x,top-len,-CD);canopy.add(en);enders.push(en);
-      /* on the longer strings a smaller lotus sometimes sits partway down */
-      if(len>.13&&hash(j*6.1+3)<.35){var mid=hangLotus(j+40,.6);mid.position.set(x,top-len*(.45+.15*hash(j+21)),-CD+.004);canopy.add(mid);enders.push(mid);}
     }
     if(beads.length){
       var bm=new THREE.InstancedMesh(beadGeo,beadMat,beads.length),d=new THREE.Object3D();
