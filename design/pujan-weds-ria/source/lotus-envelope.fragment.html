@@ -914,6 +914,8 @@ soundBtn.addEventListener('click',function(e){
 document.addEventListener('visibilitychange',function(){if(!track)return;if(document.hidden)track.pause();else if(soundOn&&started)playTrack();});
 
 document.getElementById('replay').addEventListener('click',function(){
+  /* the soundtrack starts again from the beginning along with the opening */
+  if(track){track.currentTime=0;if(soundOn){track.volume=0;playTrack();}}
   if(!api)return;
   api.reset();
   html.classList.remove('opened','opening','flash','named');
