@@ -1760,16 +1760,8 @@ function init3D(){
         fillGaps(b,'b',-HH,HH,2600);
       })();
 
-      /* ---------- around the seal: a clean ring, then a ring of pressed petals ---------- */
+      /* ---------- around the seal: a clean, quiet ring ---------- */
       g.save();g.globalCompositeOperation='destination-out';g.beginPath();g.arc(0,0,RSa*1.5,0,6.2832);g.fillStyle='#000';g.fill();g.restore();
-      (function(){
-        var n=16,r1=RSa*1.08,r2=RSa*1.42,k;
-        for(k=0;k<n;k++){var a=k/n*6.2832;f.save();f.rotate(a);
-          f.beginPath();f.moveTo(0,-r1);f.bezierCurveTo(RSa*.2,-r1-RSa*.18,RSa*.12,-r2+RSa*.12,0,-r2);f.bezierCurveTo(-RSa*.12,-r2+RSa*.12,-RSa*.2,-r1-RSa*.18,0,-r1);
-          f.save();f.strokeStyle='#fff';f.lineWidth=.34;f.stroke();f.restore();f.restore();
-          var a2=(k+.5)/n*6.2832;f.beginPath();f.arc(Math.sin(a2)*r2*.97,-Math.cos(a2)*r2*.97,.42,0,6.2832);f.fillStyle='#fff';f.fill();}
-      })();
-
       [g,b,f,fb].forEach(function(c){c.restore();});
     }
 
@@ -1864,24 +1856,18 @@ function init3D(){
       [[192,84],[64,212]].forEach(function(p){lg.beginPath();lg.arc(p[0],p[1]-8,2.4,0,6.2832);lg.fillStyle='#fff';lg.fill();});
       var tLiner=pack(256,256,[alphaOf(lt),null,null,null],true);
 
-      /* the seal: a raised ivory medallion in the same paper as the envelope, with a finely scalloped edge.
-         Gold foil rings frame the monogram, and a ring of sixteen foil lotus petals opens around it.
-         r is relief, g is foil, b is coverage */
+      /* the seal: gold, as before, but slim and calm. A soft, low dome with an almost round edge, one fine raised
+         ring near the rim, and the monogram set into a shallow recess with a wide band of plain gold around it.
+         r is relief, g is the brighter polished gold, b is coverage */
       var N=512,sd=new Uint8Array(N*N*4),rn=mulberry(9);
       for(y=0;y<N;y++)for(x=0;x<N;x++){
         var dx=(x-256)/256,dy=(y-256)/256,rr=Math.sqrt(dx*dx+dy*dy),th=Math.atan2(dy,dx);
-        var rb=.955+.022*Math.abs(Math.cos(16*th));
-        var cov=clamp((rb-rr)/.01,0,1);
-        var h=.3*sstep(rb,rb-.05,rr)-.05*Math.exp(-Math.pow((rr-.94)/.008,2))+(rn()-.5)*.006;
-        var u=((th/6.2832*16)%1+1)%1,sA=u*2-1,t=(rr-.785)/.125,pf=0,rib=0;
-        if(t>0&&t<1){var w=Math.pow(Math.sin(Math.PI*Math.min(1,t*.95+.03)),.8)*(1-.25*t)*.82;
-          pf=Math.exp(-Math.pow((Math.abs(sA)-w)/.07,2))*sstep(0,.06,t);
-          rib=Math.exp(-Math.pow(sA/.035,2))*sstep(.12,.2,t)*sstep(.82,.7,t)*.7;}
-        var dotM=0;if(Math.abs(rr-.9)<.02){var uu=Math.abs(sA);dotM=Math.exp(-Math.pow((1-uu)/.08,2))*Math.exp(-Math.pow((rr-.905)/.009,2));}
-        var ring=Math.exp(-Math.pow((rr-.768)/.01,2)),outer=Math.exp(-Math.pow((rr-.925)/.006,2));
-        var g2=clamp(ring+outer*.9+pf+rib+dotM,0,1);
-        h+=.04*g2;
-        var o=((N-1-y)*N+x)*4;sd[o]=Math.round(clamp(h,0,1)*255);sd[o+1]=Math.round(g2*255);sd[o+2]=Math.round(cov*255);sd[o+3]=255;
+        var rb=.94+.006*Math.sin(5*th+.4)+.004*Math.sin(11*th+1.1);
+        var cov=clamp((rb-rr)/.012,0,1);
+        var h=.4*sstep(rb,rb-.09,rr)+.04*(1-rr*rr);
+        var ring=Math.exp(-Math.pow((rr-.875)/.007,2)),lip=Math.exp(-Math.pow((rr-.808)/.008,2));
+        h+=.05*ring+.05*lip-.06*sstep(.82,.78,rr)+(rn()-.5)*.003;
+        var o=((N-1-y)*N+x)*4;sd[o]=Math.round(clamp(h,0,1)*255);sd[o+1]=Math.round(clamp(ring+lip,0,1)*255);sd[o+2]=Math.round(cov*255);sd[o+3]=255;
       }
       var tSeal=new THREE.DataTexture(sd,N,N,THREE.RGBAFormat);tSeal.minFilter=tSeal.magFilter=THREE.LinearFilter;tSeal.generateMipmaps=false;tSeal.needsUpdate=true;tex.push(tSeal);
 
@@ -1947,18 +1933,19 @@ function init3D(){
         'void main(){',
         ' vec4 s=texture2D(tSeal,vUv);if(s.b<0.01)discard;',
         ' float e=1.0/512.0;float hx=Hs(vUv+vec2(e,0.0))-Hs(vUv-vec2(e,0.0));float hy=Hs(vUv+vec2(0.0,e))-Hs(vUv-vec2(0.0,e));',
-        ' vec3 N=normalize(normalize(vN)-(normalize(vT)*hx+normalize(vB)*hy)*6.0);',
+        ' vec3 N=normalize(normalize(vN)-(normalize(vT)*hx+normalize(vB)*hy)*5.0);',
         ' vec3 L=normalize(uL);vec3 V=normalize(cameraPosition-vWP);vec3 Hv=normalize(L+V);',
         ' float wrap=clamp((dot(N,L)+0.45)/1.45,0.0,1.0);float nh=max(dot(N,Hv),0.0);',
-        ' vec3 alb=vec3(0.968,0.910,0.782);',
-        ' vec3 col=alb*(0.70+0.34*wrap)+vec3(1.0,0.98,0.94)*pow(nh,24.0)*0.05;',
-        ' vec3 gold=vec3(0.80,0.62,0.31);float sp=pow(nh,60.0);',
-        ' col=mix(col,gold*(0.42+0.6*wrap)+vec3(1.0,0.9,0.62)*sp*1.5,s.g);',
+        ' vec3 alb=vec3(0.86,0.69,0.41);',
+        ' vec3 col=alb*(0.48+0.56*wrap)+vec3(1.0,0.92,0.72)*pow(nh,26.0)*0.3;',
+        ' vec3 gold=vec3(0.95,0.81,0.52);',
+        ' col=mix(col,gold*(0.6+0.5*wrap)+vec3(1.0,0.96,0.84)*pow(nh,60.0)*0.8,s.g*0.85);',
         ' vec2 c0=vUv-0.5;float r=length(c0);',
-        ' vec2 c=c0;float RM=0.374;',
-        ' vec3 lg=texture2D(tLogo,0.5+c*(0.41/RM)).rgb;',
+        ' vec2 c=c0;float RM=0.400;',
+        ' float tr=r*1.45;vec3 lg=texture2D(tLogo,0.5+c*1.45).rgb;',
+        ' lg=mix(lg,vec3(0.910,0.884,0.806),smoothstep(0.41,0.48,tr));',
         ' float wf=clamp((dot(normalize(vN),L)+0.4)/1.4,0.0,1.0);',
-        ' lg*=(0.9+0.14*wf)*(1.0-0.16*smoothstep(RM-0.04,RM,r));',
+        ' lg*=(0.9+0.14*wf)*(1.0-0.14*smoothstep(RM-0.035,RM,r));',
         ' col=mix(col,lg,smoothstep(RM+0.003,RM-0.003,r));',
         ' gl_FragColor=vec4(col,s.b*uFade);',
         '}'].join('\n');
