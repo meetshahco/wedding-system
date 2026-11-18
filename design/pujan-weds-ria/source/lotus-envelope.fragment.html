@@ -1291,51 +1291,22 @@ function init3D(){
     scene.add(g);diyas.push({g:g,fl:fl,halo:halo,pool:pool,d:Math.sqrt(p[0]*p[0]+p[1]*p[1])});
   });
 
-  /* jasmine strings ending in gold bells and white lotuses, hung from the valance in the outline of an arch */
+  /* jasmine strings ending in lotus buds and gold bells, one of each in turn, hung from the valance across the top of the view */
   function V2(p){return new THREE.Vector2(p[0],p[1]);}
   var CD=2,TAN=Math.tan(20*Math.PI/180),halfH=CD*TAN,halfW=halfH,canopy=null,enders=[];
   scene.add(camera);
   var brass=new THREE.MeshPhongMaterial({color:0xD9A83E,emissive:0x3A2606,specular:0xFFF0B8,shininess:80,side:THREE.DoubleSide,fog:false});
   var bellGeo=new THREE.LatheGeometry([[0,0],[.006,0],[.008,-.009],[.013,-.024],[.02,-.038],[.026,-.044],[.026,-.048]].map(V2),16);
-  /* white lotuses for the strings, built from the same petals as the big flower and baked into one mesh each.
-     Three openings: half open, mostly open and in full bloom */
-  var hangMat=new THREE.ShaderMaterial({
-    uniforms:{uBase:{value:new THREE.Vector3(.93,.94,.8)},uMid:{value:new THREE.Vector3(1,.99,.975)},uTip:{value:new THREE.Vector3(.99,.94,.93)},uDeep:{value:.3},uGlow:zeroU,uSide:{value:1},uNight:nightU,uWarm:warmU,uRev:bigU,uLa:laU,uDim:dimU},
-    vertexShader:PV,fragmentShader:PF,side:THREE.DoubleSide});
-  function bakeLotus(op,seed){
-    var keep=R;R=mulberry(seed);
-    var fl=buildFlower(lowGeoms(op,4),gardenMats,4,false);pose(fl,0,0,op);fl.root.updateMatrixWorld(true);R=keep;
-    var P=[],Nn=[],Uv=[],T=[],I=[],base=0,v=new THREE.Vector3(),nm=new THREE.Matrix3();
-    fl.petals.forEach(function(p){
-      var g=p.mesh.geometry,gp=g.attributes.position,gn=g.attributes.normal,gu=g.attributes.uv,gi=g.index.array,m=p.mesh.matrixWorld;
-      nm.getNormalMatrix(m);
-      for(var i=0;i<gp.count;i++){
-        v.fromBufferAttribute(gp,i).applyMatrix4(m);P.push(v.x,v.y,v.z);
-        v.fromBufferAttribute(gn,i).applyMatrix3(nm).normalize();Nn.push(v.x,v.y,v.z);
-        Uv.push(gu.getX(i),gu.getY(i));T.push(0);
-      }
-      for(var k=0;k<gi.length;k++)I.push(gi[k]+base);
-      base+=gp.count;
-    });
-    var bg=new THREE.BufferGeometry();
-    bg.setAttribute('position',new THREE.Float32BufferAttribute(P,3));bg.setAttribute('normal',new THREE.Float32BufferAttribute(Nn,3));
-    bg.setAttribute('uv',new THREE.Float32BufferAttribute(Uv,2));bg.setAttribute('aTint',new THREE.Float32BufferAttribute(T,1));
-    bg.setIndex(I);return bg;
-  }
-  var lotusGeos=[bakeLotus(.5,301),bakeLotus(.75,302),bakeLotus(1,303)];
-  var hangPod=new THREE.CylinderGeometry(.12,.06,.16,12);
-  function hash(n){var x=Math.sin(n*127.1+311.7)*43758.5453;return x-Math.floor(x);}
-  /* how each lotus hangs: turned toward the guest, facing down, or lying on its side */
-  function hangLotus(j,sz){
-    var h=hash(j*3.1+1),oi=Math.floor(hash(j*5.7+2)*3),gr=new THREE.Group(),fl=new THREE.Group();
-    fl.add(new THREE.Mesh(lotusGeos[oi],hangMat));
-    if(oi){var pd=new THREE.Mesh(hangPod,podMats);pd.position.y=.14;fl.add(pd);}
-    var k=.05*sz;fl.scale.setScalar(k);
-    if(h<.42){fl.rotation.set(2.05+hash(j+9)*.35,(hash(j+7)-.5)*.6,(hash(j+4)-.5)*.5);fl.position.y=-.55*k;}
-    else if(h<.72){fl.rotation.set(Math.PI+(hash(j+6)-.5)*.45,hash(j+2)*6.28,(hash(j+8)-.5)*.35);}
-    else{var sd=hash(j+3)<.5?-1:1;fl.rotation.set(.3,hash(j+1)*6.28,sd*(1.8+hash(j+5)*.3));fl.position.set(sd*.25*k,-.45*k,0);}
-    gr.add(fl);return gr;
-  }
+  var budGeo=new THREE.LatheGeometry([[0,0],[.006,-.004],[.019,-.026],[.021,-.04],[.013,-.062],[0,-.08]].map(V2),14);
+  (function(){
+    var p=budGeo.attributes.position,c=new Float32Array(p.count*3);
+    for(var i=0;i<p.count;i++){
+      var t=clamp(-p.getY(i)/.08,0,1),g=t<.1,k=clamp((t-.15)/.85,0,1);
+      c[i*3]=g?.66:mix(1,.93,k);c[i*3+1]=g?.78:mix(.94,.55,k);c[i*3+2]=g?.6:mix(.95,.68,k);
+    }
+    budGeo.setAttribute('color',new THREE.BufferAttribute(c,3));
+  })();
+  var budMat=new THREE.MeshLambertMaterial({vertexColors:true,side:THREE.DoubleSide,fog:false});
   var beadGeo=new THREE.SphereGeometry(.0055,6,5),beadMat=new THREE.MeshLambertMaterial({color:0xFFFDF4,fog:false});
   function buildCanopy(){
     halfW=halfH*camera.aspect;
@@ -1343,12 +1314,10 @@ function init3D(){
     canopy=new THREE.Group();enders=[];
     var upp=2*halfH/Math.max(1,H),step=64*upp,N=Math.floor((halfW-10*upp)/step),top=halfH-36*upp,beads=[];
     for(var j=-N;j<=N;j++){
-      /* one lotus, one bell, all the way across */
       var x=j*step,odd=((j%2)+2)%2,u=clamp((Math.abs(x)/halfW-.35)/.65,0,1);
       var len=mix(.03,mix(.075,.27,clamp((camera.aspect-.6)/.8,0,1)),u*u*(3-2*u))*(.8+.4*(((j*7)%5+5)%5)/4);
       for(var b=.012;b<len;b+=.016)beads.push([x,top-b]);
-      var en;
-      if(odd){en=new THREE.Mesh(bellGeo,brass);en.scale.setScalar(1.25);}else en=hangLotus(j,.9+.2*hash(j*4.3+5));
+      var en=new THREE.Mesh(odd?bellGeo:budGeo,odd?brass:budMat);if(odd)en.scale.setScalar(1.25);
       en.position.set(x,top-len,-CD);canopy.add(en);enders.push(en);
     }
     if(beads.length){
