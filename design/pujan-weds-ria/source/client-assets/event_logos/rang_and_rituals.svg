@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 620">
+<defs>
+ <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#F5D88A"/><stop offset=".5" stop-color="#B98532"/><stop offset="1" stop-color="#E9C779"/></linearGradient>
+ <linearGradient id="coral" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#E87555"/><stop offset="1" stop-color="#B83D50"/></linearGradient>
+</defs>
+<!-- airy scalloped arch -->
+<path d="M245 420 C125 350 118 220 205 135 C280 60 420 45 600 45 C780 45 920 60 995 135 C1082 220 1075 350 955 420" fill="none" stroke="url(#gold)" stroke-width="4"/>
+<path d="M275 410 C180 345 175 235 245 165" fill="none" stroke="#D9B66A" stroke-width="1.8"/>
+<path d="M925 410 C1020 345 1025 235 955 165" fill="none" stroke="#D9B66A" stroke-width="1.8"/>
+<!-- title -->
+<text x="600" y="235" text-anchor="middle" font-family="'URW Chancery L','Brush Script MT',cursive" font-size="142" font-style="italic" fill="url(#coral)">Rang</text>
+<text x="600" y="310" text-anchor="middle" font-family="Georgia,serif" font-size="36" letter-spacing="8" fill="#A66C3D">and</text>
+<text x="600" y="405" text-anchor="middle" font-family="Georgia,serif" font-size="104" letter-spacing="1" fill="#8E3F36">Rituals</text>
+<!-- gulal strokes -->
+<path d="M170 265 Q225 210 285 245 M190 292 Q245 240 305 270 M915 260 Q980 210 1030 255" fill="none" stroke="#E98A69" stroke-width="8" stroke-linecap="round" opacity=".65"/>
+<circle cx="245" cy="205" r="8" fill="#E98A69"/><circle cx="275" cy="190" r="5" fill="#E5B34F"/><circle cx="955" cy="210" r="7" fill="#C64D62"/>
+<!-- lotus left -->
+<g transform="translate(175 455)" fill="none" stroke="url(#gold)" stroke-width="3">
+ <path d="M0 40 Q-65 4 -42 -28 Q-10 -25 0 40 Q10 -25 42 -28 Q65 4 0 40Z"/>
+ <path d="M0 40 Q-28 -22 0 -58 Q28 -22 0 40Z"/>
+ <path d="M-48 44 Q-20 28 0 40 Q20 28 48 44"/>
+ <path d="M-62 52 Q0 72 62 52"/>
+</g>
+<!-- bowl and petals -->
+<g transform="translate(1010 470)" stroke="#B98532" stroke-width="3">
+ <path d="M-60 0 Q0 28 60 0 L45 38 Q0 58 -45 38Z" fill="#E8C879"/>
+ <path d="M-60 0 Q0 -20 60 0" fill="none"/>
+ <circle cx="-82" cy="-22" r="5" fill="#D95B68" stroke="none"/><circle cx="-98" cy="8" r="4" fill="#E5A14B" stroke="none"/>
+ <path d="M-5 -18 Q-35 -45 -15 -52 Q5 -49 0 -18 Q15 -53 32 -45 Q42 -28 5 -15" fill="#D85A72" stroke="#B83D50"/>
+</g>
+<g fill="url(#gold)"><circle cx="360" cy="470" r="4"/><circle cx="410" cy="490" r="3"/><circle cx="790" cy="485" r="4"/><circle cx="850" cy="465" r="3"/></g>
+<!-- hanging bell -->
+<g transform="translate(970 105)" stroke="url(#gold)" stroke-width="3" fill="none"><path d="M0 -28 V5 M-18 5 Q0 20 18 5 L12 -15 H-12Z"/><path d="M-7 22 Q0 30 7 22"/></g>
+</svg>
