@@ -1810,7 +1810,10 @@ function init3D(){
       var X=function(x){return x/100*CW;},Y=function(y){return y/100*CH;};
 
       /* relief: soft raised artwork, engraved veins, raised border lines along each free edge */
-      var raw=cv(CW,CH),veins=[],braw=cv(CW,CH),fc=cv(CW,CH),fg=fc.getContext('2d'),fbc=cv(CW,CH);drawArt(raw.getContext('2d'),braw.getContext('2d'),fg,fbc.getContext('2d'),CW,CH);
+      var raw=cv(CW,CH),veins=[],braw=cv(CW,CH),fc=cv(CW,CH),fg=fc.getContext('2d'),fa=cv(CW,CH),fbc=cv(CW,CH);drawArt(raw.getContext('2d'),braw.getContext('2d'),fa.getContext('2d'),fbc.getContext('2d'),CW,CH);
+      /* the extra motifs are blind embossed like everything else: pressed into the paper, no ink or foil */
+      (function(){var rg=raw.getContext('2d');rg.save();rg.globalAlpha=.5;rg.drawImage(fa,0,0);rg.restore();
+        var bg2=braw.getContext('2d');bg2.save();bg2.globalAlpha=.42;bg2.drawImage(fbc,0,0);bg2.restore();})();
       /* a fine beaded edge just inside each petal, stopping short of the seal */
       (function(g){
         var rr=RS/2*CH*1.2;
@@ -1843,11 +1846,11 @@ function init3D(){
       ['top','bottom'].forEach(function(k){line(fg,edge(k).map(px),S*.42,'#fff');
         /* a second, finer gold rule inside each petal edge, stopping before the lotus round the seal */
         var ins=inset(k,S*4.2),rcut=RS/2*CH*1.9,run=[];
-        ins.forEach(function(q){if(Math.hypot(q[0]-CW/2,q[1]-CH/2)>rcut)run.push(q);else{if(run.length>1)line(fg,run,S*.2,'rgba(255,255,255,.9)');run=[];}});
-        if(run.length>1)line(fg,run,S*.2,'rgba(255,255,255,.9)');});
+        ins.forEach(function(q){if(Math.hypot(q[0]-CW/2,q[1]-CH/2)>rcut)run.push(q);else{if(run.length>1)line(hg,run,S*.24,'rgba(255,255,255,.4)');run=[];}});
+        if(run.length>1)line(hg,run,S*.24,'rgba(255,255,255,.4)');});
       /* under the seal the borders stop, so the flap tips stay clean when the seal breaks apart */
       [hg,fg].forEach(function(g){g.save();g.globalCompositeOperation='destination-out';g.beginPath();g.arc(CW/2,CH/2,RS/2*CH*1.02,0,6.2832);g.fill();g.restore();});
-      var tPaper=pack(CW,CH,[alphaOf(hc),alphaOf(fc),alphaOf(bc),alphaOf(fbc)]);
+      var tPaper=pack(CW,CH,[alphaOf(hc),alphaOf(fc),alphaOf(bc),null]);
 
       /* shadows each layer casts on the layers beneath it */
       var SH=512,SW=Math.round(SH*ea);
@@ -1932,11 +1935,12 @@ function init3D(){
         ' float wrap=clamp((dot(N,L)+0.3)/1.3,0.0,1.0);',
         ' vec4 sh=texture2D(tShadow,uv);',
         ' float shd=max(max(sh.r*uSW.r,sh.g*uSW.g),max(sh.b*uSW.b,sh.a*uSW.a))*uShade;',
-        ' vec3 alb=mix(vec3(0.962,0.928,0.858),vec3(0.995,0.968,0.912),fr)*(0.982+0.036*nz.r);',
+        ' vec3 alb=mix(vec3(0.925,0.845,0.690),vec3(0.966,0.898,0.752),fr)*(0.982+0.036*nz.r);',
         ' float lf=0.97+0.04*clamp(vWP.y*0.5+0.5,0.0,1.0);',
         ' vec3 col=alb*mix(0.84+0.12*wrap,0.74+0.30*wrap,fr)*lf;',
         ' col+=vec3(0.10,0.06,0.02)*uSeam*(1.0-fr);',
         ' col+=vec3(1.0,0.98,0.94)*pow(max(dot(N,Hv),0.0),22.0)*0.05;',
+        ' col+=vec3(1.0,0.90,0.66)*pow(max(dot(N,Hv),0.0),6.0)*0.07*fr*(0.7+0.6*nz.g);',
         ' float foil=pm.g*fr;float sp=pow(max(dot(N,Hv),0.0),60.0);',
         ' vec3 gold=vec3(0.80,0.62,0.31);',
         ' vec3 fc=gold*(0.38+0.6*wrap)+vec3(1.0,0.9,0.62)*sp*1.5+gold*0.22*pow(1.0-max(dot(N,V),0.0),2.0);',
@@ -1953,16 +1957,12 @@ function init3D(){
         'void main(){',
         ' vec2 uv=vUv;float f=texture2D(tLiner,vec2(uv.x*uEA,uv.y)*4.4).r;vec4 nz=texture2D(tNoise,vec2(uv.x*uEA,uv.y)*5.0);',
         ' vec4 sh=texture2D(tShadow,uv);float shd=max(max(sh.r,sh.g),sh.b)*uShade;',
-        ' vec3 col=vec3(0.930,0.862,0.735)*(0.982+0.036*nz.r)+0.0*f;',
+        ' vec3 col=vec3(0.918,0.832,0.668)*(0.982+0.036*nz.r)+0.0*f;',
         ' float bx=texture2D(tPaper,uv+vec2(uTexel.x,0.0)).b-texture2D(tPaper,uv-vec2(uTexel.x,0.0)).b;',
         ' float by=texture2D(tPaper,uv+vec2(0.0,uTexel.y)).b-texture2D(tPaper,uv-vec2(0.0,uTexel.y)).b;',
         ' vec3 Lb=normalize(uL);vec3 Nb=normalize(vec3(-bx*2.4,-by*2.4,1.0));',
         ' float w1=clamp((dot(Nb,Lb)+0.3)/1.3,0.0,1.0);float w0=clamp((Lb.z+0.3)/1.3,0.0,1.0);',
         ' col*=(0.80+0.26*w1)/(0.80+0.26*w0);',
-        ' float fo=texture2D(tPaper,uv).a;vec3 Vb=normalize(cameraPosition-vWP);vec3 Hb=normalize(Lb+Vb);',
-        ' float sb=pow(max(dot(normalize(Nb+vec3((nz.g-0.5)*0.25,(nz.b-0.5)*0.25,0.0)),Hb),0.0),36.0);',
-        ' vec3 gb=vec3(0.80,0.62,0.31);',
-        ' col=mix(col,gb*(0.62+0.4*w1)+vec3(1.0,0.9,0.62)*sb*0.9,fo*0.92);',
         ' col*=1.0-shd*0.3;',
         ' float d=length(vec2((uv.x-0.5)*uEA,uv.y-0.5));',
         ' col+=vec3(1.0,0.78,0.48)*smoothstep(uP,uP-0.2,d)*uSeam*0.22;',
@@ -1979,7 +1979,7 @@ function init3D(){
         ' vec3 N=normalize(normalize(vN)-(normalize(vT)*hx+normalize(vB)*hy)*6.0);',
         ' vec3 L=normalize(uL);vec3 V=normalize(cameraPosition-vWP);vec3 Hv=normalize(L+V);',
         ' float wrap=clamp((dot(N,L)+0.45)/1.45,0.0,1.0);float nh=max(dot(N,Hv),0.0);',
-        ' vec3 alb=vec3(0.995,0.968,0.912);',
+        ' vec3 alb=vec3(0.968,0.910,0.782);',
         ' vec3 col=alb*(0.70+0.34*wrap)+vec3(1.0,0.98,0.94)*pow(nh,24.0)*0.05;',
         ' vec3 gold=vec3(0.80,0.62,0.31);float sp=pow(nh,60.0);',
         ' col=mix(col,gold*(0.42+0.6*wrap)+vec3(1.0,0.9,0.62)*sp*1.5,s.g);',
@@ -2009,7 +2009,7 @@ function init3D(){
         'uniform sampler2D tNoise;uniform float uFade;uniform float uEA;uniform float uAsp;varying vec2 vUv;',
         'void main(){',
         ' vec2 p=(vUv-0.5)*vec2(uAsp,1.0)*2.0;vec4 nz=texture2D(tNoise,vUv*vec2(uAsp,1.0)*3.0);',
-        ' vec3 c=mix(vec3(0.965,0.935,0.872),vec3(0.905,0.845,0.735),clamp(length(p*vec2(0.42,0.62)),0.0,1.0))*(0.985+0.03*nz.r);',
+        ' vec3 c=mix(vec3(0.945,0.890,0.770),vec3(0.880,0.800,0.650),clamp(length(p*vec2(0.42,0.62)),0.0,1.0))*(0.985+0.03*nz.r);',
         ' vec2 q=abs(p)-vec2(uEA,1.0);float sd=length(max(q,0.0))+min(max(q.x,q.y),0.0);',
         ' c*=1.0-0.16*exp(-max(sd,0.0)*7.0);',
         ' gl_FragColor=vec4(c,uFade);',
