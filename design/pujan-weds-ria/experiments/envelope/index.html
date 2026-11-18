@@ -61,9 +61,10 @@ a{color:inherit}
 /* Splash: nothing but the lotus. On the tap, the names rise out of the flower and the rest follows. */
 .valance{transform:translateY(-120%);transition:transform 1.5s cubic-bezier(.2,.8,.2,1)}
 .opened .valance{transform:none}
-.hero .mantra,.hero .kicker,.hero .names{opacity:0}
+.hero .kicker,.hero .names,.hero .hero-tag{opacity:0}
 .named .hero .names{animation:popOut 2s cubic-bezier(.2,.9,.25,1) both}
-.named .hero .mantra,.named .hero .kicker{animation:fadeUp 1.2s ease 1.5s both}
+.named .hero .kicker{animation:fadeUp 1.2s ease 1.5s both}
+.named .hero .hero-tag{animation:fadeUp 1.2s ease 2s both}
 @keyframes popOut{
   0%{opacity:0;transform:translateY(var(--ty,40vh)) scale(.06);filter:blur(8px);text-shadow:0 0 50px #ffd98a}
   45%{opacity:1;filter:blur(0)}
@@ -76,7 +77,7 @@ a{color:inherit}
 @keyframes hintPulse{50%{opacity:.5}}
 .opening .hint{opacity:0;pointer-events:none;animation:none}
 .no3d .hint{display:none}
-.no3d .hero .mantra,.no3d .hero .kicker,.no3d .hero .names,.no3d .hero .when{opacity:1;animation:none}
+.no3d .hero .kicker,.no3d .hero .names,.no3d .hero .hero-tag,.no3d .hero .when{opacity:1;animation:none}
 
 /* The envelope layer: it takes the tap and carries the hint; the envelope itself is drawn in 3D */
 html.env-on,html.env-on body{overflow:hidden}
@@ -103,7 +104,8 @@ html.env-on,html.env-on body{overflow:hidden}
 }
 .hero a,.hero button{pointer-events:auto}
 .mantra{font:500 19px/1.4 var(--serif);color:var(--gold);letter-spacing:.06em;margin-bottom:.5em}
-.kicker{font:italic 400 21px/1.3 var(--serif);color:var(--ink2)}
+.kicker{font:italic 400 clamp(18px,5vw,22px)/1.35 var(--serif);color:var(--ink2);margin-bottom:.35em;text-shadow:0 0 14px #fff}
+.hero-tag{font-size:clamp(20px,5.6vw,26px);margin-top:.35em;text-shadow:0 0 14px #fff}
 .names{font:300 clamp(46px,12vw,124px)/.98 var(--serif);color:var(--leaf);margin-top:.1em;letter-spacing:.01em;text-shadow:0 0 30px rgba(255,255,255,.9)}
 .names i{font:400 .72em var(--script);color:var(--rose);padding:0 .1em}
 .when{margin-top:.8em;font:italic 400 21px/1.45 var(--serif);color:var(--ink2);opacity:0;transition:opacity 1.8s ease;text-shadow:0 0 14px #fff}
@@ -150,6 +152,8 @@ html.env-on,html.env-on body{overflow:hidden}
 .big-name{font:400 clamp(60px,13vw,96px)/1.1 var(--script);color:#8F6A22;padding:.08em .15em .02em;
   background:linear-gradient(100deg,#7A5A1A,#B48A35 50%,#7A5A1A);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .with{font:italic 400 22px/1 var(--serif);color:var(--gold)}
+.invocation{display:grid;gap:2px;margin:0 auto 22px}
+.invocation p{font:500 clamp(16px,4.4vw,19px)/1.55 var(--serif);color:var(--gold);letter-spacing:.02em}
 .dates{font:500 24px/1.4 var(--serif);color:var(--leaf)}
 .dates span{display:block;font:400 17px/1.5 var(--sans);color:var(--ink2)}
 .count{display:flex;justify-content:center;gap:clamp(14px,5vw,30px);margin-top:20px}
@@ -168,7 +172,8 @@ html.env-on,html.env-on body{overflow:hidden}
 .info{grid-area:info}
 .wear-part{grid-area:wear;margin-top:26px}
 .ename.logo{margin:0 auto;width:100%;max-width:420px;line-height:0}
-.ename.logo svg{display:block;width:100%;height:auto;overflow:visible}
+.ename.logo .logo-crop{display:block;width:100%;overflow:visible;margin:0 auto}
+.ename.logo .logo-crop img{display:block;max-width:none;height:auto}
 .logoed .card.event{padding-top:64px}
 .vibe-title{font:500 clamp(19px,5.4vw,22px)/1.3 var(--serif);color:var(--leaf);text-wrap:balance}
 .vibe-line{font:italic 400 16.5px/1.38 var(--serif);color:var(--ink2);max-width:44ch;text-wrap:balance}
@@ -303,6 +308,7 @@ html.viewing,html.viewing body{overflow:hidden}
 .scratch-date b{font:500 clamp(24px,7.2vw,31px)/1.15 var(--serif);color:var(--rose);white-space:nowrap}
 #foil{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab;transition:opacity 1s ease}
 .revealed #foil{opacity:0;pointer-events:none}
+.crackers{position:fixed;inset:0;width:100%;height:100%;z-index:30;pointer-events:none}
 .revealed .scratch{animation:foilGlow 1.8s ease both}
 .revealed .scratch-date b{animation:dateGlow 1.8s ease both}
 @keyframes dateGlow{0%{transform:scale(.94)}40%{transform:scale(1.07);text-shadow:0 0 26px rgba(255,196,84,.95)}100%{transform:none;text-shadow:none}}
@@ -358,7 +364,7 @@ html.viewing,html.viewing body{overflow:hidden}
   .chapter .card.event .crest{top:16px;width:38px}
   .chapter.logoed .card.event{padding-top:30px}
   .chapter .ename.logo{max-width:none}
-  .chapter .ename.logo svg{height:clamp(86px,13.5vh,118px);width:auto;max-width:100%;margin:0 auto}
+  .chapter .ename.logo .logo-crop{height:clamp(86px,13.5vh,118px);width:auto}
   .chapter .event .rule{margin:12px auto 10px}
   .chapter .event .ename{margin-bottom:0}
   .chapter .nm-script{font-size:clamp(40px,11.5vw,50px)}
@@ -396,7 +402,7 @@ html.viewing,html.viewing body{overflow:hidden}
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   .hint{animation:none}
-  .named .hero .names,.named .hero .mantra,.named .hero .kicker{animation:none;opacity:1}
+  .named .hero .names,.named .hero .kicker,.named .hero .hero-tag{animation:none;opacity:1}
   .valance{transition:none}
   .nm-outline{transition:none;background-size:100% 100%}
   .in .nm-foil{animation:none}
@@ -419,9 +425,9 @@ html.viewing,html.viewing body{overflow:hidden}
 <main>
   <header class="hero" id="hero">
     <div>
-      <p class="mantra" lang="hi">॥ शुभ विवाह ॥</p>
-      <p class="kicker">Together with their families</p>
+      <p class="kicker">Marriages are settled in heaven<br>but celebrated on earth</p>
       <h1 class="names">Pujan <i>weds</i> Ria</h1>
+      <p class="tag hero-tag" lang="hi">♥️हमारी PURI कहानी♥️</p>
       <p class="when">invite you to their wedding celebrations</p>
     </div>
     <div class="hero-bottom">
@@ -433,7 +439,6 @@ html.viewing,html.viewing body{overflow:hidden}
   <section class="solo" id="reveal">
     <div class="card">
       <div class="crest"></div>
-      <p class="line">We have chosen our day</p>
       <div class="scratch" id="scratch">
         <div class="scratch-date"><span>Sunday</span><b>13 December 2026</b></div>
         <canvas id="foil" aria-hidden="true"></canvas>
@@ -446,15 +451,19 @@ html.viewing,html.viewing body{overflow:hidden}
   <section class="invite" id="invite">
     <div class="card">
       <div class="crest" id="crest-src"></div>
-      <p class="line">With the blessings of<br><b>Smt. Grandmother name</b> and <b>Shri Grandfather name</b></p>
+      <div class="invocation">
+        <p>॥ Shri Jirawala Parshwanathay Namah ॥</p>
+        <p>॥ Shri Aadinathay Namah ॥</p>
+      </div>
+      <p class="line">With the blessings of<br><b>Smt. Shailiniben &amp;</b><br><b>late Shri Rameshbhai Jhaveri</b></p>
       <div class="rule"></div>
-      <p class="line"><b>Smt. Mother name</b> and <b>Shri Father name</b><br>request the honour of your presence<br>at the wedding of their daughter</p>
-      <p class="big-name">Ria</p>
-      <p class="with">with</p>
+      <p class="line"><b>Purvi &amp; Hemal Jhaveri</b><br>request the honour of your presence<br>at the wedding ceremony of their son</p>
       <p class="big-name">Pujan</p>
-      <p class="line">son of <b>Smt. Mother name</b> and <b>Shri Father name</b></p>
+      <p class="with">with</p>
+      <p class="big-name">Ria</p>
+      <p class="line">Daughter of<br><b>Jigishaben &amp; Prashantbhai Zaveri</b></p>
       <div class="rule"></div>
-      <p class="dates">Sunday, 13 December 2026<span>Celebrations begin on Sunday, 6 December</span></p>
+      <p class="dates">Sunday, 13 Dec 2026</p>
       <div class="count">
         <div><b id="cd-d">0</b><span>days</span></div>
         <div><b id="cd-h">0</b><span>hours</span></div>
@@ -531,7 +540,14 @@ var DUMMY_MAP='https://www.google.com/maps/search/?api=1&query=Surat%2C+Gujarat'
 var FIRST_EVENT='2026-12-13T12:39:00+05:30';
 function MAPS(q,id){return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q)+'&query_place_id='+id;}
 /* The client's title artwork for each event, inlined so it can use the page's fonts */
-var LOGOS={"rr": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"105 37 973 489\" role=\"img\" aria-hidden=\"true\" focusable=\"false\"> <defs> <linearGradient id=\"rr-gold\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop stop-color=\"#F5D88A\"/><stop offset=\".5\" stop-color=\"#B98532\"/><stop offset=\"1\" stop-color=\"#E9C779\"/></linearGradient> <linearGradient id=\"rr-coral\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop stop-color=\"#E87555\"/><stop offset=\"1\" stop-color=\"#B83D50\"/></linearGradient> </defs> <path d=\"M245 420 C125 350 118 220 205 135 C280 60 420 45 600 45 C780 45 920 60 995 135 C1082 220 1075 350 955 420\" fill=\"none\" stroke=\"url(#rr-gold)\" stroke-width=\"4\"/> <path d=\"M275 410 C180 345 175 235 245 165\" fill=\"none\" stroke=\"#D9B66A\" stroke-width=\"1.8\"/> <path d=\"M925 410 C1020 345 1025 235 955 165\" fill=\"none\" stroke=\"#D9B66A\" stroke-width=\"1.8\"/> <text x=\"600\" y=\"235\" text-anchor=\"middle\" font-family=\"'Cormorant Garamond',Georgia,serif\" font-weight=\"500\" font-size=\"142\" font-style=\"italic\" fill=\"url(#rr-coral)\">Rang</text> <text x=\"600\" y=\"310\" text-anchor=\"middle\" font-family=\"Georgia,'Cormorant Garamond',serif\" font-size=\"36\" letter-spacing=\"8\" fill=\"#A66C3D\">and</text> <text x=\"600\" y=\"405\" text-anchor=\"middle\" font-family=\"Georgia,'Cormorant Garamond',serif\" font-size=\"104\" letter-spacing=\"1\" fill=\"#8E3F36\">Rituals</text> <path d=\"M170 265 Q225 210 285 245 M190 292 Q245 240 305 270 M915 260 Q980 210 1030 255\" fill=\"none\" stroke=\"#E98A69\" stroke-width=\"8\" stroke-linecap=\"round\" opacity=\".65\"/> <circle cx=\"245\" cy=\"205\" r=\"8\" fill=\"#E98A69\"/><circle cx=\"275\" cy=\"190\" r=\"5\" fill=\"#E5B34F\"/><circle cx=\"955\" cy=\"210\" r=\"7\" fill=\"#C64D62\"/> <g transform=\"translate(175 455)\" fill=\"none\" stroke=\"url(#rr-gold)\" stroke-width=\"3\"> <path d=\"M0 40 Q-65 4 -42 -28 Q-10 -25 0 40 Q10 -25 42 -28 Q65 4 0 40Z\"/> <path d=\"M0 40 Q-28 -22 0 -58 Q28 -22 0 40Z\"/> <path d=\"M-48 44 Q-20 28 0 40 Q20 28 48 44\"/> <path d=\"M-62 52 Q0 72 62 52\"/> </g> <g transform=\"translate(1010 470)\" stroke=\"#B98532\" stroke-width=\"3\"> <path d=\"M-60 0 Q0 28 60 0 L45 38 Q0 58 -45 38Z\" fill=\"#E8C879\"/> <path d=\"M-60 0 Q0 -20 60 0\" fill=\"none\"/> <circle cx=\"-82\" cy=\"-22\" r=\"5\" fill=\"#D95B68\" stroke=\"none\"/><circle cx=\"-98\" cy=\"8\" r=\"4\" fill=\"#E5A14B\" stroke=\"none\"/> <path d=\"M-5 -18 Q-35 -45 -15 -52 Q5 -49 0 -18 Q15 -53 32 -45 Q42 -28 5 -15\" fill=\"#D85A72\" stroke=\"#B83D50\"/> </g> <g fill=\"url(#rr-gold)\"><circle cx=\"360\" cy=\"470\" r=\"4\"/><circle cx=\"410\" cy=\"490\" r=\"3\"/><circle cx=\"790\" cy=\"485\" r=\"4\"/><circle cx=\"850\" cy=\"465\" r=\"3\"/></g> <g transform=\"translate(970 105)\" stroke=\"url(#rr-gold)\" stroke-width=\"3\" fill=\"none\"><path d=\"M0 -28 V5 M-18 5 Q0 20 18 5 L12 -15 H-12Z\"/><path d=\"M-7 22 Q0 30 7 22\"/></g> </svg>", "me": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"102 54 1008 409\" role=\"img\" aria-hidden=\"true\" focusable=\"false\"> <defs><linearGradient id=\"me-leaf\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop stop-color=\"#84934B\"/><stop offset=\"1\" stop-color=\"#4E642D\"/></linearGradient><linearGradient id=\"me-gold\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop stop-color=\"#F0D18A\"/><stop offset=\"1\" stop-color=\"#A9792E\"/></linearGradient></defs> <text x=\"590\" y=\"335\" text-anchor=\"middle\" font-family=\"'Cormorant Garamond',Georgia,serif\" font-weight=\"500\" font-size=\"180\" font-style=\"italic\" fill=\"url(#me-leaf)\">Mehendi</text> <path d=\"M155 410 C300 495 420 430 510 420 C680 400 820 470 1040 390\" fill=\"none\" stroke=\"url(#me-gold)\" stroke-width=\"4\"/> <path d=\"M180 415 Q145 365 110 385 Q120 425 180 415 M290 455 Q270 405 230 410 Q240 450 290 455 M930 430 Q965 375 1005 390 Q990 430 930 430\" fill=\"url(#me-leaf)\" stroke=\"#596C32\" stroke-width=\"2\"/> <g fill=\"url(#me-leaf)\" stroke=\"#596C32\" stroke-width=\"2\"> <path d=\"M275 440 Q245 365 210 375 Q215 420 275 440Z\"/><path d=\"M320 446 Q320 375 360 370 Q365 415 320 446Z\"/> <path d=\"M820 440 Q800 365 765 370 Q770 415 820 440Z\"/><path d=\"M860 440 Q870 375 910 370 Q905 415 860 440Z\"/> </g> <g transform=\"translate(240 175)\" fill=\"none\" stroke=\"url(#me-gold)\" stroke-width=\"4\"> <path d=\"M0 70 Q-62 30 -38 -15 Q-8 -5 0 70 Q8 -5 38 -15 Q62 30 0 70Z\"/> <path d=\"M0 70 Q-27 0 0 -42 Q27 0 0 70Z\"/> <path d=\"M-48 75 Q0 92 48 75\"/> </g> <path d=\"M925 115 C1030 35 1110 125 1060 215 C1030 265 970 255 960 215 C950 175 1000 150 1025 180 C1040 200 1020 225 1000 215\" fill=\"none\" stroke=\"url(#me-gold)\" stroke-width=\"7\" stroke-linecap=\"round\"/> <path d=\"M960 175 Q1000 105 1050 130 M975 205 Q1015 180 1040 195\" fill=\"none\" stroke=\"#9B7B3D\" stroke-width=\"3\"/> <g fill=\"#B58B3E\"><circle cx=\"900\" cy=\"90\" r=\"5\"/><circle cx=\"920\" cy=\"75\" r=\"4\"/><circle cx=\"940\" cy=\"65\" r=\"3\"/><circle cx=\"1080\" cy=\"270\" r=\"4\"/></g> <g transform=\"translate(1085 330)\" stroke=\"url(#me-gold)\" stroke-width=\"3\" fill=\"none\"><path d=\"M0 -40 V0\"/><path d=\"M-17 0 Q0 15 17 0 L12 27 Q0 40 -12 27Z\"/><circle cy=\"47\" r=\"4\"/></g> <g transform=\"translate(145 330)\" stroke=\"url(#me-gold)\" stroke-width=\"3\" fill=\"none\"><path d=\"M0 -30 V0\"/><path d=\"M-13 0 Q0 12 13 0 L9 20 Q0 30 -9 20Z\"/></g> </svg>", "sn": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"139 82 901 500\" role=\"img\" aria-hidden=\"true\" focusable=\"false\"> <defs><linearGradient id=\"sn-navy\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop stop-color=\"#29365F\"/><stop offset=\"1\" stop-color=\"#111B3E\"/></linearGradient><linearGradient id=\"sn-gold\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop stop-color=\"#F3D58B\"/><stop offset=\"1\" stop-color=\"#A77A31\"/></linearGradient></defs> <path d=\"M290 95 C110 170 95 420 275 505 C175 390 185 210 290 95Z\" fill=\"url(#sn-navy)\" opacity=\".95\"/> <path d=\"M305 95 C170 220 185 380 300 485\" fill=\"none\" stroke=\"url(#sn-gold)\" stroke-width=\"4\"/> <text x=\"670\" y=\"270\" text-anchor=\"middle\" font-family=\"Georgia,'Cormorant Garamond',serif\" font-size=\"112\" letter-spacing=\"2\" fill=\"url(#sn-navy)\">Symphony</text> <text x=\"670\" y=\"390\" text-anchor=\"middle\" font-family=\"Georgia,'Cormorant Garamond',serif\" font-size=\"126\" letter-spacing=\"5\" fill=\"url(#sn-navy)\">Night</text> <path d=\"M410 430 H925\" stroke=\"url(#sn-gold)\" stroke-width=\"3\"/> <g stroke=\"url(#sn-gold)\" stroke-width=\"5\" stroke-linecap=\"round\"><path d=\"M540 475 V495 M565 455 V515 M590 440 V530 M615 460 V510 M640 430 V540 M665 455 V515 M690 440 V530 M715 465 V505 M740 475 V495\"/></g> <g transform=\"translate(390 240)\" stroke=\"url(#sn-gold)\" stroke-width=\"4\" fill=\"none\"> <path d=\"M0 -95 V-25\"/><path d=\"M-30 -25 L-20 -5 H20 L30 -25Z\" fill=\"#E7C87E\" fill-opacity=\".15\"/><path d=\"M-20 -5 V70 Q0 95 20 70 V-5\"/><path d=\"M-20 12 H20 M-17 52 H17\"/><path d=\"M0 95 V112\"/> </g> <g transform=\"translate(1010 210) scale(.72)\" stroke=\"url(#sn-gold)\" stroke-width=\"4\" fill=\"none\"> <path d=\"M0 -95 V-25\"/><path d=\"M-30 -25 L-20 -5 H20 L30 -25Z\" fill=\"#E7C87E\" fill-opacity=\".15\"/><path d=\"M-20 -5 V70 Q0 95 20 70 V-5\"/><path d=\"M-20 12 H20 M-17 52 H17\"/><path d=\"M0 95 V112\"/> </g> <g fill=\"url(#sn-gold)\"><path d=\"M520 105 l7 20 20 7 -20 7 -7 20 -7 -20 -20 -7 20 -7Z\"/><path d=\"M850 90 l5 14 14 5 -14 5 -5 14 -5 -14 -14 -5 14 -5Z\"/><circle cx=\"750\" cy=\"120\" r=\"4\"/><circle cx=\"930\" cy=\"455\" r=\"4\"/></g> <g transform=\"translate(255 535)\" fill=\"none\" stroke=\"url(#sn-gold)\" stroke-width=\"3\"><path d=\"M0 0 Q-50 -35 -35 -65 Q-8 -55 0 0 Q8 -55 35 -65 Q50 -35 0 0Z\"/><path d=\"M0 0 Q-22 -65 0 -90 Q22 -65 0 0Z\"/><path d=\"M-75 12 Q0 35 75 12 M-95 25 Q0 52 95 25\"/></g> </svg>", "ss": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"107 42 986 613\" role=\"img\" aria-hidden=\"true\" focusable=\"false\"> <defs><linearGradient id=\"ss-gold\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop stop-color=\"#F5D995\"/><stop offset=\".5\" stop-color=\"#B27D2D\"/><stop offset=\"1\" stop-color=\"#E7C477\"/></linearGradient><linearGradient id=\"ss-brown\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop stop-color=\"#A66A32\"/><stop offset=\"1\" stop-color=\"#75451F\"/></linearGradient></defs> <path d=\"M170 245 Q600 15 1030 245\" fill=\"none\" stroke=\"url(#ss-gold)\" stroke-width=\"7\"/> <path d=\"M210 245 Q600 65 990 245\" fill=\"none\" stroke=\"#D9B66B\" stroke-width=\"3\"/> <path d=\"M170 245 Q600 390 1030 245\" fill=\"none\" stroke=\"url(#ss-gold)\" stroke-width=\"4\"/> <path d=\"M180 240 Q280 330 380 255 Q480 345 600 250 Q720 345 820 255 Q920 330 1020 240\" fill=\"none\" stroke=\"url(#ss-gold)\" stroke-width=\"6\"/> <g stroke=\"url(#ss-gold)\" stroke-width=\"6\" fill=\"none\"> <path d=\"M205 250 V560 M185 560 H225 M190 540 H220 M190 275 H220\"/> <path d=\"M995 250 V560 M975 560 H1015 M980 540 H1010 M980 275 H1010\"/> </g> <g fill=\"none\" stroke=\"#C49A4B\" stroke-width=\"3\"> <path d=\"M280 255 V365 M360 270 V390 M840 270 V390 M920 255 V365\"/> <path d=\"M265 320 Q280 350 295 320 M345 345 Q360 375 375 345 M825 345 Q840 375 855 345 M905 320 Q920 350 935 320\"/> </g> <g fill=\"#E7C879\" stroke=\"#B27D2D\" stroke-width=\"2\"> <circle cx=\"280\" cy=\"365\" r=\"8\"/><circle cx=\"360\" cy=\"390\" r=\"8\"/><circle cx=\"840\" cy=\"390\" r=\"8\"/><circle cx=\"920\" cy=\"365\" r=\"8\"/> </g> <g transform=\"translate(600 115)\" fill=\"none\" stroke=\"url(#ss-gold)\" stroke-width=\"4\"> <path d=\"M0 55 Q-65 15 -42 -30 Q-10 -18 0 55 Q10 -18 42 -30 Q65 15 0 55Z\"/> <path d=\"M0 55 Q-30 -20 0 -65 Q30 -20 0 55Z\"/> <path d=\"M-52 62 Q0 80 52 62\"/> </g> <text x=\"600\" y=\"405\" text-anchor=\"middle\" font-family=\"Georgia,'Cormorant Garamond',serif\" font-size=\"58\" letter-spacing=\"8\" fill=\"#9B672E\">THE</text> <text x=\"600\" y=\"505\" text-anchor=\"middle\" font-family=\"Georgia,'Cormorant Garamond',serif\" font-size=\"112\" letter-spacing=\"2\" fill=\"url(#ss-brown)\">Seven Steps</text> <g transform=\"translate(600 590)\" stroke=\"url(#ss-gold)\" stroke-width=\"4\"> <path d=\"M-65 20 Q0 45 65 20 L48 48 Q0 65 -48 48Z\" fill=\"#D9B66B\"/> <path d=\"M-34 15 Q-50 -30 -18 -55 Q-8 -28 0 -72 Q28 -32 22 15 Q7 -4 0 -18 Q-8 3 -16 15Z\" fill=\"#E9A34B\" stroke=\"#B77A2E\"/> </g> <g fill=\"url(#ss-gold)\"><circle cx=\"440\" cy=\"555\" r=\"6\"/><circle cx=\"480\" cy=\"555\" r=\"6\"/><circle cx=\"520\" cy=\"555\" r=\"6\"/><circle cx=\"560\" cy=\"555\" r=\"6\"/><circle cx=\"640\" cy=\"555\" r=\"6\"/><circle cx=\"680\" cy=\"555\" r=\"6\"/><circle cx=\"720\" cy=\"555\" r=\"6\"/></g> <g transform=\"translate(145 590)\" fill=\"none\" stroke=\"url(#ss-gold)\" stroke-width=\"3\"><path d=\"M0 0 Q-42 -35 -25 -62 Q-5 -50 0 0 Q5 -50 25 -62 Q42 -35 0 0Z\"/><path d=\"M0 0 Q-18 -58 0 -82 Q18 -58 0 0Z\"/></g> <g transform=\"translate(1055 590)\" fill=\"none\" stroke=\"url(#ss-gold)\" stroke-width=\"3\"><path d=\"M0 0 Q-42 -35 -25 -62 Q-5 -50 0 0 Q5 -50 25 -62 Q42 -35 0 0Z\"/><path d=\"M0 0 Q-18 -58 0 -82 Q18 -58 0 0Z\"/></g> </svg>"};
+var LOGOS={
+  rr:{src:'logo-rang_and_rituals.svg',W:1200,box:[105,37,973,489]},
+  me:{src:'logo-mehendi.svg',W:1200,box:[102,54,1008,409]},
+  sn:{src:'logo-symphony_night.svg',W:1200,box:[139,82,901,500]},
+  ss:{src:'logo-the_seven_steps.svg',W:1200,box:[107,42,986,613]}
+};
+function logoHTML(L){var b=L.box,p=function(v){return (v/b[2]*100).toFixed(3)+'%'};
+  return '<span class="logo-crop" style="aspect-ratio:'+b[2]+'/'+b[3]+'"><img src="'+L.src+'" alt="" decoding="async" style="width:'+p(L.W)+';margin-left:-'+p(b[0])+';margin-top:-'+p(b[1])+'"></span>'}
 var EVENTS=[
   {id:'pujan',name:'Siddhchakra Pujan',title:'સિધ્ધચક્ર પૂજન',lang:'gu',style:'guj',crest:'chakra',
    feature:{src:'siddhchakra-yantra.png',w:1010,h:1322,alt:'Sketch of the Shri Siddhchakra Mahayantra'},n:['#A07A2E','#C39A45'],day:'Sunday',date:'6 December 2026',time:'8:30 am onwards',venue:'Rivulet Jirawala Parshwanath Derasar',area:'New Magdalla, Surat',map:MAPS('Shree Jirawala Parshwanath Bhagwan Jain temple, New Magdalla, Surat','ChIJLaX9ZMZN4DsRBEi5JGl2dl4'),
@@ -606,7 +622,7 @@ function frameHTML(shape,label,img){
       '<article class="card event">'+
         (ev.logo?'':'<div class="crest" data-k="'+ev.crest+'"></div>')+
         '<header class="head">'+
-          (ev.logo?'<h3 class="ename logo" aria-label="'+esc(ev.name)+'">'+ev.logo+'</h3>':
+          (ev.logo?'<h3 class="ename logo" role="img" aria-label="'+esc(ev.name)+'">'+logoHTML(ev.logo)+'</h3>':
           '<h3 class="ename nm-'+ev.style+'"'+(ev.lang?' lang="'+ev.lang+'"':'')+' aria-label="'+esc(ev.title||ev.name)+'">'+nameHTML+'</h3>')+
         '</header>'+
         '<div class="info">'+
@@ -718,6 +734,53 @@ function fitTitles(){
 fitTitles();window.addEventListener('resize',fitTitles);window.addEventListener('load',fitTitles);
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitTitles);
 
+/* Crackers over the date once it is revealed: a few gold rockets rise around the card and burst */
+function crackers(anchor){
+  if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  var cv=document.createElement('canvas'),ctx=cv.getContext('2d');if(!ctx)return;
+  cv.className='crackers';cv.setAttribute('aria-hidden','true');document.body.appendChild(cv);
+  var W=innerWidth,H=innerHeight,d=Math.min(devicePixelRatio||1,2);
+  cv.width=W*d;cv.height=H*d;ctx.setTransform(d,0,0,d,0,0);
+  var r=anchor.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+  var COL=['#C8902A','#E2B04A','#F1D38A','#B9772A','#D9456B','#E8875A'],rockets=[],sparks=[],t0=performance.now();
+  var plan=[[0,-.62,-1.25],[260,.6,-1.1],[520,-.15,-1.75],[820,.32,-.55],[1100,-.4,-.4],[1400,.05,-1.15]];
+  plan.forEach(function(q){
+    var tx=cx+q[1]*Math.min(W*.5,260),ty=Math.max(60,cy+q[2]*r.height),sx=tx+(Math.random()-.5)*60;
+    rockets.push({at:q[0],x:sx,y:Math.min(H+10,ty+H*.55),tx:tx,ty:ty,done:false});
+  });
+  function pop(x,y){
+    var n=W<500?46:64,base=COL[Math.floor(Math.random()*COL.length)],alt=Math.random()<.5?'#F1D38A':base;
+    for(var i=0;i<n;i++){
+      var a=i/n*6.2832+Math.random()*.2,v=(1.6+Math.random()*1.9)*(W<500?1:1.25);
+      sparks.push({x:x,y:y,px:x,py:y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:0,max:55+Math.random()*30,c:i%3?base:alt,g:Math.random()<.35});
+    }
+  }
+  var last=t0;
+  function frame(now){
+    var t=now-t0,k60=Math.min(3,(now-last)/16.7);last=now;ctx.clearRect(0,0,W,H);ctx.lineCap='round';
+    rockets.forEach(function(k){
+      if(k.done||t<k.at)return;
+      var u=Math.min(1,(t-k.at)/620),e=1-Math.pow(1-u,3),x=k.x+(k.tx-k.x)*e,y=k.y+(k.ty-k.y)*e,ut=Math.max(0,u-.08),et=1-Math.pow(1-ut,3);
+      var g=ctx.createLinearGradient(k.x+(k.tx-k.x)*et,k.y+(k.ty-k.y)*et,x,y);g.addColorStop(0,'rgba(200,144,42,0)');g.addColorStop(1,'rgba(200,144,42,.9)');
+      ctx.strokeStyle=g;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(k.x+(k.tx-k.x)*et,k.y+(k.ty-k.y)*et);ctx.lineTo(x,y);ctx.stroke();
+      ctx.fillStyle='#F6DD9A';ctx.beginPath();ctx.arc(x,y,1.8,0,6.2832);ctx.fill();
+      if(u>=1){k.done=true;pop(k.tx,k.ty);}
+    });
+    var dr=Math.pow(.955,k60);
+    for(var i=sparks.length-1;i>=0;i--){
+      var p=sparks[i];p.px=p.x;p.py=p.y;p.vx*=dr;p.vy=p.vy*dr+.045*k60;p.x+=p.vx*k60;p.y+=p.vy*k60;p.life+=k60;
+      var f=1-p.life/p.max;if(f<=0){sparks.splice(i,1);continue;}
+      var al=p.g&&f<.5?(Math.random()<.5?f*1.6:0):Math.min(1,f*1.4);
+      ctx.globalAlpha=al;ctx.strokeStyle=p.c;ctx.lineWidth=1.8;
+      ctx.beginPath();ctx.moveTo(p.x-p.vx*3,p.y-p.vy*3);ctx.lineTo(p.x,p.y);ctx.stroke();
+      ctx.globalAlpha=1;
+    }
+    if(t<6000&&(sparks.length||rockets.some(function(k){return !k.done;})))requestAnimationFrame(frame);
+    else cv.remove();
+  }
+  requestAnimationFrame(frame);
+}
+
 /* Scratch card for the wedding date */
 (function(){
   var sec=document.getElementById('reveal'),box=document.getElementById('scratch'),cv=document.getElementById('foil'),hint=document.getElementById('scratch-hint'),skip=document.getElementById('scratch-skip');
@@ -757,6 +820,7 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitTitles);
     if(done)return;done=true;
     sec.classList.add('revealed');hint.textContent='Save the date';skip.hidden=true;
     if(api&&api.burst)api.burst();
+    crackers(box);
   }
   cv.addEventListener('pointerdown',function(e){
     if(done)return;down=true;var q=at(e);lx=q[0];ly=q[1];rub(q[0]+.1,q[1]+.1);
@@ -1249,7 +1313,7 @@ function init3D(){
   function V2(p){return new THREE.Vector2(p[0],p[1]);}
   var CD=2,TAN=Math.tan(20*Math.PI/180),halfH=CD*TAN,halfW=halfH,canopy=null,enders=[];
   scene.add(camera);
-  var brass=new THREE.MeshPhongMaterial({color:0xC9973A,specular:0xFFE7A0,shininess:55,side:THREE.DoubleSide,fog:false});
+  var brass=new THREE.MeshPhongMaterial({color:0xD9A83E,emissive:0x3A2606,specular:0xFFF0B8,shininess:80,side:THREE.DoubleSide,fog:false});
   var bellGeo=new THREE.LatheGeometry([[0,0],[.006,0],[.008,-.009],[.013,-.024],[.02,-.038],[.026,-.044],[.026,-.048]].map(V2),16);
   var budGeo=new THREE.LatheGeometry([[0,0],[.006,-.004],[.019,-.026],[.021,-.04],[.013,-.062],[0,-.08]].map(V2),14);
   (function(){
@@ -1271,7 +1335,7 @@ function init3D(){
       var x=j*step,odd=((j%2)+2)%2,u=clamp((Math.abs(x)/halfW-.35)/.65,0,1);
       var len=mix(.03,mix(.075,.27,clamp((camera.aspect-.6)/.8,0,1)),u*u*(3-2*u))*(.8+.4*(((j*7)%5+5)%5)/4);
       for(var b=.012;b<len;b+=.016)beads.push([x,top-b]);
-      var en=new THREE.Mesh(odd?budGeo:bellGeo,odd?budMat:brass);
+      var en=new THREE.Mesh(bellGeo,brass);en.scale.setScalar(1.25);
       en.position.set(x,top-len,-CD);canopy.add(en);enders.push(en);
     }
     if(beads.length){

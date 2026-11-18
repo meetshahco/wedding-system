@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 620">
+<defs><linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#84934B"/><stop offset="1" stop-color="#4E642D"/></linearGradient><linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#F0D18A"/><stop offset="1" stop-color="#A9792E"/></linearGradient></defs>
+<!-- main hand-lettered title -->
+<text x="590" y="335" text-anchor="middle" font-family="'URW Chancery L','Brush Script MT',cursive" font-size="180" font-style="italic" fill="url(#leaf)">Mehendi</text>
+<!-- sweeping vine baseline -->
+<path d="M155 410 C300 495 420 430 510 420 C680 400 820 470 1040 390" fill="none" stroke="url(#gold)" stroke-width="4"/>
+<path d="M180 415 Q145 365 110 385 Q120 425 180 415 M290 455 Q270 405 230 410 Q240 450 290 455 M930 430 Q965 375 1005 390 Q990 430 930 430" fill="url(#leaf)" stroke="#596C32" stroke-width="2"/>
+<!-- leaf clusters -->
+<g fill="url(#leaf)" stroke="#596C32" stroke-width="2">
+ <path d="M275 440 Q245 365 210 375 Q215 420 275 440Z"/><path d="M320 446 Q320 375 360 370 Q365 415 320 446Z"/>
+ <path d="M820 440 Q800 365 765 370 Q770 415 820 440Z"/><path d="M860 440 Q870 375 910 370 Q905 415 860 440Z"/>
+</g>
+<!-- lotus bud top -->
+<g transform="translate(240 175)" fill="none" stroke="url(#gold)" stroke-width="4">
+ <path d="M0 70 Q-62 30 -38 -15 Q-8 -5 0 70 Q8 -5 38 -15 Q62 30 0 70Z"/>
+ <path d="M0 70 Q-27 0 0 -42 Q27 0 0 70Z"/>
+ <path d="M-48 75 Q0 92 48 75"/>
+</g>
+<!-- paisley ornament -->
+<path d="M925 115 C1030 35 1110 125 1060 215 C1030 265 970 255 960 215 C950 175 1000 150 1025 180 C1040 200 1020 225 1000 215" fill="none" stroke="url(#gold)" stroke-width="7" stroke-linecap="round"/>
+<path d="M960 175 Q1000 105 1050 130 M975 205 Q1015 180 1040 195" fill="none" stroke="#9B7B3D" stroke-width="3"/>
+<!-- tiny henna dots -->
+<g fill="#B58B3E"><circle cx="900" cy="90" r="5"/><circle cx="920" cy="75" r="4"/><circle cx="940" cy="65" r="3"/><circle cx="1080" cy="270" r="4"/></g>
+<!-- jhumkas -->
+<g transform="translate(1085 330)" stroke="url(#gold)" stroke-width="3" fill="none"><path d="M0 -40 V0"/><path d="M-17 0 Q0 15 17 0 L12 27 Q0 40 -12 27Z"/><circle cy="47" r="4"/></g>
+<g transform="translate(145 330)" stroke="url(#gold)" stroke-width="3" fill="none"><path d="M0 -30 V0"/><path d="M-13 0 Q0 12 13 0 L9 20 Q0 30 -9 20Z"/></g>
+</svg>
