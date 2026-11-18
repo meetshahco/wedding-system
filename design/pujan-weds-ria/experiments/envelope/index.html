@@ -751,7 +751,7 @@ function crackers(anchor){
   function pop(x,y){
     var n=W<500?46:64,base=COL[Math.floor(Math.random()*COL.length)],alt=Math.random()<.5?'#F1D38A':base;
     for(var i=0;i<n;i++){
-      var a=i/n*6.2832+Math.random()*.2,v=(1.6+Math.random()*1.9)*(W<500?1:1.25);
+      var a=i/n*6.2832+Math.random()*.2,v=(2.1+Math.random()*2.3)*(W<500?1:1.25);
       sparks.push({x:x,y:y,px:x,py:y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:0,max:55+Math.random()*30,c:i%3?base:alt,g:Math.random()<.35});
     }
   }
