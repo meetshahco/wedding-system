@@ -1533,7 +1533,7 @@ function init3D(){
     var RS=.21;                     /* seal radius; the envelope is 2 units tall */
     var EA=-1,builtEA=-1,root=null,fontsOk=false,pX=0,pY=0,FIT=1,baseZ=1/TF;
     var U={time:{value:0},p:{value:0},seam:{value:0},crack:{value:0},bloom:{value:0},inner:{value:0},fade:{value:1},bfade:{value:1},shade:{value:1},
-           sw:{value:-3},swI:{value:0},glint:{value:-3},glintI:{value:0},hole:{value:0},sA:{value:.34},sB:{value:.04},glow:{value:0},halo:{value:0},bs:{value:2.4},seamG:{value:0},cardF:{value:1},fadeB:{value:1},
+           sw:{value:-3},swI:{value:0},glint:{value:-3},glintI:{value:0},hole:{value:0},sA:{value:.34},sB:{value:.04},pat:{value:0},pf:{value:-.4},glow:{value:0},halo:{value:0},bs:{value:2.4},seamG:{value:0},cardF:{value:1},fadeB:{value:1},
            L:{value:new THREE.Vector3(-.5,.62,.68)},ea:{value:.46},asp:{value:.46}};
     var st={t:0,it:0,run:false,done:false,lit:false,opened:false,ready:false,cue:false};
     var hold=false;
@@ -1751,18 +1751,6 @@ function init3D(){
         for(var k=0;k<8;k++){cr.save();cr.translate(x,y);cr.rotate(k*Math.PI/4);pet(cr,4.6,2.0);cr.fillStyle='rgba(255,255,255,.5)';cr.fill();cr.restore();}
         dt(cr,x,y,1.3,.7);
         cf.save();cf.translate(x,y);cf.beginPath();cf.arc(0,0,2.6,0,6.2832);st(cf,.3,.8);cf.restore();});
-      /* the lotus, in fine gold line; each petal clears the lines behind it, so the overlaps read cleanly */
-      var P=[[-1.30,.50,.20],[1.30,.50,.20],[-.98,.66,.23],[.98,.66,.23],[-.64,.82,.25],[.64,.82,.25],[-.31,.95,.26],[.31,.95,.26],[0,1,.28]],s=36,lx=0,ly=11;
-      [[cr,.34,1.0],[cf,.62,1.0]].forEach(function(q){var c=q[0];
-        P.forEach(function(p){c.save();c.translate(lx,ly);c.rotate(p[0]);var L=s*p[1],w=s*p[2];pet(c,L,w);
-          c.save();c.globalCompositeOperation='destination-out';c.fillStyle='#000';c.fill();c.restore();
-          st(c,q[1],q[2]);
-          c.beginPath();c.moveTo(0,-L*.12);c.quadraticCurveTo(w*.12,-L*.5,0,-L*.84);st(c,q[1]*.5,q[2]*.55);c.restore();});
-        c.beginPath();c.moveTo(lx-s*.72,ly+s*.07);c.quadraticCurveTo(lx,ly+s*.34,lx+s*.72,ly+s*.07);st(c,q[1],q[2]*.9);
-        c.beginPath();c.moveTo(lx-s*.5,ly+s*.22);c.quadraticCurveTo(lx,ly+s*.44,lx+s*.5,ly+s*.22);st(c,q[1]*.8,q[2]*.7);
-        [-1,1].forEach(function(sg){c.save();c.translate(lx+sg*s*.62,ly+s*.12);c.rotate(sg*1.0);
-          c.beginPath();c.moveTo(0,0);c.bezierCurveTo(s*.07,-s*.07,s*.14,-s*.14,s*.2,-s*.25);c.bezierCurveTo(s*.07,-s*.24,-s*.02,-s*.13,0,0);st(c,q[1]*.8,q[2]*.8);c.restore();});
-      });
       /* a small flourish beneath */
       [[cr,.7],[cf,1]].forEach(function(q){var c=q[0],y=36;
         c.beginPath();c.moveTo(0,y-2.2);c.lineTo(2.2,y);c.lineTo(0,y+2.2);c.lineTo(-2.2,y);c.closePath();st(c,.5,q[1]);
@@ -1895,7 +1883,7 @@ function init3D(){
         'vN=m*vec3(0.0,0.0,1.0);vT=m*vec3(1.0,0.0,0.0);vB=m*vec3(0.0,1.0,0.0);gl_Position=projectionMatrix*viewMatrix*wp;}'].join('\n');
       var FLAP=[
         'uniform sampler2D tPaper;uniform sampler2D tShadow;uniform sampler2D tGlow;uniform sampler2D tNoise;',
-        'uniform vec2 uTexel;uniform vec4 uSW;uniform vec3 uL;uniform float uP;uniform float uSeam;uniform float uFade;uniform float uShade;uniform float uEA;uniform float uSw;uniform float uSwI;uniform float uInner;uniform float uGlow;',
+        'uniform vec2 uTexel;uniform vec4 uSW;uniform vec3 uL;uniform float uP;uniform float uSeam;uniform float uFade;uniform float uShade;uniform float uEA;uniform float uSw;uniform float uSwI;uniform float uInner;uniform float uGlow;uniform float uPat;uniform float uPF;',
         'varying vec2 vUv;varying vec3 vWP;varying vec3 vN;varying vec3 vT;varying vec3 vB;',
         'float Hh(vec2 p){return texture2D(tPaper,p).r;}',
         'void main(){',
@@ -1905,7 +1893,7 @@ function init3D(){
         ' vec4 nz=texture2D(tNoise,vec2(uv.x*uEA,uv.y)*5.0);',
         ' float fr=gl_FrontFacing?1.0:0.0;',
         /* the paper is lit in its own plane, so it keeps its warmth and brightness as it tips up toward the guest */
-        ' vec3 N=normalize(vec3(-(hx*3.3+(nz.g-0.5)*0.07)*fr,-(hy*3.3+(nz.b-0.5)*0.07)*fr,1.0));',
+        ' vec3 N=normalize(vec3(-(hx*2.0+(nz.g-0.5)*0.06)*fr,-(hy*2.0+(nz.b-0.5)*0.06)*fr,1.0));',
         ' vec3 L=normalize(uL);vec3 V=normalize(cameraPosition-vec3(vWP.xy,0.0));vec3 Hv=normalize(L+V);',
         ' float dif=clamp((dot(N,L)+0.25)/1.25,0.0,1.0);',
         /* the raised artwork shades the paper around it: a soft cast shadow away from the light, and a cavity darkening */
@@ -1921,7 +1909,7 @@ function init3D(){
         ' vec3 alb=mix(vec3(0.800,0.700,0.610),vec3(0.935,0.835,0.738),fr)*(0.955+0.05*nz.r+0.09*mt);',
         ' float lf=0.92+0.13*clamp(dot(q2,normalize(vec2(-1.0,1.0)))*0.35+0.5,0.0,1.0);',
         ' vec3 col=alb*mix(0.80,0.55+0.60*dif,fr)*lf*(0.90+0.10*tilt);',
-        ' col*=1.0-0.30*cs*fr-0.26*ao*fr;',
+        ' col*=1.0-0.11*cs*fr-0.09*ao*fr;',
         ' col+=vec3(1.0,0.98,0.94)*pow(max(dot(N,Hv),0.0),22.0)*0.07*fr;',
         /* light from inside the envelope */
         ' col+=vec3(1.0,0.88,0.68)*uInner*(1.0-fr)*0.45;',
@@ -1935,20 +1923,24 @@ function init3D(){
         ' col+=vec3(1.0,0.84,0.58)*band*0.15;',
         ' col+=(vec3(1.0,0.88,0.64)*1.05+tint*0.10)*graze*band*1.55;',
         ' float gl=pow(max(dot(N,normalize(Ls+V)),0.0),90.0)*fr;col+=vec3(1.0,0.92,0.74)*gl*band*2.0;',
+        /* the pressed pattern lights up like a net: its edges and its insides glow, softly, from the seal outwards */
+        ' float dd0=length(vec2((uv.x-0.5)*uEA,uv.y-0.5));float pw=max(smoothstep(uPF,uPF-0.34,dd0)*uPat,band*0.4);',
+        ' float pg=smoothstep(0.08,0.55,h0)*0.45+clamp(length(vec2(hx,hy))*4.2,0.0,1.0)*0.95;',
+        ' col*=1.0-0.09*pw*fr;col+=vec3(1.0,0.72,0.36)*pg*pw*fr*0.30;',
         /* gold: the braided border and the double rule on the flap edges */
         ' float foil=pm.g*fr;float sp=pow(max(dot(N,Hv),0.0),50.0);',
         ' vec3 gold=vec3(0.86,0.72,0.50);float sps=pow(max(dot(N,normalize(Ls+V)),0.0),30.0)*band;',
         ' vec3 fc=gold*(0.45+0.6*dif)+vec3(1.0,0.93,0.78)*(sp*1.4+sps*2.2)+gold*0.25*pow(1.0-max(dot(N,V),0.0),2.0);',
-        ' col=mix(col,fc,foil);',
+        ' col=mix(col,fc,foil);col+=vec3(1.0,0.80,0.46)*foil*pw*0.28;',
         ' col*=mix(vec3(1.0),vec3(1.10,1.03,0.89),uInner*fr);',
-        ' col*=1.0-shd*0.40;',
+        ' col*=1.0-shd*0.30;',
         /* the line of light that escapes along the flap edge as the seal comes away */
         ' float d=length(vec2((uv.x-0.5)*uEA,uv.y-0.5));float m=smoothstep(uP,uP-0.16,d);',
         ' col+=vec3(1.0,0.82,0.52)*(gw.g*0.9+gw.r*0.5)*m*uSeam*smoothstep(0.088,0.102,d);',
         ' gl_FragColor=vec4(col,uFade);',
         '}'].join('\n');
       var LINER=[
-        'uniform sampler2D tPaper;uniform vec2 uTexel;uniform vec3 uL;uniform sampler2D tShadow;uniform sampler2D tNoise;uniform float uInner;uniform float uFade;uniform float uShade;uniform float uEA;uniform float uP;uniform float uSeam;uniform float uSw;uniform float uSwI;uniform float uHole;uniform float uGlow;',
+        'uniform sampler2D tPaper;uniform vec2 uTexel;uniform vec3 uL;uniform sampler2D tShadow;uniform sampler2D tNoise;uniform float uInner;uniform float uFade;uniform float uShade;uniform float uEA;uniform float uP;uniform float uSeam;uniform float uSw;uniform float uSwI;uniform float uHole;uniform float uGlow;uniform float uPat;uniform float uPF;',
         'varying vec2 vUv;varying vec3 vWP;varying vec3 vN;varying vec3 vT;varying vec3 vB;',
         'float Hb(vec2 p){return texture2D(tPaper,p).b;}',
         'void main(){',
@@ -1957,20 +1949,23 @@ function init3D(){
         ' float h0=Hb(uv);',
         ' float bx=Hb(uv+vec2(uTexel.x,0.0))-Hb(uv-vec2(uTexel.x,0.0));',
         ' float by=Hb(uv+vec2(0.0,uTexel.y))-Hb(uv-vec2(0.0,uTexel.y));',
-        ' vec3 Lb=normalize(uL);vec3 Nb=normalize(vec3(-bx*2.4-(nz.g-0.5)*0.09,-by*2.4-(nz.b-0.5)*0.09,1.0));',
+        ' vec3 Lb=normalize(uL);vec3 Nb=normalize(vec3(-bx*1.5-(nz.g-0.5)*0.07,-by*1.5-(nz.b-0.5)*0.07,1.0));',
         ' float dif=clamp((dot(Nb,Lb)+0.25)/1.25,0.0,1.0);',
         ' vec2 ld=normalize(Lb.xy);',
         ' float cs=clamp((Hb(uv+ld*uTexel*2.5)-h0)*2.6+(Hb(uv+ld*uTexel*5.0)-h0)*1.7+(Hb(uv+ld*uTexel*9.0)-h0)*1.0,0.0,1.0);',
         ' float bl=(Hb(uv+vec2(4.0,0.0)*uTexel)+Hb(uv-vec2(4.0,0.0)*uTexel)+Hb(uv+vec2(0.0,4.0)*uTexel)+Hb(uv-vec2(0.0,4.0)*uTexel))*0.25;',
         ' float ao=clamp((bl-h0)*2.4,0.0,1.0);',
-        ' vec3 col=vec3(0.880,0.778,0.688)*(0.93+0.07*nz.r+0.10*texture2D(tNoise,vec2(uv.x*uEA,uv.y)*1.6+0.37).r)*(0.55+0.60*dif)*(1.0-0.30*cs-0.26*ao);',
+        ' vec3 col=vec3(0.880,0.778,0.688)*(0.93+0.07*nz.r+0.10*texture2D(tNoise,vec2(uv.x*uEA,uv.y)*1.6+0.37).r)*(0.55+0.60*dif)*(1.0-0.11*cs-0.09*ao);',
         ' vec2 q2=vec2((uv.x-0.5)*2.0*uEA,(uv.y-0.5)*2.0);float pr=dot(q2,normalize(vec2(1.0,-0.6)))/(uEA+1.0);',
         ' float band=exp(-pow((pr-uSw)/0.3,2.0))*uSwI;vec3 Ls=normalize(vec3(-0.8,0.5,0.3));',
-        ' col+=vec3(1.0,0.88,0.64)*pow(max(dot(Nb,Ls)-0.29,0.0)*2.2,1.15)*band*1.3+vec3(1.0,0.84,0.58)*band*0.08;',
+        ' col+=vec3(1.0,0.88,0.64)*pow(max(dot(Nb,Ls)-0.29,0.0)*2.2,1.15)*band*0.9+vec3(1.0,0.84,0.58)*band*0.08;',
+        ' float dd0=length(vec2((uv.x-0.5)*uEA,uv.y-0.5));float pw=max(smoothstep(uPF,uPF-0.34,dd0)*uPat,band*0.4);',
+        ' float pg=smoothstep(0.08,0.55,h0)*0.45+clamp(length(vec2(bx,by))*4.2,0.0,1.0)*0.95;',
+        ' col*=1.0-0.09*pw;col+=vec3(1.0,0.72,0.36)*pg*pw*0.30;',
         ' float fo=texture2D(tPaper,uv).a;vec3 Vb=normalize(cameraPosition-vec3(vWP.xy,0.0));',
         ' float sb=pow(max(dot(Nb,normalize(Lb+Vb)),0.0),30.0)+pow(max(dot(Nb,normalize(Ls+Vb)),0.0),30.0)*band*1.4;',
         ' vec3 gb=vec3(0.86,0.72,0.50);col=mix(col,gb*(0.5+0.5*dif)+vec3(1.0,0.93,0.78)*sb*1.2,fo*0.95);',
-        ' col*=1.0-shd*0.46;',
+        ' col*=1.0-shd*0.32;',
         /* the inside of the envelope is lit from below the bottom flap: the paper takes on warm light and keeps its relief */
         ' float d=length(vec2((uv.x-0.5)*uEA,(uv.y-0.65)*0.85));',
         ' float gy=exp(-pow((uv.y-0.30)/0.42,2.0));float gx=exp(-pow((uv.x-0.5)*uEA/0.9,2.0));',
@@ -1989,7 +1984,7 @@ function init3D(){
         ' vec2 p=(vUv-0.5)*2.0*(uHalf+uMargin);',
         ' float sd=sdB(p,uHalf,0.016);',
         ' float inside=smoothstep(0.0015,-0.0015,sd);',
-        ' float sh=exp(-max(sdB(p-vec2(0.010,-0.016),uHalf,0.016),0.0)/0.03)*0.34*(1.0-inside);',
+        ' float sh=exp(-max(sdB(p-vec2(0.010,-0.016),uHalf,0.016),0.0)/0.03)*0.22*(1.0-inside);',
         ' vec2 uv=clamp(p/(2.0*uHalf)+0.5,0.0,1.0);',
         ' float h0=Hc(uv);',
         ' float hx=Hc(uv+vec2(uTexel.x,0.0))-Hc(uv-vec2(uTexel.x,0.0));float hy=Hc(uv+vec2(0.0,uTexel.y))-Hc(uv-vec2(0.0,uTexel.y));',
@@ -1997,13 +1992,13 @@ function init3D(){
         ' vec3 L=normalize(uL);',
         ' vec2 e=vec2(0.003,0.0);vec2 gs=vec2(sdB(p+e.xy,uHalf,0.016)-sdB(p-e.xy,uHalf,0.016),sdB(p+e.yx,uHalf,0.016)-sdB(p-e.yx,uHalf,0.016));',
         ' float bev=smoothstep(0.0,-0.014,sd);float rim=(1.0-bev)*inside;',
-        ' vec3 N=normalize(vec3(-hx*3.6-gs.x*rim*1.4,-hy*3.6-gs.y*rim*1.4,1.0));',
+        ' vec3 N=normalize(vec3(-hx*2.2-gs.x*rim*0.9,-hy*2.2-gs.y*rim*0.9,1.0));',
         ' float dif=clamp((dot(N,L)+0.25)/1.25,0.0,1.0);',
         ' vec2 ld=normalize(L.xy);',
         ' float cs=clamp((Hc(uv+ld*uTexel*2.5)-h0)*2.6+(Hc(uv+ld*uTexel*5.0)-h0)*1.7,0.0,1.0);',
         ' float bl=(Hc(uv+vec2(4.0,0.0)*uTexel)+Hc(uv-vec2(4.0,0.0)*uTexel)+Hc(uv+vec2(0.0,4.0)*uTexel)+Hc(uv-vec2(0.0,4.0)*uTexel))*0.25;',
         ' float ao=clamp((bl-h0)*2.4,0.0,1.0);',
-        ' vec3 col=vec3(0.925,0.795,0.700)*(0.97+0.06*nz.r)*(0.55+0.60*dif)*(1.0-0.28*cs-0.24*ao);',
+        ' vec3 col=vec3(0.925,0.795,0.700)*(0.97+0.06*nz.r)*(0.55+0.60*dif)*(1.0-0.12*cs-0.10*ao);',
         ' float fo=texture2D(tCard,uv).g;vec3 V=vec3(0.0,0.0,1.0);vec3 Hv=normalize(L+V);',
         ' float sp=pow(max(dot(N,Hv),0.0),40.0);',
         ' col=mix(col,vec3(0.88,0.74,0.50)*(0.55+0.55*dif)+vec3(1.0,0.94,0.80)*sp*1.4,fo*0.96);',
@@ -2072,7 +2067,7 @@ function init3D(){
       var texel=new THREE.Vector2(1/CW,1/CH);
       function flapMat(sw,gt,fd){return new THREE.ShaderMaterial({vertexShader:VS,fragmentShader:FLAP,side:THREE.DoubleSide,transparent:true,depthTest:false,depthWrite:false,
         uniforms:{tPaper:{value:tPaper},tShadow:{value:tShadow},tGlow:{value:gt||tGlow},tNoise:{value:tNoise},uTexel:{value:texel},uSW:{value:sw},
-          uL:U.L,uP:U.p,uSeam:U.seam,uFade:fd||U.fade,uShade:U.shade,uEA:U.ea,uSw:U.sw,uSwI:U.swI,uInner:U.inner,uGlow:U.glow}});}
+          uL:U.L,uP:U.p,uSeam:U.seam,uFade:fd||U.fade,uShade:U.shade,uEA:U.ea,uSw:U.sw,uSwI:U.swI,uInner:U.inner,uGlow:U.glow,uPat:U.pat,uPF:U.pf}});}
 
       root=new THREE.Group();es.add(root);
       var WP=function(p){return [(p[0]/100-.5)*2*ea,1-p[1]/50];};
@@ -2089,7 +2084,7 @@ function init3D(){
         fragmentShader:BACK,transparent:true,uniforms:{tNoise:{value:tNoise},uFade:U.bfade,uEA:U.ea,uAsp:U.asp,uHole:U.hole,uBS:U.bs}}));
       back.position.z=-.03;back.userData.back=true;root.add(back);
       var liner=new THREE.Mesh(new THREE.PlaneGeometry(2*ea,2),new THREE.ShaderMaterial({vertexShader:VS,fragmentShader:LINER,transparent:true,
-        uniforms:{tPaper:{value:tPaper},uTexel:{value:texel},uL:U.L,tLiner:{value:tLiner},tShadow:{value:tShadow},tNoise:{value:tNoise},uInner:U.inner,uFade:U.fade,uShade:U.shade,uEA:U.ea,uP:U.p,uSeam:U.seam,uSw:U.sw,uSwI:U.swI,uHole:U.hole,uGlow:U.glow}}));
+        uniforms:{tPaper:{value:tPaper},uTexel:{value:texel},uL:U.L,tLiner:{value:tLiner},tShadow:{value:tShadow},tNoise:{value:tNoise},uInner:U.inner,uFade:U.fade,uShade:U.shade,uEA:U.ea,uP:U.p,uSeam:U.seam,uSw:U.sw,uSwI:U.swI,uHole:U.hole,uGlow:U.glow,uPat:U.pat,uPF:U.pf}}));
       root.add(liner);
       var cardM=new THREE.Mesh(new THREE.PlaneGeometry(2*(cw+.07),2*(chh+.07)),new THREE.ShaderMaterial({vertexShader:VS,fragmentShader:CARD,transparent:true,depthTest:false,depthWrite:false,
         uniforms:{tCard:{value:tCard},tNoise:{value:tNoise},uTexel:{value:cardTexel},uL:U.L,uHalf:{value:new THREE.Vector2(cw,chh)},uMargin:{value:.07},uInner:U.inner,uFade:U.fade,uHole:U.hole,uEA:U.ea,uGlow:U.glow,uCF:U.cardF,uCY:{value:0}}}));
@@ -2212,7 +2207,8 @@ function init3D(){
           U.swI.value*=Math.max(0,1-dt*4);U.glintI.value=0;
           U.seam.value=beat(.3,1.1,t)*(1-beat(2.8,3.8,t));U.seamG.value=beat(.3,1.0,t)*(1-beat(1.3,2.1,t));U.cardF.value=1-beat(3.3,4.3,t);
           U.p.value=.2+.75*beat(.3,1.9,t);
-          U.halo.value=.42*beat(.1,1.1,t)*(1-beat(3.0,4.2,t));
+          U.halo.value=.32*beat(.1,1.1,t)*(1-beat(3.0,4.2,t));
+          U.pat.value=beat(.1,1.0,t)*(1-beat(2.3,3.5,t));U.pf.value=-.3+1.7*beat(.1,1.8,t);
           U.shade.value=1-beat(.9,2.6,t);
           U.inner.value=beat(1.0,3.2,t);
           U.glow.value=beat(1.2,3.4,t)*(1-beat(4.0,5.4,t));
@@ -2231,7 +2227,7 @@ function init3D(){
         applyPose();
       },
       reset:function(){
-        st.t=0;st.it=0;st.run=false;st.done=false;st.lit=false;st.opened=false;st.cue=false;dom.classList.remove('env-cue');envDolly=0;ec.position.z=baseZ;ec.position.y=0;U.hole.value=0;U.glow.value=U.halo.value=U.seamG.value=0;U.cardF.value=U.fadeB.value=1;
+        st.t=0;st.it=0;st.run=false;st.done=false;st.lit=false;st.opened=false;st.cue=false;dom.classList.remove('env-cue');envDolly=0;ec.position.z=baseZ;ec.position.y=0;U.hole.value=0;U.glow.value=U.halo.value=U.seamG.value=U.pat.value=0;U.pf.value=-.4;U.cardF.value=U.fadeB.value=1;
         U.crack.value=U.seam.value=U.p.value=U.bloom.value=U.inner.value=0;U.shade.value=U.fade.value=U.bfade.value=1;
         applyPose();dom.hidden=false;dom.classList.remove('env-going');html.classList.add('env-on');
       }
