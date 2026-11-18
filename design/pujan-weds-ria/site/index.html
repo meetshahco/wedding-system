@@ -1840,7 +1840,11 @@ function init3D(){
   }
   function resize(){
     var nw=canvas.clientWidth||window.innerWidth,nh=canvas.clientHeight||window.innerHeight;
-    if(nw===W&&nh===H){computeAnchors();return;}
+    if(nw===W&&nh===H){
+      computeAnchors();
+      if(ENV)ENV.resize(W,H,W/H);
+      return;
+    }
     W=nw;H=nh;
     renderer.setSize(W,H,false);
     camera.aspect=W/H;
@@ -1848,6 +1852,8 @@ function init3D(){
     camera.updateProjectionMatrix();
     buildCanopy();
     computeAnchors();
+    /* Keep the envelope's independent camera and hit target in sync with the page. */
+    if(ENV)ENV.resize(W,H,W/H);
   }
   window.addEventListener('resize',resize);
   window.addEventListener('load',computeAnchors);
