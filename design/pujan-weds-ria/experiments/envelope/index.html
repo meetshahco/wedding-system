@@ -162,35 +162,46 @@ html.env-on,html.env-on body{overflow:hidden}
 .chapter{width:min(1240px,100%);margin-inline:auto;min-height:100vh;min-height:100svh;display:flex;align-items:center;padding-block:8vh}
 .chapter.left{justify-content:flex-start}
 .chapter.right{justify-content:flex-end}
-.event{width:min(800px,100%);display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);grid-template-rows:auto auto auto;
-  grid-template-areas:"head art" "dress art" "foot art";column-gap:clamp(20px,4vw,44px);row-gap:0;align-items:center}
-.chapter.right .event{grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);grid-template-areas:"art head" "art dress" "art foot"}
-.event.nodress{grid-template-rows:1fr 1fr;grid-template-areas:"head art" "foot art"}
-.chapter.right .event.nodress{grid-template-areas:"art head" "art foot"}
-.head,.dressblk,.foot{min-width:0}
-.head{grid-area:head;align-self:end}
-.dressblk{grid-area:dress}
-.foot{grid-area:foot;align-self:start;margin-top:22px}
+.event{width:min(800px,100%);display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "info" "wear";row-gap:0;align-items:start}
+.head,.info,.wear-part{min-width:0}
+.head{grid-area:head}
+.info{grid-area:info}
+.wear-part{grid-area:wear;margin-top:26px}
 .event .art{grid-area:art}
+/* a card with a featured sketch keeps it beside the details on wide screens */
+.featured .event{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);grid-template-rows:auto 1fr;grid-template-areas:"head art" "info art";column-gap:clamp(20px,4vw,44px)}
+.featured .head{align-self:end}
+.chapter.right.featured .event{grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);grid-template-areas:"art head" "art info"}
+.featured .art{align-self:center}
+/* When, Where, What to wear share one label style */
+.part{display:grid;gap:6px;justify-items:center}
+.part+.part{margin-top:22px}
+.label{font:italic 400 18px/1.3 var(--serif);color:var(--gold);font-weight:400}
+.place{display:flex;align-items:center;justify-content:center;gap:10px;font-size:16.5px;color:var(--ink2);text-wrap:balance}
+.place-name{min-width:0}
+.pin{flex:none;display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;color:var(--rose);
+  background:var(--paper);box-shadow:0 0 0 1px rgba(168,58,96,.4);position:relative;transition:background .2s ease,color .2s ease}
+.pin::after{content:"";position:absolute;inset:-5px;border-radius:50%}
+.pin svg{width:17px;height:17px}
+.pin:hover{background:var(--rose);color:#fff}
 .when-line{font:500 clamp(17.5px,5.5vw,22px)/1.3 var(--serif);color:var(--leaf)}
 .when-line span{white-space:nowrap}
-.times{display:grid;gap:4px;margin:.5em 0 0}
+.times{display:grid;gap:4px;margin:.2em 0 0}
 .times div{display:flex;justify-content:center;gap:.5em;flex-wrap:wrap}
 .times dt{font:italic 400 19px/1.35 var(--serif);color:var(--gold)}
 .times dd{margin:0;font:500 clamp(17px,5vw,20px)/1.35 var(--serif);color:var(--leaf)}
 .after{font:italic 400 17px/1.4 var(--serif);color:var(--ink2);margin-top:.3em;text-wrap:balance}
 /* events with an outfit picture: one column, the picture full width */
-.outfitted .event,.chapter.right.outfitted .event{grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "dress" "art" "foot";row-gap:20px}
-.outfitted .foot{margin-top:0}
-.art.outfit-art{aspect-ratio:auto;max-width:none}
-.feature.outfit{background:none}
-.feature.outfit img{border-radius:10px;box-shadow:0 0 0 1px var(--gold-line),0 0 0 5px var(--paper),0 0 0 6px rgba(201,166,90,.45),0 18px 30px -18px rgba(90,60,30,.5)}
+/* the outfit picture runs nearly edge to edge and melts into the paper, with no frame */
+.feature.outfit{background:none;width:calc(100% + 2*clamp(22px,4vw,48px) - 30px);margin-inline:calc(15px - clamp(22px,4vw,48px));justify-self:center}
+.feature.outfit img{border-radius:0;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 93%,transparent 100%),linear-gradient(180deg,transparent 0,#000 9%,#000 91%,transparent 100%);
+  -webkit-mask-composite:source-in;mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 93%,transparent 100%),linear-gradient(180deg,transparent 0,#000 9%,#000 91%,transparent 100%);mask-composite:intersect}
 .place b{font-weight:500;color:var(--ink)}
 .date{font:italic 400 21px/1.4 var(--serif);color:var(--ink2);margin-bottom:.2em}
 .ename{font-weight:400;margin-bottom:.2em}
 .time{font:500 26px/1.3 var(--serif);color:var(--leaf)}
 .place{font-size:16px;color:var(--ink2)}
-.maplink{margin:10px 0 0;padding:13px 22px;font-size:15px}
 .wear{font:italic 400 18px/1.3 var(--serif);color:var(--gold)}
 .dress-title{font:500 20px/1.25 var(--serif);color:var(--ink);margin-bottom:.2em}
 .dress p{color:var(--ink2);font-size:15.5px;margin-bottom:.9em}
@@ -257,12 +268,10 @@ html.env-on,html.env-on body{overflow:hidden}
 .sh-ogee{clip-path:polygon(50% 0,56% 2%,64% 6%,74% 12%,84% 19%,92% 26%,97% 32%,100% 40%,100% 100%,0 100%,0 40%,3% 32%,8% 26%,16% 19%,26% 12%,36% 6%,44% 2%)}
 
 /* A featured sketch, such as the Siddhchakra yantra, takes the whole art side of its card */
-.featured .event{grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr)}
 .art.feature-art{aspect-ratio:auto}
 .feature{display:block;width:100%;padding:0;border:0;cursor:zoom-in;font:inherit;
   background:radial-gradient(closest-side,rgba(255,223,154,.5),rgba(255,223,154,0) 78%)}
 .feature img{display:block;width:100%;height:auto}
-.feature span{display:block;font-size:14px;color:var(--ink2);margin-top:4px}
 #lightbox{position:fixed;inset:0;z-index:20;background:rgba(255,253,249,.98);overflow:auto;text-align:center;
   padding:max(70px,calc(env(safe-area-inset-top,0px) + 62px)) 12px 28px}
 #lightbox img{width:min(100%,1280px);height:auto}
@@ -329,10 +338,8 @@ html.viewing,html.viewing body{overflow:hidden}
   .featured .art{max-width:none}
   .hero{padding-top:clamp(112px,15.5vh,170px)}
   .chapter{justify-content:center!important;min-height:0;padding-block:18vh}
-  .chapter .event,.chapter.right .event,.featured .event{grid-template-columns:1fr;grid-template-rows:auto;grid-template-areas:"head" "dress" "art" "foot";row-gap:22px}
-  .chapter .event.nodress,.chapter.right .event.nodress{grid-template-areas:"head" "art" "foot"}
-  .foot{margin-top:0}
-  .dressblk .rule{margin-top:2px}
+  .featured .event,.chapter.right.featured .event{grid-template-columns:1fr;grid-template-rows:auto;grid-template-areas:"head" "info" "art";row-gap:0}
+  .featured .art{margin-top:26px}
   .art{max-width:320px;margin-inline:auto}
 }
 @media (prefers-reduced-motion:reduce){
@@ -420,17 +427,6 @@ html.viewing,html.viewing body{overflow:hidden}
     </div>
   </section>
 
-  <section class="solo" id="reply">
-    <div class="card">
-      <div class="crest"></div>
-      <h2>Will you join us?</h2>
-      <p class="note">Kindly reply by 30 November 2026.</p>
-      <button class="btn" id="yes" type="button" aria-pressed="false">Joyfully accept</button>
-      <button class="btn" id="no" type="button" aria-pressed="false">Regretfully decline</button>
-      <p id="reply-status" role="status"></p>
-      <p class="fine">Preview only. Replies are not saved yet.</p>
-    </div>
-  </section>
 
   <footer class="closing" id="closing">
     <div class="card">
@@ -523,7 +519,7 @@ function frameHTML(shape,label,img){
   var host=document.getElementById('chapters');
   EVENTS.forEach(function(ev,i){
     var sec=document.createElement('section');
-    sec.className='chapter '+(i%2?'right':'left')+(ev.feature?' featured':'')+(ev.outfit?' outfitted':'');
+    sec.className='chapter '+(i%2?'right':'left')+(ev.feature?' featured':'');
     sec.id='ch-'+ev.id;
     sec.style.setProperty('--t1',ev.tint[0]);
     sec.style.setProperty('--t2',ev.tint[1]);
@@ -538,35 +534,30 @@ function frameHTML(shape,label,img){
     }else if(ev.style==='steps'){
       nameHTML=ev.name.split(' ').map(function(w,k){return '<span style="--k:'+k+'">'+esc(w)+'</span>';}).join('');
     }else{nameHTML=esc(ev.title||ev.name);}
-    var dressHTML='';
-    if(ev.dress){
-      var sw=ev.dress.swatches.map(function(s){return '<li><i style="background:'+s[0]+'"></i>'+esc(s[1])+'</li>';}).join('');
-      dressHTML='<div class="dressblk"><div class="rule"></div><div class="dress"><p class="wear">What to wear</p><h4 class="dress-title">'+esc(ev.dress.title)+'</h4><p>'+esc(ev.dress.note)+'</p><ul class="sw">'+sw+'</ul></div></div>';
-    }
+    var PIN='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.5c-.3 0-.6-.1-.8-.4C9.3 18.9 5 13.7 5 9.6 5 5.7 8.1 2.5 12 2.5s7 3.2 7 7.1c0 4.1-4.3 9.3-6.2 11.5-.2.3-.5.4-.8.4Z" fill="currentColor"/><circle cx="12" cy="9.6" r="2.6" fill="#FFFDF9"/></svg>';
+    var whenHTML=ev.times?
+      '<p class="when-line">'+esc(ev.day)+', '+esc(ev.date)+'</p>'+
+      '<dl class="times">'+ev.times.map(function(t){return '<div><dt>'+esc(t[0])+'</dt><dd>'+esc(t[1])+'</dd></div>';}).join('')+'</dl>':
+      '<p class="when-line"><span>'+esc(ev.day)+', '+esc(ev.date)+',</span> <span>'+esc(ev.time)+'</span></p>';
+    var whereHTML=
+      '<p class="place"><span class="place-name"><b>'+esc(ev.venue)+'</b>'+(ev.area?', '+esc(ev.area):'')+'</span>'+
+      '<a class="pin" href="'+esc(ev.map||DUMMY_MAP)+'" target="_blank" rel="noopener" aria-label="Open '+esc(ev.venue)+' in Google Maps" title="Open in Google Maps">'+PIN+'</a></p>'+
+      (ev.after?'<p class="after">'+esc(ev.after)+'</p>':'');
+    var img=ev.outfit||ev.feature;
+    var imgHTML=img?'<button class="feature'+(ev.outfit?' outfit':'')+'" type="button" data-src="'+esc(img.src)+'" data-alt="'+esc(img.alt)+'" aria-label="View larger: '+esc(img.alt)+'"><img src="'+esc(img.src)+'" width="'+img.w+'" height="'+img.h+'" alt="'+esc(img.alt)+'" loading="lazy" decoding="async"></button>':'';
     sec.innerHTML=
-      '<article class="card event'+(ev.dress?'':' nodress')+'">'+
+      '<article class="card event">'+
         '<div class="crest" data-k="'+ev.crest+'"></div>'+
         '<header class="head">'+
           '<h3 class="ename nm-'+ev.style+'"'+(ev.lang?' lang="'+ev.lang+'"':'')+' aria-label="'+esc(ev.title||ev.name)+'">'+nameHTML+'</h3>'+
-          (ev.times?
-            '<p class="when-line"><span>'+esc(ev.day)+', '+esc(ev.date)+'</span></p>'+
-            '<dl class="times">'+ev.times.map(function(t){return '<div><dt>'+esc(t[0])+'</dt><dd>'+esc(t[1])+'</dd></div>';}).join('')+'</dl>':
-            '<p class="when-line"><span>'+esc(ev.day)+', '+esc(ev.date)+',</span> <span>'+esc(ev.time)+'</span></p>')+
         '</header>'+
-        dressHTML+
-        (ev.outfit?
-          '<div class="art outfit-art"><button class="feature outfit" type="button" data-src="'+esc(ev.outfit.src)+'" data-alt="'+esc(ev.outfit.alt)+'"><img src="'+esc(ev.outfit.src)+'" width="'+ev.outfit.w+'" height="'+ev.outfit.h+'" alt="'+esc(ev.outfit.alt)+'" loading="lazy" decoding="async"><span>Tap to view larger</span></button></div>':
-        ev.feature?
-          '<div class="art feature-art"><button class="feature" type="button" data-src="'+esc(ev.feature.src)+'" data-alt="'+esc(ev.feature.alt)+'"><img src="'+esc(ev.feature.src)+'" width="'+ev.feature.w+'" height="'+ev.feature.h+'" alt="'+esc(ev.feature.alt)+'" loading="lazy" decoding="async"><span>Tap to view larger</span></button></div>':
-          '<div class="art">'+
-            '<div class="fw f-sketch">'+frameHTML(ev.sketchShape,'Outfit sketch',ev.sketch)+'</div>'+
-            '<div class="fw f-photo">'+frameHTML(ev.photoShape,'Reference photo',ev.photo)+'</div>'+
-          '</div>')+
-        '<footer class="foot">'+
-          '<p class="place"><b>'+esc(ev.venue)+'</b>'+(ev.area?', '+esc(ev.area):'')+'</p>'+
-          (ev.after?'<p class="after">'+esc(ev.after)+'</p>':'')+
-          '<a class="btn maplink" href="'+esc(ev.map||DUMMY_MAP)+'" target="_blank" rel="noopener">Open in Google Maps</a>'+
-        '</footer>'+
+        '<div class="info">'+
+          '<div class="rule"></div>'+
+          '<section class="part"><h4 class="label">When</h4>'+whenHTML+'</section>'+
+          '<section class="part"><h4 class="label">Where</h4>'+whereHTML+'</section>'+
+        '</div>'+
+        (ev.outfit?'<section class="part wear-part"><h4 class="label">What to wear</h4>'+imgHTML+'</section>':
+         ev.feature?'<div class="art feature-art">'+imgHTML+'</div>':'')+
       '</article>';
     host.appendChild(sec);
   });
@@ -762,13 +753,6 @@ document.getElementById('cue').addEventListener('click',function(){
     var txt=ad.textContent;
     if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done,pick);}else{pick();}
   });
-  var yes=document.getElementById('yes'),no=document.getElementById('no'),st=document.getElementById('reply-status');
-  function reply(ok){
-    yes.setAttribute('aria-pressed',ok?'true':'false');no.setAttribute('aria-pressed',ok?'false':'true');
-    st.textContent=ok?'Wonderful. We cannot wait to see you.':'We will miss you, and thank you for letting us know.';
-  }
-  yes.addEventListener('click',function(){reply(true);});
-  no.addEventListener('click',function(){reply(false);});
 })();
 
 /* ---------------- 3D pond and lotus ---------------- */
