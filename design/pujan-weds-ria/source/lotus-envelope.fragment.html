@@ -335,6 +335,10 @@ html.viewing,html.viewing body{overflow:hidden}
 .closing{text-align:center;padding-block:10vh}
 .closing .card{display:inline-block;width:min(520px,100%);padding-bottom:116px}
 .closing .script{font:400 clamp(44px,8vw,64px)/1.2 var(--script);color:var(--rose)}
+.closing .line{text-wrap:balance}
+.family{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:4px}
+.family li{font:500 clamp(19px,5.4vw,23px)/1.35 var(--serif);color:var(--ink)}
+.hashtag{font:500 clamp(20px,5.6vw,24px)/1.4 var(--serif);letter-spacing:.02em}
 .tag{font:400 24px/1.5 'Tiro Devanagari Hindi',var(--serif);color:var(--gold);margin-top:.5em}
 .link{background:none;border:0;font:inherit;color:var(--rose);text-decoration:underline;cursor:pointer;padding:8px}
 .fine{font-size:14px;color:var(--ink2);margin-top:1em}
@@ -457,27 +461,22 @@ html.viewing,html.viewing body{overflow:hidden}
 
   <div id="chapters"></div>
 
-  <section class="solo" id="venue">
-    <div class="card">
-      <div class="crest"></div>
-      <h2>Where to find us</h2>
-      <p class="venue-name">Venue name</p>
-      <p id="addr">Street address, Surat, Gujarat</p>
-      <p class="note">Parking and a welcome drink are waiting at the main entrance.</p>
-      <a class="btn main" href="https://www.google.com/maps/search/?api=1&amp;query=Surat%2C+Gujarat" target="_blank" rel="noopener">Open in Maps</a>
-      <button class="btn" id="copy" type="button">Copy address</button>
-    </div>
-  </section>
 
 
   <footer class="closing" id="closing">
     <div class="card">
       <div class="crest"></div>
-      <p class="line">With best compliments from</p>
-      <p class="script">Both our families</p>
+      <p class="line">With Best Compliments from</p>
+      <ul class="family">
+        <li>Lt. Rameshbhai Jhaveri</li>
+        <li>Shailiniben Rameshbhai Jhaveri</li>
+        <li>Hemal Ramesh Jhaveri</li>
+        <li>Purvi Hemal Jhaveri</li>
+        <li>Krish Hemal Jhaveri</li>
+      </ul>
+      <div class="rule"></div>
       <p class="line">We look forward to celebrating with you.</p>
-      <p class="tag" lang="hi">♥️हमारी PURI कहानी♥️</p>
-      <p class="fine">Design preview. Family names, venues and dress codes are placeholders.</p>
+      <p class="tag hashtag">#HamariPuRiKahani</p>
       <button class="link" id="replay" type="button">Replay the opening</button>
       <p class="fine" id="diag"></p>
     </div>
@@ -850,16 +849,6 @@ document.getElementById('cue').addEventListener('click',function(){
   tick();setInterval(tick,20000);
 })();
 
-/* Copy address and the reply preview */
-(function(){
-  var cp=document.getElementById('copy'),ad=document.getElementById('addr');
-  function pick(){var r=document.createRange();r.selectNodeContents(ad);var s=window.getSelection();s.removeAllRanges();s.addRange(r);cp.textContent='Press copy now';}
-  function done(){cp.textContent='Copied';setTimeout(function(){cp.textContent='Copy address';},1800);}
-  cp.addEventListener('click',function(){
-    var txt=ad.textContent;
-    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done,pick);}else{pick();}
-  });
-})();
 
 /* ---------------- 3D pond and lotus ---------------- */
 var api=null,why='';
@@ -2000,7 +1989,7 @@ function init3D(){
     var k=CAMS[i%CAMS.length];
     ANCH.push(anchor('ch-'+ev.id,[k[0],k[1],k[2],k[3],(i%2?-.26:.26),0],ev.fx||{}));
   });
-  ANCH.push(anchor('venue',[0,9.5,5.6,0,0,0],{sky:0xF8F1E2,top:0xFFFBF2}),anchor('closing',[0,6.5,2.4,.7,0,.1],{}));
+  ANCH.push(anchor('closing',[0,6.5,2.4,.7,0,.1],{}));
   ANCH.forEach(function(a){a.el=document.getElementById(a.id);a.y=0;});
   var SPL={az:38,r:3.1,h:.85,lx:0,ly:.62,lz:0,sx:0,sy:.04};
   var cur={az:SPL.az,r:SPL.r,h:SPL.h,lx:SPL.lx,ly:SPL.ly,lz:SPL.lz,sx:SPL.sx,sy:SPL.sy};
