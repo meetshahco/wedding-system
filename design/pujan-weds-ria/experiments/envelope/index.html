@@ -168,7 +168,7 @@ html.env-on,html.env-on body{overflow:hidden}
 .info{grid-area:info}
 .wear-part{grid-area:wear;margin-top:26px}
 .vibe-title{font:500 clamp(19px,5.4vw,22px)/1.3 var(--serif);color:var(--leaf);text-wrap:balance}
-.vibe-line{font:italic 400 17.5px/1.45 var(--serif);color:var(--ink2);max-width:30ch;text-wrap:balance}
+.vibe-line{font:italic 400 16.5px/1.38 var(--serif);color:var(--ink2);max-width:44ch;text-wrap:balance}
 /* the venue rises out of the bottom of the card: a faint sketch, flush to the card's edges, fading upward,
    with the Where details resting on its faded top */
 .sketched .event{grid-template-areas:"head" "info" "wear" "venue";padding-bottom:0}
@@ -349,6 +349,37 @@ html.viewing,html.viewing body{overflow:hidden}
 .no3d body,.no3d html{background:radial-gradient(120% 90% at 50% 70%,#fbe3ea,#f3f7f5 60%,#f8f5f8)}
 
 @media (max-width:760px){
+  /* compact event cards: one card, one screen */
+  .chapter .card.event{padding-top:56px;border-radius:50% 50% 18px 18px / 64px 64px 18px 18px;padding-bottom:40px}
+  .chapter.sketched .card.event{padding-bottom:0}
+  .chapter .card.event .crest{top:16px;width:38px}
+  .chapter .event .rule{margin:12px auto 10px}
+  .chapter .event .ename{margin-bottom:0}
+  .chapter .nm-script{font-size:clamp(40px,11.5vw,50px)}
+  .chapter .nm-wave{font-size:clamp(38px,10.5vw,46px)}
+  .chapter .nm-foil{font-size:clamp(25px,7.4vw,30px)}
+  .chapter .nm-rang{font-size:clamp(32px,9.4vw,40px);white-space:nowrap}
+  .chapter .nm-guj{font-size:clamp(40px,12vw,52px)}
+  .chapter .nm-steps{font-size:clamp(32px,9.2vw,40px)}
+  .chapter .nm-steps span{display:inline-block;transform:none;padding:0 .12em .04em;margin:0}
+  .chapter .part{gap:2px}
+  .chapter .part+.part{margin-top:10px}
+  .chapter .label{font-size:16px}
+  .chapter .when-line{font-size:clamp(16.5px,4.7vw,19px)}
+  .chapter .times{gap:0;margin:0}
+  .chapter .times dt{font-size:16px}.chapter .times dd{font-size:clamp(16px,4.6vw,18px)}
+  .chapter .place{font-size:15px;gap:4px}
+  .chapter .pin{width:30px;height:30px}
+  .chapter .after{font-size:15px}
+  .chapter .wear-part{margin-top:10px}
+  .chapter .vibe-title{font-size:clamp(17px,4.9vw,19px)}
+  .chapter .vibe-line{font-size:clamp(14px,3.9vw,15.5px);line-height:1.3;max-width:none}
+  .chapter .feature.outfit{padding:2% 2% 0}
+  .chapter .feature.outfit img{width:100%;height:clamp(120px,19vh,165px);object-fit:contain}
+  .chapter .venue-art{margin-top:6px}
+  .chapter .venue-img{height:clamp(84px,12vh,110px);object-fit:cover;object-position:center 75%;margin-top:-34px}
+  .chapter .feature-art .feature img{width:100%;height:clamp(150px,22vh,200px);object-fit:contain}
+  .featured .art{margin-top:12px}
   .featured .art{max-width:none}
   .hero{padding-top:clamp(112px,15.5vh,170px)}
   .chapter{justify-content:center!important;min-height:0;padding-block:18vh}
