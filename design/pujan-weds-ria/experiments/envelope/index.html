@@ -1040,7 +1040,7 @@ function init3D(){
     ' col*=mix(0.87,1.0,smoothstep(0.0,0.4,t));',
     ' col+=vec3(1.0,0.90,0.66)*uGlow*(1.0-smoothstep(0.0,0.5,t))*0.16*mix(0.25,1.0,inner);',
     ' col+=vec3(1.0,0.90,0.68)*pow(1.0-abs(dot(N,V)),3.0)*0.12;',
-    ' float gy=dot(col,vec3(0.3,0.59,0.11));col=mix(col,vec3(gy)*vec3(0.60,0.58,0.56)+0.02,uDim*0.82);',
+    ' float gy=dot(col,vec3(0.3,0.59,0.11));col=mix(col,vec3(gy)*vec3(0.78,0.68,0.54)+0.02,uDim*0.82);',
     ' col*=mix(vec3(1.0),vec3(0.42,0.44,0.56),uNight);',
     ' col+=alb*vec3(1.0,0.70,0.36)*uWarm*(0.20+0.5*(1.0-hemi));',
     ' col+=vec3(1.0,0.85,0.5)*smoothstep(uRev-0.7,uRev,dR)*0.55;',
@@ -1049,7 +1049,7 @@ function init3D(){
   ].join('\n');
   var cBase=new THREE.Vector3(.97,.96,.84),cMid=new THREE.Vector3(.99,.90,.93),cTip=new THREE.Vector3(.92,.52,.66);
   var glowU={value:0},zeroU={value:0},nightU={value:0},warmU={value:0},bigU={value:999},revU={value:0},laU={value:0},dimU={value:1},timeU={value:0},scaleU={value:400};
-  var DIMB=new THREE.Color(0x9A938B),DIMT=new THREE.Color(0x807A73),tmpB=new THREE.Color(),tmpT=new THREE.Color();
+  var GOLDB=new THREE.Color(0xF6DBA6),GOLDT=new THREE.Color(0xF2CF92),DIMB=new THREE.Color(0xF3DCA4),DIMT=new THREE.Color(0xEFCF8E),tmpB=new THREE.Color(),tmpT=new THREE.Color();
 
   /* tc/to tilt, bc/bo bend and cc/co cupping, each for the closed bud and the open bloom */
   var LAYERS=[
@@ -1688,7 +1688,7 @@ function init3D(){
           mark(k,x,y,rr+.3);
         }
       }
-      var FR=8.6*K;   /* the border frame takes this much of every edge */
+      var FR=3.3*K;   /* the border frame takes this much of every edge: a slim gold line, a fine bead and a hairline */
       /* on the flaps the vines run in bands parallel to each flap's curved edge, the way the reference is laid out */
       function edgeFn(k){
         var pts=edge(k).map(function(q){return [(q[0]/100-.5)*2*HW,(q[1]/100-.5)*2*HH];}).sort(function(a,b){return a[0]-b[0];});
@@ -1730,12 +1730,12 @@ function init3D(){
       /* the braided antique gold border and a fine double rule inside it, in foil and gently pressed */
       function frame(c,foil){
         var a=foil?1:.36;
-        [1.2*K,4.8*K].forEach(function(m){c.beginPath();c.rect(-HW+m,-HH+m,2*(HW-m),2*(HH-m));raise(c,.3*K,a);});
-        [6.3*K,7.3*K].forEach(function(m){c.beginPath();c.rect(-HW+m,-HH+m,2*(HW-m),2*(HH-m));raise(c,.16*K,a*.9);});
-        var mid=3.0*K,sides=[[-HW+mid,-HH+mid,1,0,2*(HW-mid)],[HW-mid,-HH+mid,0,1,2*(HH-mid)],[HW-mid,HH-mid,-1,0,2*(HW-mid)],[-HW+mid,HH-mid,0,-1,2*(HH-mid)]];
+        [.55*K,2.05*K].forEach(function(m){c.beginPath();c.rect(-HW+m,-HH+m,2*(HW-m),2*(HH-m));raise(c,.2*K,a);});
+        [2.65*K,3.0*K].forEach(function(m){c.beginPath();c.rect(-HW+m,-HH+m,2*(HW-m),2*(HH-m));raise(c,.1*K,a*.9);});
+        var mid=1.3*K,sides=[[-HW+mid,-HH+mid,1,0,2*(HW-mid)],[HW-mid,-HH+mid,0,1,2*(HH-mid)],[HW-mid,HH-mid,-1,0,2*(HW-mid)],[-HW+mid,HH-mid,0,-1,2*(HH-mid)]];
         sides.forEach(function(sd){var ang=Math.atan2(sd[3],sd[2]);
-          for(var t=.6*K;t<sd[4]-.4*K;t+=1.3*K){var x=sd[0]+sd[2]*t,y=sd[1]+sd[3]*t;c.save();c.translate(x,y);c.rotate(ang+.85);
-            c.beginPath();c.ellipse(0,0,1.6*K,.6*K,0,0,6.2832);fill(c,a*.95);c.beginPath();c.ellipse(0,0,1.6*K,.6*K,0,0,6.2832);cut(c,.16*K,foil?.55:.4);c.restore();}
+          for(var t=.5*K;t<sd[4]-.3*K;t+=.62*K){var x=sd[0]+sd[2]*t,y=sd[1]+sd[3]*t;c.save();c.translate(x,y);c.rotate(ang+.85);
+            c.beginPath();c.ellipse(0,0,.8*K,.3*K,0,0,6.2832);fill(c,a*.95);c.beginPath();c.ellipse(0,0,.8*K,.3*K,0,0,6.2832);cut(c,.09*K,foil?.55:.4);c.restore();}
         });
       }
       frame(f,true);frame(fb,true);frame(g,false);frame(b,false);
@@ -1887,14 +1887,16 @@ function init3D(){
         ' vec2 q2=vec2((uv.x-0.5)*2.0*uEA,(uv.y-0.5)*2.0);',
         ' float tilt=clamp(normalize(vN).z*(gl_FrontFacing?1.0:-1.0),0.0,1.0);',
         ' float mt=texture2D(tNoise,vec2(uv.x*uEA,uv.y)*1.6+0.37).r;',
-        ' vec3 alb=mix(vec3(0.860,0.730,0.520),vec3(0.970,0.868,0.700),fr)*(0.955+0.05*nz.r+0.09*mt);',
+        ' vec3 alb=mix(vec3(0.965,0.850,0.640),vec3(0.970,0.868,0.700),fr)*(0.955+0.05*nz.r+0.09*mt);',
         ' float lf=0.92+0.13*clamp(dot(q2,normalize(vec2(-1.0,1.0)))*0.35+0.5,0.0,1.0);',
-        ' vec3 col=alb*mix(0.80,0.55+0.60*dif,fr)*lf*(0.90+0.10*tilt);',
+        ' vec3 col=alb*mix(0.90,0.55+0.60*dif,fr)*lf*(0.90+0.10*tilt);',
         ' col*=1.0-0.11*cs*fr-0.09*ao*fr;',
         ' col+=vec3(1.0,0.98,0.94)*pow(max(dot(N,Hv),0.0),22.0)*0.07*fr;',
         /* light from inside the envelope */
         ' col+=vec3(1.0,0.88,0.68)*uInner*(1.0-fr)*0.45;',
         ' col+=vec3(1.0,0.86,0.62)*gw.g*uInner*fr*0.5;',
+        ' float bk=1.0-smoothstep(0.0,0.5,abs(uv.y-0.5));',
+        ' col+=vec3(1.0,0.87,0.64)*(1.0-fr)*uInner*(0.06+0.26*bk*bk+0.22*pow(bk,7.0));',
         ' col+=vec3(1.0,0.88,0.66)*uGlow*(0.05+0.30*smoothstep(0.35,1.0,uv.y*0.0+1.0-uv.y))*fr;',
         /* the travelling grazing light: a warm wash, highlights on every raised edge, and fine glints */
         ' float pr=dot(q2,normalize(vec2(1.0,-0.6)))/(uEA+1.0);',
@@ -1907,16 +1909,17 @@ function init3D(){
         /* the pressed pattern lights up like a net: its edges and its insides glow, softly, from the seal outwards */
         ' float dd0=length(vec2((uv.x-0.5)*uEA,uv.y-0.5));float pw=max(smoothstep(uPF,uPF-0.34,dd0)*uPat,band*0.4);',
         ' float pg=smoothstep(0.08,0.55,h0)*0.45+clamp(length(vec2(hx,hy))*4.2,0.0,1.0)*0.95;',
-        ' col*=1.0-0.09*pw*fr;col+=vec3(1.0,0.72,0.36)*pg*pw*fr*0.30;',
+        ' col*=1.0-0.09*pw*fr;col+=vec3(1.0,0.83,0.56)*pg*pw*fr*0.30;',
         /* gold: the braided border and the double rule on the flap edges */
         ' float foil=pm.g*fr;float sp=pow(max(dot(N,Hv),0.0),50.0);',
         ' vec3 gold=vec3(0.82,0.62,0.28);float sps=pow(max(dot(N,normalize(Ls+V)),0.0),30.0)*band;',
         ' vec3 fc=gold*(0.45+0.6*dif)+vec3(1.0,0.90,0.62)*(sp*1.4+sps*2.2)+gold*0.25*pow(1.0-max(dot(N,V),0.0),2.0);',
-        ' col=mix(col,fc,foil);col+=vec3(1.0,0.80,0.46)*foil*pw*0.28;',
+        ' col=mix(col,fc,foil);col+=vec3(1.0,0.84,0.58)*foil*pw*0.28;',
         ' col*=mix(vec3(1.0),vec3(1.06,1.02,0.94),uInner*fr);',
         ' col*=1.0-shd*0.30;',
         /* the line of light that escapes along the flap edge as the seal comes away */
         ' float d=length(vec2((uv.x-0.5)*uEA,uv.y-0.5));float m=smoothstep(uP,uP-0.16,d);',
+        ' col+=vec3(1.0,0.88,0.66)*uInner*fr*exp(-d*d*5.0)*0.24;',
         ' col+=vec3(1.0,0.82,0.52)*(gw.g*0.9+gw.r*0.5)*m*uSeam*smoothstep(0.088,0.102,d);',
         ' col=gild(col);gl_FragColor=vec4(col,uFade);',
         '}'].join('\n');
@@ -1943,7 +1946,7 @@ function init3D(){
         ' col+=vec3(1.0,0.88,0.64)*pow(max(dot(Nb,Ls)-0.29,0.0)*2.2,1.15)*band*0.9+vec3(1.0,0.84,0.58)*band*0.08;',
         ' float dd0=length(vec2((uv.x-0.5)*uEA,uv.y-0.5));float pw=max(smoothstep(uPF,uPF-0.34,dd0)*uPat,band*0.4);',
         ' float pg=smoothstep(0.08,0.55,h0)*0.45+clamp(length(vec2(bx,by))*4.2,0.0,1.0)*0.95;',
-        ' col*=1.0-0.09*pw;col+=vec3(1.0,0.72,0.36)*pg*pw*0.30;',
+        ' col*=1.0-0.09*pw;col+=vec3(1.0,0.83,0.56)*pg*pw*0.30;',
         ' float fo=texture2D(tPaper,uv).a;vec3 Vb=normalize(cameraPosition-vec3(vWP.xy,0.0));',
         ' float sb=pow(max(dot(Nb,normalize(Lb+Vb)),0.0),30.0)+pow(max(dot(Nb,normalize(Ls+Vb)),0.0),30.0)*band*1.4;',
         ' vec3 gb=vec3(0.82,0.62,0.28);col=mix(col,gb*(0.5+0.5*dif)+vec3(1.0,0.90,0.62)*sb*1.2,fo*0.95);',
@@ -1951,8 +1954,12 @@ function init3D(){
         /* the inside of the envelope is lit from below the bottom flap: the paper takes on warm light and keeps its relief */
         ' float d=length(vec2((uv.x-0.5)*uEA,(uv.y-0.65)*0.85));',
         ' float gy=exp(-pow((uv.y-0.30)/0.42,2.0));float gx=exp(-pow((uv.x-0.5)*uEA/0.9,2.0));',
-        ' vec3 lit=col*vec3(1.04,1.0,0.93)+vec3(1.0,0.76,0.48)*(0.03+0.20*gy*gx)*(0.55+0.45*(1.0-dif));',
+        ' vec3 lit=col*vec3(1.04,1.0,0.93)+vec3(1.0,0.83,0.62)*(0.03+0.20*gy*gx)*(0.55+0.45*(1.0-dif));',
         ' lit+=vec3(1.0,0.88,0.66)*fo*(0.35+0.5*gy)*0.55;',
+        ' vec3 Lg=normalize(vec3(0.0,-0.8,0.6));float sg=pow(max(dot(Nb,normalize(Lg+Vb)),0.0),10.0);',
+        ' lit+=vec3(1.0,0.88,0.64)*(sg*0.28*(0.25+0.75*gy)+0.08*gy*gx);',
+        ' float sw2=exp(-pow((dot(q2,normalize(vec2(0.8,0.6)))-(-1.9+3.8*uInner))/0.38,2.0))*(1.0-0.5*uInner);',
+        ' lit+=vec3(1.0,0.91,0.72)*sw2*0.18*(0.55+0.45*dif)*(0.7+0.3*clamp(sg*3.0,0.0,1.5));',
         ' col=mix(col,lit,uInner);',
         ' col+=vec3(1.0,0.90,0.72)*exp(-pow((d-uHole)/0.1,2.0))*0.08*step(0.001,uHole);',
         ' col=gild(col);gl_FragColor=vec4(col,uFade*smoothstep(uHole-0.34,uHole,d));',
@@ -2065,7 +2072,7 @@ function init3D(){
       /* both flaps open on their folds, as in the reference: the top flap tips up toward the guest with the seal on its
          edge, the bottom flap folds away and down, and the camera moves in, so both leave the frame */
       var kt=beat(.8,2.5,t),kb=beat(1.1,2.9,t),th=1.3*kt,tb=1.36*kb;
-      pivots.top.position.y=1;pivots.bottom.position.y=-1;
+      pivots.top.position.y=1;pivots.bottom.position.y=-1-1.5*beat(1.9,3.5,t);
       pivots.top.rotation.x=-th;pivots.bottom.rotation.x=-tb;
       if(seal){
         var press=st.run?Math.sin(Math.PI*clamp(t/.3,0,1)):0,lift=beat(.2,.85,t);
@@ -2087,8 +2094,8 @@ function init3D(){
     function backdrop(){if(!root)return;var b=root.children[0];if(b&&b.userData.back){b.scale.set(U.asp.value*2.4*FIT,2.4*FIT,1);U.bs.value=2.4*FIT;}}
     function resize(Wd,Hd,asp){
       ec.aspect=asp;ec.updateProjectionMatrix();U.asp.value=asp;
-      /* a real envelope has a natural shape: on a narrow phone the whole envelope is shown, on a wide screen it fills the frame */
-      EA=Math.max(.72,Math.min(asp,1.9));FIT=Math.max(1,.76/asp);baseZ=FIT/TF;
+      /* the envelope always fills the screen edge to edge; on a tall phone its sides run past the glass, as in the reference */
+      EA=Math.max(.72,Math.min(asp,1.9));FIT=asp>1.9?1.9/asp:1;baseZ=FIT/TF;
       if(!st.run&&!st.done)ec.position.z=baseZ;
       layout(Wd,Hd);backdrop();
       if(fontsOk&&Math.abs(EA-builtEA)>.02){build(EA);backdrop();markReady();}
@@ -2152,20 +2159,20 @@ function init3D(){
           U.swI.value*=Math.max(0,1-dt*4);U.glintI.value=0;
           U.seam.value=beat(.3,1.0,t)*(1-beat(1.9,2.8,t));U.seamG.value=beat(.3,1.0,t)*(1-beat(1.2,1.9,t));
           U.p.value=.2+.75*beat(.3,1.7,t);
-          U.halo.value=.32*beat(.1,1.0,t)*(1-beat(2.4,3.4,t));
+          U.halo.value=.26*beat(.1,1.0,t)*(1-beat(2.4,3.4,t));
           U.pat.value=beat(.1,1.0,t)*(1-beat(1.8,2.8,t));U.pf.value=-.3+1.7*beat(.1,1.7,t);
-          U.shade.value=1-beat(.8,2.0,t);
+          U.shade.value=1-beat(.5,1.5,t);
           U.inner.value=beat(.9,2.4,t);
           U.glow.value=beat(1.0,2.5,t)*(1-beat(3.0,4.4,t));
-          U.bloom.value=.34*beat(1.0,2.4,t)*(1-beat(3.0,4.4,t));
+          U.bloom.value=.26*beat(1.0,2.4,t)*(1-beat(3.0,4.4,t));
           /* the window onto the pond opens where the bud will rise */
-          U.hole.value=1.1*beat(1.3,3.0,t);
+          U.hole.value=1.1*beat(1.5,3.0,t);
           U.bfade.value=1;
-          U.fade.value=1-beat(3.0,4.6,t);U.fadeB.value=U.fade.value*(1-beat(1.8,2.8,t));
+          U.fade.value=1-beat(3.0,4.6,t);U.fadeB.value=U.fade.value*(1-beat(2.5,3.5,t));
           ec.position.z=baseZ+(.62/TF-baseZ)*beat(1.0,4.0,t);ec.position.y=-.16*beat(1.3,3.6,t);
           envDolly=beat(2.8,5.2,t);
           html.dataset.stage=t<.2?'seal_interaction':t<.8?'seal_lift':t<2.2?'envelope_open':t<3.0?'lotus_bud_reveal':'page_transition';
-          if(!st.lit&&t>.8){st.lit=true;light();}
+          if(!st.lit&&t>.15){st.lit=true;light();}
           if(!st.opened&&t>2.1){st.opened=true;startOpen();}
           if(t>5.6)finish();
         }
@@ -2355,7 +2362,9 @@ function init3D(){
 
     /* atmosphere follows the chapter */
     var Lf=state.lit?.5-.5*Math.cos(Math.PI*clamp((now-state.l0)/1000/2.6,0,1)):0;dimU.value=1-Lf;
+    var hold=ENV?1-clamp((ot-1.0)/3.4,0,1):0;
     tmpB.copy(DIMB).lerp(out.c,Lf);tmpT.copy(DIMT).lerp(out.top,Lf);
+    if(hold>0){tmpB.lerp(GOLDB,.6*hold);tmpT.lerp(GOLDT,.6*hold);}
     bg.copy(tmpB);scene.fog.color.copy(tmpB);
     wu.uHorizon.value.copy(tmpB);wu.uShallow.value.copy(tmpB);
 
@@ -2364,7 +2373,7 @@ function init3D(){
     nightU.value=nt;warmU.value=clamp((ot-2.6)/2.5,0,1)*(.3+.7*nt);
     var lk=mix(.5,1,Lf);
     ambL.intensity=.45*mix(1,.42,nt)*lk;hemiL.intensity=.35*mix(1,.35,nt)*lk;sun.intensity=.42*mix(1,.25,nt)*lk;
-    wu.uDeep.value.setRGB(mix(mix(.40,.72,Lf),.05,nt),mix(mix(.42,.82,Lf),.07,nt),mix(mix(.42,.78,Lf),.17,nt));
+    var dk=.6*hold*(1-nt);wu.uDeep.value.setRGB(mix(mix(mix(.80,.72,Lf),.05,nt),.93,dk),mix(mix(mix(.70,.82,Lf),.07,nt),.80,dk),mix(mix(mix(.50,.78,Lf),.17,nt),.58,dk));
     var pulse=Math.exp(-Math.pow((ot-1.5)/.7,2));
     glow.material.color.copy(out.hc);glow.material.opacity=Math.min(1,out.ho*clamp(ot/2.5,0,1)+pulse*.6);glow.scale.setScalar(6.5*(1+.9*pulse));
     haloMat.opacity=mix(.4,.85,nt);poolMat.opacity=mix(.3,.8,nt);
