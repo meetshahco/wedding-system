@@ -374,7 +374,7 @@ html.env-on,html.env-on body{overflow:hidden}
 .opened #lights{opacity:1}
 .lt{position:absolute;inset:0;opacity:0;visibility:hidden}
 .lt.on{visibility:visible}
-.lt:not(.on) i{animation-play-state:paused!important}
+.lt:not(.on) i,.lt:not(.on) i::before,.lt:not(.on) i b{animation-play-state:paused!important}
 .lt i{position:absolute;display:block;pointer-events:none}
 .lt .dots{left:0;top:0;width:0;height:0;border-radius:50%;will-change:transform}
 @keyframes ltRise{to{transform:translate3d(0,-100vh,0)}}
@@ -426,7 +426,28 @@ html.env-on,html.env-on body{overflow:hidden}
 @keyframes ltFire{0%,100%{transform:scale(1,1);opacity:.86}20%{transform:scale(1.03,1.09);opacity:1}45%{transform:scale(.98,.96);opacity:.8}70%{transform:scale(1.02,1.11);opacity:.96}}
 .lt-steps .d1{box-shadow:73.5vw 77.8vh 3px 0px rgba(255,236,160,.9),73.5vw 177.8vh 3px 0px rgba(255,236,160,.9),86.5vw 69.5vh 4px 0px rgba(255,236,160,.9),86.5vw 169.5vh 4px 0px rgba(255,236,160,.9),21.9vw 18.5vh 4px 1px rgba(255,96,40,.9),21.9vw 118.5vh 4px 1px rgba(255,96,40,.9),11.7vw 88.8vh 3px 0px rgba(255,150,40,.95),11.7vw 188.8vh 3px 0px rgba(255,150,40,.95),92.7vw 66.6vh 4px 0px rgba(255,96,40,.9),92.7vw 166.6vh 4px 0px rgba(255,96,40,.9),56.7vw 53.3vh 4px 2px rgba(255,236,160,.9),56.7vw 153.3vh 4px 2px rgba(255,236,160,.9),63.7vw 70.1vh 1px 2px rgba(255,236,160,.9),63.7vw 170.1vh 1px 2px rgba(255,236,160,.9),13.0vw 10.8vh 4px 1px rgba(255,206,90,.95),13.0vw 110.8vh 4px 1px rgba(255,206,90,.95),40.5vw 5.0vh 1px 1px rgba(255,206,90,.95),40.5vw 105.0vh 1px 1px rgba(255,206,90,.95),11.5vw 25.1vh 4px 2px rgba(255,96,40,.9),11.5vw 125.1vh 4px 2px rgba(255,96,40,.9),94.8vw 56.8vh 1px 1px rgba(255,150,40,.95),94.8vw 156.8vh 1px 1px rgba(255,150,40,.95),54.7vw 66.8vh 2px 1px rgba(255,150,40,.95),54.7vw 166.8vh 2px 1px rgba(255,150,40,.95),39.0vw 97.0vh 1px 2px rgba(255,236,160,.9),39.0vw 197.0vh 1px 2px rgba(255,236,160,.9),43.2vw 49.5vh 4px 2px rgba(255,96,40,.9),43.2vw 149.5vh 4px 2px rgba(255,96,40,.9),59.4vw 36.6vh 3px 1px rgba(255,96,40,.9),59.4vw 136.6vh 3px 1px rgba(255,96,40,.9),55.8vw 28.4vh 1px 0px rgba(255,96,40,.9),55.8vw 128.4vh 1px 0px rgba(255,96,40,.9),76.2vw 58.6vh 4px 1px rgba(255,206,90,.95),76.2vw 158.6vh 4px 1px rgba(255,206,90,.95),7.1vw 31.5vh 3px 0px rgba(255,236,160,.9),7.1vw 131.5vh 3px 0px rgba(255,236,160,.9),9.1vw 90.6vh 3px 1px rgba(255,236,160,.9),9.1vw 190.6vh 3px 1px rgba(255,236,160,.9),95.4vw 24.4vh 2px 1px rgba(255,150,40,.95),95.4vw 124.4vh 2px 1px rgba(255,150,40,.95),96.0vw 81.7vh 4px 0px rgba(255,150,40,.95),96.0vw 181.7vh 4px 0px rgba(255,150,40,.95),45.7vw 20.4vh 2px 1px rgba(255,150,40,.95),45.7vw 120.4vh 2px 1px rgba(255,150,40,.95);animation:ltRise 30s linear infinite}
 .lt-steps .d2{box-shadow:13.9vw 44.3vh 3px 1px rgba(255,236,160,.9),13.9vw 144.3vh 3px 1px rgba(255,236,160,.9),63.4vw 68.2vh 2px 2px rgba(255,96,40,.9),63.4vw 168.2vh 2px 2px rgba(255,96,40,.9),93.5vw 73.4vh 1px 1px rgba(255,206,90,.95),93.5vw 173.4vh 1px 1px rgba(255,206,90,.95),50.3vw 30.9vh 3px 1px rgba(255,96,40,.9),50.3vw 130.9vh 3px 1px rgba(255,96,40,.9),60.5vw 72.5vh 2px 1px rgba(255,206,90,.95),60.5vw 172.5vh 2px 1px rgba(255,206,90,.95),20.2vw 24.9vh 1px 0px rgba(255,206,90,.95),20.2vw 124.9vh 1px 0px rgba(255,206,90,.95),2.9vw 26.0vh 1px 2px rgba(255,150,40,.95),2.9vw 126.0vh 1px 2px rgba(255,150,40,.95),11.8vw 54.2vh 2px 0px rgba(255,150,40,.95),11.8vw 154.2vh 2px 0px rgba(255,150,40,.95),54.9vw 63.1vh 4px 1px rgba(255,96,40,.9),54.9vw 163.1vh 4px 1px rgba(255,96,40,.9),36.0vw 33.8vh 1px 0px rgba(255,236,160,.9),36.0vw 133.8vh 1px 0px rgba(255,236,160,.9),79.0vw 44.7vh 4px 1px rgba(255,206,90,.95),79.0vw 144.7vh 4px 1px rgba(255,206,90,.95),73.7vw 39.0vh 2px 1px rgba(255,206,90,.95),73.7vw 139.0vh 2px 1px rgba(255,206,90,.95),64.8vw 98.9vh 2px 1px rgba(255,96,40,.9),64.8vw 198.9vh 2px 1px rgba(255,96,40,.9),43.1vw 36.9vh 3px 1px rgba(255,150,40,.95),43.1vw 136.9vh 3px 1px rgba(255,150,40,.95),9.5vw 8.3vh 3px 1px rgba(255,236,160,.9),9.5vw 108.3vh 3px 1px rgba(255,236,160,.9),81.1vw 0.9vh 1px 0px rgba(255,96,40,.9),81.1vw 100.9vh 1px 0px rgba(255,96,40,.9),68.7vw 49.5vh 2px 1px rgba(255,96,40,.9),68.7vw 149.5vh 2px 1px rgba(255,96,40,.9),23.0vw 65.7vh 1px 1px rgba(255,96,40,.9),23.0vw 165.7vh 1px 1px rgba(255,96,40,.9);animation:ltRise 44s linear infinite,ltTwinkle 2.6s ease-in-out infinite alternate}
-@media (prefers-reduced-motion:reduce){.lt i{animation:none!important}}
+/* The Seven Steps: a shower of marigold, rose and jasmine petals drifting in from both sides to the middle, with little gold firecrackers going off at the edges. Sits above the card, below the garland. */
+#shower{position:fixed;inset:0;z-index:10;pointer-events:none;overflow:hidden;opacity:0;transition:opacity 2.4s ease}
+.opened #shower{opacity:1}
+.lt-shower i.p{top:var(--y);width:var(--s);height:var(--s);opacity:0;animation:ltPetalL var(--d) linear var(--w) infinite}
+.lt-shower i.pl{left:0}
+.lt-shower i.pr{right:0;animation-name:ltPetalR}
+.lt-shower i.pm{border-radius:50%;background:radial-gradient(circle,#C25E00 0 12%,rgba(255,226,120,.95) 13% 30%,rgba(255,226,120,0) 31%),repeating-conic-gradient(#FFB92E 0 15deg,#F2900F 15deg 30deg);box-shadow:inset 0 0 0 1px rgba(190,96,0,.3),0 0 5px rgba(255,170,40,.35)}
+.lt-shower i.pj{width:calc(var(--s) * .72);border-radius:50% 50% 50% 50% / 62% 62% 38% 38%;background:radial-gradient(circle at 40% 32%,#FFFFFF,#F4E9CC);box-shadow:0 0 5px rgba(255,236,190,.7)}
+.lt-shower i.p:not(.pm):not(.pj){border-radius:70% 0 70% 0;background:linear-gradient(135deg,#FFB8CF,#E0457A);box-shadow:0 0 5px rgba(240,90,140,.35)}
+@keyframes ltPetalL{0%{transform:translate3d(-8vw,0,0) rotate(0);opacity:0}8%{opacity:.95}25%{transform:translate3d(12vw,calc(var(--dy) * -.2),0) rotate(calc(var(--rot) * .25))}50%{transform:translate3d(26vw,calc(var(--dy) * .35),0) rotate(calc(var(--rot) * .5))}72%{opacity:.85}100%{transform:translate3d(51vw,var(--dy),0) rotate(var(--rot));opacity:0}}
+@keyframes ltPetalR{0%{transform:translate3d(8vw,0,0) rotate(0);opacity:0}8%{opacity:.95}25%{transform:translate3d(-12vw,calc(var(--dy) * -.2),0) rotate(calc(var(--rot) * -.25))}50%{transform:translate3d(-26vw,calc(var(--dy) * .35),0) rotate(calc(var(--rot) * -.5))}72%{opacity:.85}100%{transform:translate3d(-51vw,var(--dy),0) rotate(calc(var(--rot) * -1));opacity:0}}
+.lt-shower i.fw{width:4px;height:4px}
+.lt-shower i.fw::before{content:"";position:absolute;left:1px;top:0;width:2px;height:48px;border-radius:2px;background:linear-gradient(180deg,rgba(255,236,170,0),rgba(255,240,190,.95));opacity:0;animation:ltRocket var(--d) linear var(--w) infinite}
+.lt-shower i.fw b{position:absolute;left:0;top:0;width:4px;height:4px;border-radius:50%;opacity:0;animation:ltBurst var(--d) ease-out var(--w) infinite}
+@keyframes ltRocket{0%{transform:translateY(32vh);opacity:0}4%{opacity:1}17%{transform:translateY(0);opacity:1}19%,100%{transform:translateY(0);opacity:0}}
+@keyframes ltBurst{0%,17%{transform:scale(0);opacity:0}18%{transform:scale(.08);opacity:1}45%{transform:scale(.8);opacity:1}75%{transform:scale(1);opacity:.5}100%{transform:scale(1.06);opacity:0}}
+.lt-shower .b0{box-shadow:96px 0px 0 1.4px #FFD76A,89px 37px 0 1.4px #FFD76A,68px 68px 0 1.4px #FFD76A,37px 89px 0 1.4px #FFD76A,0px 96px 0 1.4px #FFD76A,-37px 89px 0 1.4px #FFD76A,-68px 68px 0 1.4px #FFD76A,-89px 37px 0 1.4px #FFD76A,-96px 0px 0 1.4px #FFD76A,-89px -37px 0 1.4px #FFD76A,-68px -68px 0 1.4px #FFD76A,-37px -89px 0 1.4px #FFD76A,-0px -96px 0 1.4px #FFD76A,37px -89px 0 1.4px #FFD76A,68px -68px 0 1.4px #FFD76A,89px -37px 0 1.4px #FFD76A,56px 11px 0 1.4px #FFF3C4,48px 32px 0 1.4px #FFF3C4,32px 48px 0 1.4px #FFF3C4,11px 56px 0 1.4px #FFF3C4,-11px 56px 0 1.4px #FFF3C4,-32px 48px 0 1.4px #FFF3C4,-48px 32px 0 1.4px #FFF3C4,-56px 11px 0 1.4px #FFF3C4,-56px -11px 0 1.4px #FFF3C4,-48px -32px 0 1.4px #FFF3C4,-32px -48px 0 1.4px #FFF3C4,-11px -56px 0 1.4px #FFF3C4,11px -56px 0 1.4px #FFF3C4,32px -48px 0 1.4px #FFF3C4,48px -32px 0 1.4px #FFF3C4,56px -11px 0 1.4px #FFF3C4,0 0 14px 6px rgba(255,214,120,.5)}
+.lt-shower .b1{box-shadow:83px 0px 0 1.4px #FF7A3C,77px 32px 0 1.4px #FF7A3C,59px 59px 0 1.4px #FF7A3C,32px 77px 0 1.4px #FF7A3C,0px 83px 0 1.4px #FF7A3C,-32px 77px 0 1.4px #FF7A3C,-59px 59px 0 1.4px #FF7A3C,-77px 32px 0 1.4px #FF7A3C,-83px 0px 0 1.4px #FF7A3C,-77px -32px 0 1.4px #FF7A3C,-59px -59px 0 1.4px #FF7A3C,-32px -77px 0 1.4px #FF7A3C,-0px -83px 0 1.4px #FF7A3C,32px -77px 0 1.4px #FF7A3C,59px -59px 0 1.4px #FF7A3C,77px -32px 0 1.4px #FF7A3C,49px 10px 0 1.4px #FFD08A,41px 28px 0 1.4px #FFD08A,28px 41px 0 1.4px #FFD08A,10px 49px 0 1.4px #FFD08A,-10px 49px 0 1.4px #FFD08A,-28px 41px 0 1.4px #FFD08A,-41px 28px 0 1.4px #FFD08A,-49px 10px 0 1.4px #FFD08A,-49px -10px 0 1.4px #FFD08A,-41px -28px 0 1.4px #FFD08A,-28px -41px 0 1.4px #FFD08A,-10px -49px 0 1.4px #FFD08A,10px -49px 0 1.4px #FFD08A,28px -41px 0 1.4px #FFD08A,41px -28px 0 1.4px #FFD08A,49px -10px 0 1.4px #FFD08A,0 0 14px 6px rgba(255,214,120,.5)}
+.lt-shower .b2{box-shadow:96px 0px 0 1.4px #FF6F9C,89px 37px 0 1.4px #FF6F9C,68px 68px 0 1.4px #FF6F9C,37px 89px 0 1.4px #FF6F9C,0px 96px 0 1.4px #FF6F9C,-37px 89px 0 1.4px #FF6F9C,-68px 68px 0 1.4px #FF6F9C,-89px 37px 0 1.4px #FF6F9C,-96px 0px 0 1.4px #FF6F9C,-89px -37px 0 1.4px #FF6F9C,-68px -68px 0 1.4px #FF6F9C,-37px -89px 0 1.4px #FF6F9C,-0px -96px 0 1.4px #FF6F9C,37px -89px 0 1.4px #FF6F9C,68px -68px 0 1.4px #FF6F9C,89px -37px 0 1.4px #FF6F9C,57px 11px 0 1.4px #FFD1E0,48px 32px 0 1.4px #FFD1E0,32px 48px 0 1.4px #FFD1E0,11px 57px 0 1.4px #FFD1E0,-11px 57px 0 1.4px #FFD1E0,-32px 48px 0 1.4px #FFD1E0,-48px 32px 0 1.4px #FFD1E0,-57px 11px 0 1.4px #FFD1E0,-57px -11px 0 1.4px #FFD1E0,-48px -32px 0 1.4px #FFD1E0,-32px -48px 0 1.4px #FFD1E0,-11px -57px 0 1.4px #FFD1E0,11px -57px 0 1.4px #FFD1E0,32px -48px 0 1.4px #FFD1E0,48px -32px 0 1.4px #FFD1E0,57px -11px 0 1.4px #FFD1E0,0 0 14px 6px rgba(255,214,120,.5)}
+.lt-shower .b3{box-shadow:79px 0px 0 1.4px #FFC83D,73px 30px 0 1.4px #FFC83D,56px 56px 0 1.4px #FFC83D,30px 73px 0 1.4px #FFC83D,0px 79px 0 1.4px #FFC83D,-30px 73px 0 1.4px #FFC83D,-56px 56px 0 1.4px #FFC83D,-73px 30px 0 1.4px #FFC83D,-79px 0px 0 1.4px #FFC83D,-73px -30px 0 1.4px #FFC83D,-56px -56px 0 1.4px #FFC83D,-30px -73px 0 1.4px #FFC83D,-0px -79px 0 1.4px #FFC83D,30px -73px 0 1.4px #FFC83D,56px -56px 0 1.4px #FFC83D,73px -30px 0 1.4px #FFC83D,46px 9px 0 1.4px #FFFFFF,39px 26px 0 1.4px #FFFFFF,26px 39px 0 1.4px #FFFFFF,9px 46px 0 1.4px #FFFFFF,-9px 46px 0 1.4px #FFFFFF,-26px 39px 0 1.4px #FFFFFF,-39px 26px 0 1.4px #FFFFFF,-46px 9px 0 1.4px #FFFFFF,-46px -9px 0 1.4px #FFFFFF,-39px -26px 0 1.4px #FFFFFF,-26px -39px 0 1.4px #FFFFFF,-9px -46px 0 1.4px #FFFFFF,9px -46px 0 1.4px #FFFFFF,26px -39px 0 1.4px #FFFFFF,39px -26px 0 1.4px #FFFFFF,46px -9px 0 1.4px #FFFFFF,0 0 14px 6px rgba(255,214,120,.5)}
+.lt-shower .b4{box-shadow:96px 0px 0 1.4px #FF5A4E,89px 37px 0 1.4px #FF5A4E,68px 68px 0 1.4px #FF5A4E,37px 89px 0 1.4px #FF5A4E,0px 96px 0 1.4px #FF5A4E,-37px 89px 0 1.4px #FF5A4E,-68px 68px 0 1.4px #FF5A4E,-89px 37px 0 1.4px #FF5A4E,-96px 0px 0 1.4px #FF5A4E,-89px -37px 0 1.4px #FF5A4E,-68px -68px 0 1.4px #FF5A4E,-37px -89px 0 1.4px #FF5A4E,-0px -96px 0 1.4px #FF5A4E,37px -89px 0 1.4px #FF5A4E,68px -68px 0 1.4px #FF5A4E,89px -37px 0 1.4px #FF5A4E,56px 11px 0 1.4px #FFB45E,48px 32px 0 1.4px #FFB45E,32px 48px 0 1.4px #FFB45E,11px 56px 0 1.4px #FFB45E,-11px 56px 0 1.4px #FFB45E,-32px 48px 0 1.4px #FFB45E,-48px 32px 0 1.4px #FFB45E,-56px 11px 0 1.4px #FFB45E,-56px -11px 0 1.4px #FFB45E,-48px -32px 0 1.4px #FFB45E,-32px -48px 0 1.4px #FFB45E,-11px -56px 0 1.4px #FFB45E,11px -56px 0 1.4px #FFB45E,32px -48px 0 1.4px #FFB45E,48px -32px 0 1.4px #FFB45E,56px -11px 0 1.4px #FFB45E,0 0 14px 6px rgba(255,214,120,.5)}
+@media (prefers-reduced-motion:reduce){.lt i,.lt i::before,.lt i b{animation:none!important}}
 /* The timeline: a fine gold thread that draws itself from one event to the next as you scroll */
 #chapters{position:relative}
 #thread{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:0}
@@ -559,6 +580,36 @@ html.env-on,html.env-on body{overflow:hidden}
   <div class="lt lt-steps lt-closing"><i class="dawn"></i><i class="fire"></i><i class="dots d1"></i><i class="dots d2"></i></div>
   <div class="lt lt-steps"><i class="dawn"></i><i class="fire"></i><i class="dots d1"></i><i class="dots d2"></i></div>
 </div>
+
+<div id="shower" aria-hidden="true"><div class="lt lt-shower">
+  <i class="p pl pm" style="--y:33vh;--dy:-0vh;--s:18.2px;--d:7.3s;--w:-3.9s;--rot:312deg"></i>
+  <i class="p pl pz" style="--y:48vh;--dy:-3vh;--s:12.0px;--d:7.2s;--w:-0.7s;--rot:-333deg"></i>
+  <i class="p pl pz" style="--y:17vh;--dy:1vh;--s:13.4px;--d:10.3s;--w:-6.0s;--rot:-323deg"></i>
+  <i class="p pl pj" style="--y:11vh;--dy:17vh;--s:11.0px;--d:7.5s;--w:-0.9s;--rot:-291deg"></i>
+  <i class="p pl pj" style="--y:21vh;--dy:10vh;--s:13.5px;--d:8.3s;--w:-4.5s;--rot:203deg"></i>
+  <i class="p pl pz" style="--y:23vh;--dy:12vh;--s:12.0px;--d:8.1s;--w:-4.7s;--rot:343deg"></i>
+  <i class="p pl pm" style="--y:71vh;--dy:13vh;--s:15.0px;--d:9.0s;--w:-4.7s;--rot:-495deg"></i>
+  <i class="p pl pm" style="--y:30vh;--dy:20vh;--s:13.9px;--d:8.5s;--w:-6.4s;--rot:235deg"></i>
+  <i class="p pl pz" style="--y:10vh;--dy:12vh;--s:14.4px;--d:9.0s;--w:-7.9s;--rot:-293deg"></i>
+  <i class="p pl pz" style="--y:55vh;--dy:10vh;--s:12.2px;--d:9.9s;--w:-9.4s;--rot:-351deg"></i>
+  <i class="p pl pj" style="--y:12vh;--dy:13vh;--s:13.5px;--d:10.5s;--w:-8.6s;--rot:282deg"></i>
+  <i class="p pr pj" style="--y:60vh;--dy:-3vh;--s:12.2px;--d:7.6s;--w:-0.9s;--rot:-201deg"></i>
+  <i class="p pr pj" style="--y:17vh;--dy:2vh;--s:11.7px;--d:10.0s;--w:-0.8s;--rot:-342deg"></i>
+  <i class="p pr pz" style="--y:78vh;--dy:16vh;--s:15.0px;--d:8.0s;--w:-3.3s;--rot:-309deg"></i>
+  <i class="p pr pm" style="--y:84vh;--dy:-0vh;--s:14.4px;--d:7.8s;--w:-1.8s;--rot:-355deg"></i>
+  <i class="p pr pm" style="--y:28vh;--dy:-4vh;--s:16.4px;--d:8.3s;--w:-4.7s;--rot:-523deg"></i>
+  <i class="p pr pz" style="--y:48vh;--dy:11vh;--s:13.7px;--d:7.2s;--w:-6.5s;--rot:-461deg"></i>
+  <i class="p pr pz" style="--y:71vh;--dy:5vh;--s:11.8px;--d:7.4s;--w:-4.7s;--rot:202deg"></i>
+  <i class="p pr pj" style="--y:24vh;--dy:-0vh;--s:11.4px;--d:7.2s;--w:-0.0s;--rot:234deg"></i>
+  <i class="p pr pj" style="--y:36vh;--dy:-3vh;--s:15.1px;--d:9.1s;--w:-1.4s;--rot:271deg"></i>
+  <i class="p pr pz" style="--y:36vh;--dy:-1vh;--s:14.9px;--d:10.5s;--w:-4.9s;--rot:354deg"></i>
+  <i class="p pr pm" style="--y:15vh;--dy:4vh;--s:15.1px;--d:9.9s;--w:-1.6s;--rot:-188deg"></i>
+  <i class="fw" style="left:9%;top:26vh;--d:5.20s;--w:-0.00s"><b class="b0"></b></i>
+  <i class="fw" style="left:91%;top:32vh;--d:5.75s;--w:-1.37s"><b class="b1"></b></i>
+  <i class="fw" style="left:25%;top:11vh;--d:6.30s;--w:-2.74s"><b class="b2"></b></i>
+  <i class="fw" style="left:76%;top:14vh;--d:6.85s;--w:-4.11s"><b class="b3"></b></i>
+  <i class="fw" style="left:50%;top:5vh;--d:7.40s;--w:-5.48s"><b class="b4"></b></i>
+</div></div>
 
 <main>
   <header class="hero" id="hero">
@@ -1073,7 +1124,8 @@ document.getElementById('cue').addEventListener('click',function(){
   var L=EVENTS.map(function(ev){return {el:document.getElementById('ch-'+ev.id),lt:document.querySelector('.lt-'+ev.id)};});
   L.push({el:document.getElementById('reveal'),lt:document.querySelector('.lt-welcome')},
          {el:document.getElementById('invite'),lt:document.querySelector('.lt-welcome')},
-         {el:document.getElementById('closing'),lt:document.querySelector('.lt-closing')});
+         {el:document.getElementById('closing'),lt:document.querySelector('.lt-closing')},
+         {el:document.getElementById('ch-steps'),lt:document.querySelector('.lt-shower')});
   L=L.filter(function(x){return x.el&&x.lt;});
   var lts=[];L.forEach(function(x){if(lts.indexOf(x.lt)<0)lts.push(x.lt);});
   var busy=false;
