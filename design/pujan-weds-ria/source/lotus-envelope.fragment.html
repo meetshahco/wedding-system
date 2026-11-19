@@ -2054,7 +2054,7 @@ function init3D(){
       /* both flaps open on their folds, as in the reference: the top flap tips up toward the guest with the seal on its
          edge, the bottom flap folds away and down, and the camera moves in, so both leave the frame */
       var kt=beat(.8,2.5,t),kb=beat(1.1,2.9,t),th=1.3*kt,tb=1.36*kb;
-      pivots.top.position.y=1;pivots.bottom.position.y=-1-1.5*beat(1.9,3.5,t);
+      pivots.top.position.y=1;pivots.bottom.position.y=-1-1.5*beat(1.6,3.0,t);
       pivots.top.rotation.x=-th;pivots.bottom.rotation.x=-tb;
       if(seal){
         var press=st.run?Math.sin(Math.PI*clamp(t/.3,0,1)):0,lift=beat(.2,.85,t);
@@ -2145,18 +2145,18 @@ function init3D(){
           U.pat.value=beat(.1,1.0,t)*(1-beat(1.8,2.8,t));U.pf.value=-.3+1.7*beat(.1,1.7,t);
           U.shade.value=1-beat(.5,1.5,t);
           U.inner.value=beat(.9,2.4,t);
-          U.glow.value=beat(1.0,2.5,t)*(1-beat(3.0,4.4,t));
-          U.bloom.value=.26*beat(1.0,2.4,t)*(1-beat(3.0,4.4,t));
+          U.glow.value=beat(1.0,2.3,t)*(1-beat(2.6,3.8,t));
+          U.bloom.value=.26*beat(1.0,2.2,t)*(1-beat(2.6,3.8,t));
           /* the window onto the pond opens where the bud will rise */
-          U.hole.value=1.1*beat(1.5,3.0,t);
+          U.hole.value=1.1*beat(1.1,2.6,t);
           U.bfade.value=1;
-          U.fade.value=1-beat(3.0,4.6,t);U.fadeB.value=U.fade.value*(1-beat(2.5,3.5,t));
-          ec.position.z=baseZ+(.62/TF-baseZ)*beat(1.0,4.0,t);ec.position.y=-.16*beat(1.3,3.6,t);
-          envDolly=beat(2.8,5.2,t);
-          html.dataset.stage=t<.2?'seal_interaction':t<.8?'seal_lift':t<2.2?'envelope_open':t<3.0?'lotus_bud_reveal':'page_transition';
+          U.fade.value=1-beat(2.6,4.0,t);U.fadeB.value=U.fade.value*(1-beat(2.2,3.2,t));
+          ec.position.z=baseZ+(.62/TF-baseZ)*beat(1.0,3.6,t);ec.position.y=-.16*beat(1.3,3.6,t);
+          envDolly=beat(2.2,4.6,t);
+          html.dataset.stage=html.classList.contains('opened')?'landing_page_ready':t<.2?'seal_interaction':t<.8?'seal_lift':t<1.6?'envelope_open':t<2.2?'lotus_bud_reveal':t<3.2?'page_transition':'lotus_bloom';
           if(!st.lit&&t>.15){st.lit=true;light();}
-          if(!st.opened&&t>2.1){st.opened=true;startOpen();}
-          if(t>5.6)finish();
+          if(!st.opened&&t>.9){st.opened=true;startOpen();}
+          if(t>4.6)finish();
         }
         applyPose();
       },
@@ -2251,8 +2251,8 @@ function init3D(){
     if(reduce){state.openT=9;state.t0-=9000;html.classList.add('opened','named');html.classList.remove('locked');return;}
     if(!ENV)timers.push(setTimeout(function(){html.classList.add('flash');},1300/SLOW));
     html.dataset.stage='lotus_bloom';
-    timers.push(setTimeout(function(){html.classList.add('named');},1500/SLOW));
-    timers.push(setTimeout(function(){html.classList.add('opened');html.classList.remove('locked');html.dataset.stage='landing_page_ready';},2700/SLOW));
+    timers.push(setTimeout(function(){html.classList.add('named');},(ENV?2000:1500)/SLOW));
+    timers.push(setTimeout(function(){html.classList.add('opened');html.classList.remove('locked');html.dataset.stage='landing_page_ready';},(ENV?3200:2700)/SLOW));
   }
   function reset(){
     timers.forEach(clearTimeout);timers=[];
