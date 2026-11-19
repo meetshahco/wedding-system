@@ -143,6 +143,24 @@ html.env-on,html.env-on body{overflow:hidden}
 .card::before,.card::after{content:"";position:absolute;border-radius:inherit;pointer-events:none}
 .card::before{inset:8px;border:1px solid var(--gold-line)}
 .card::after{inset:13px;border:1px solid rgba(201,166,90,.4)}
+/* Event cards are frosted glass: the pond shows through the top, and the card fades to near white toward the bottom,
+   so the details and the venue sketch rest on paper. Solid paper where blur is unavailable or transparency is reduced. */
+@supports ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
+  .chapter .card.event{--glass-fade:linear-gradient(180deg,rgba(255,253,249,.5) 0,rgba(255,253,249,.68) 30%,rgba(255,253,249,.84) 58%,rgba(255,253,249,.96) 82%,#FFFDF9 100%);
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='120' viewBox='0 0 60 120' fill='none' stroke='%23C9A65A' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 120C10 92 30 70 26 36'/%3E%3Cpath d='M22 120C22 100 46 94 44 71'/%3E%3Cpath d='M9 120C8 110 5 104 8 97'/%3E%3Cpath d='M26 14C22 20 22 29 26 35C30 29 30 20 26 14Z'/%3E%3Cpath d='M26 35C20 33 15 28 14 20C19 21 24 26 26 35Z'/%3E%3Cpath d='M26 35C32 33 37 28 38 20C33 21 28 26 26 35Z'/%3E%3Cpath d='M26 35C17 36 10 32 7 25C14 25 21 28 26 35Z'/%3E%3Cpath d='M26 35C35 36 42 32 45 25C38 25 31 28 26 35Z'/%3E%3Cpath d='M44 52C40 58 40 66 44 71C48 66 48 58 44 52Z'/%3E%3Cpath d='M44 71C41 69 39 66 39 63M44 71C47 69 49 66 49 63'/%3E%3Cellipse cx='11' cy='95' rx='10' ry='4'/%3E%3Cpath d='M11 95L4 93M11 95L18 93M11 95V99'/%3E%3C/svg%3E") left 15px bottom 15px/50px 100px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='120' viewBox='0 0 60 120' fill='none' stroke='%23C9A65A' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round'%3E%3Cg transform='translate%2860 0%29 scale%28-1 1%29'%3E%3Cpath d='M14 120C10 92 30 70 26 36'/%3E%3Cpath d='M22 120C22 100 46 94 44 71'/%3E%3Cpath d='M9 120C8 110 5 104 8 97'/%3E%3Cpath d='M26 14C22 20 22 29 26 35C30 29 30 20 26 14Z'/%3E%3Cpath d='M26 35C20 33 15 28 14 20C19 21 24 26 26 35Z'/%3E%3Cpath d='M26 35C32 33 37 28 38 20C33 21 28 26 26 35Z'/%3E%3Cpath d='M26 35C17 36 10 32 7 25C14 25 21 28 26 35Z'/%3E%3Cpath d='M26 35C35 36 42 32 45 25C38 25 31 28 26 35Z'/%3E%3Cpath d='M44 52C40 58 40 66 44 71C48 66 48 58 44 52Z'/%3E%3Cpath d='M44 71C41 69 39 66 39 63M44 71C47 69 49 66 49 63'/%3E%3Cellipse cx='11' cy='95' rx='10' ry='4'/%3E%3Cpath d='M11 95L4 93M11 95L18 93M11 95V99'/%3E%3C/g%3E%3C/svg%3E") right 15px bottom 15px/50px 100px no-repeat,var(--glass-fade);
+    -webkit-backdrop-filter:blur(12px) saturate(1.15);backdrop-filter:blur(12px) saturate(1.15);
+    box-shadow:0 40px 80px -44px rgba(120,60,90,.5),inset 0 0 0 1px rgba(255,255,255,.55)}
+}
+@supports ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
+  /* the lotus on the divider sat on a solid paper chip; on glass it just interrupts the line */
+  .chapter .card.event .rule{background:linear-gradient(90deg,transparent 0,var(--gold-line) 24%,var(--gold-line) calc(50% - 25px),transparent calc(50% - 25px),transparent calc(50% + 25px),var(--gold-line) calc(50% + 25px),var(--gold-line) 76%,transparent 100%)}
+  .chapter .card.event .rule::after{background-color:transparent}
+  /* the Symphony Night chapter sits on a dark sky, so its glass is a little milkier to keep the logo and text clear */
+  #ch-night .card.event{--glass-fade:linear-gradient(180deg,rgba(255,253,249,.66) 0,rgba(255,253,249,.8) 30%,rgba(255,253,249,.91) 58%,rgba(255,253,249,.97) 82%,#FFFDF9 100%)}
+}
+@media (prefers-reduced-transparency:reduce){
+  .chapter .card.event{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='120' viewBox='0 0 60 120' fill='none' stroke='%23C9A65A' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 120C10 92 30 70 26 36'/%3E%3Cpath d='M22 120C22 100 46 94 44 71'/%3E%3Cpath d='M9 120C8 110 5 104 8 97'/%3E%3Cpath d='M26 14C22 20 22 29 26 35C30 29 30 20 26 14Z'/%3E%3Cpath d='M26 35C20 33 15 28 14 20C19 21 24 26 26 35Z'/%3E%3Cpath d='M26 35C32 33 37 28 38 20C33 21 28 26 26 35Z'/%3E%3Cpath d='M26 35C17 36 10 32 7 25C14 25 21 28 26 35Z'/%3E%3Cpath d='M26 35C35 36 42 32 45 25C38 25 31 28 26 35Z'/%3E%3Cpath d='M44 52C40 58 40 66 44 71C48 66 48 58 44 52Z'/%3E%3Cpath d='M44 71C41 69 39 66 39 63M44 71C47 69 49 66 49 63'/%3E%3Cellipse cx='11' cy='95' rx='10' ry='4'/%3E%3Cpath d='M11 95L4 93M11 95L18 93M11 95V99'/%3E%3C/svg%3E") left 15px bottom 15px/50px 100px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='120' viewBox='0 0 60 120' fill='none' stroke='%23C9A65A' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round'%3E%3Cg transform='translate%2860 0%29 scale%28-1 1%29'%3E%3Cpath d='M14 120C10 92 30 70 26 36'/%3E%3Cpath d='M22 120C22 100 46 94 44 71'/%3E%3Cpath d='M9 120C8 110 5 104 8 97'/%3E%3Cpath d='M26 14C22 20 22 29 26 35C30 29 30 20 26 14Z'/%3E%3Cpath d='M26 35C20 33 15 28 14 20C19 21 24 26 26 35Z'/%3E%3Cpath d='M26 35C32 33 37 28 38 20C33 21 28 26 26 35Z'/%3E%3Cpath d='M26 35C17 36 10 32 7 25C14 25 21 28 26 35Z'/%3E%3Cpath d='M26 35C35 36 42 32 45 25C38 25 31 28 26 35Z'/%3E%3Cpath d='M44 52C40 58 40 66 44 71C48 66 48 58 44 52Z'/%3E%3Cpath d='M44 71C41 69 39 66 39 63M44 71C47 69 49 66 49 63'/%3E%3Cellipse cx='11' cy='95' rx='10' ry='4'/%3E%3Cpath d='M11 95L4 93M11 95L18 93M11 95V99'/%3E%3C/g%3E%3C/svg%3E") right 15px bottom 15px/50px 100px no-repeat,var(--paper);-webkit-backdrop-filter:none;backdrop-filter:none}
+}
 .crest{position:absolute;top:36px;left:50%;transform:translateX(-50%);width:58px;color:var(--gold-line);line-height:0}
 .crest svg{width:100%;height:auto}
 .rule{width:170px;max-width:64%;height:1px;margin:24px auto;background:linear-gradient(90deg,transparent,var(--gold-line),transparent);position:relative}
@@ -292,7 +310,7 @@ html.env-on,html.env-on body{overflow:hidden}
 .sh-pill{border-radius:999px}
 .sh-ogee{clip-path:polygon(50% 0,56% 2%,64% 6%,74% 12%,84% 19%,92% 26%,97% 32%,100% 40%,100% 100%,0 100%,0 40%,3% 32%,8% 26%,16% 19%,26% 12%,36% 6%,44% 2%)}
 
-/* A featured sketch, such as the Siddhchakra yantra, takes the whole art side of its card */
+/* A featured illustration, such as the Siddhchakra lotus, takes the whole art side of its card */
 .art.feature-art{aspect-ratio:auto}
 .feature{display:block;width:100%;padding:0;border:0;cursor:zoom-in;font:inherit;
   background:radial-gradient(closest-side,rgba(255,223,154,.5),rgba(255,223,154,0) 78%)}
@@ -567,7 +585,7 @@ var LOGOS={
 function logoHTML(L){return '<img class="logo-img" src="'+L.src+'" width="'+L.w+'" height="'+L.h+'" alt="" decoding="async">'}
 var EVENTS=[
   {id:'pujan',logo:LOGOS.pj,name:'Siddhchakra Pujan',title:'સિધ્ધચક્ર પૂજન',lang:'gu',style:'guj',crest:'chakra',
-   feature:{src:'siddhchakra-yantra.webp',w:581,h:760,alt:'Sketch of the Shri Siddhchakra Mahayantra'},n:['#A07A2E','#C39A45'],day:'Sunday',date:'6 December 2026',time:'8:30 am onwards',venue:'Rivulet Jirawala Parshwanath Derasar',area:'New Magdalla, Surat',map:MAPS('Shree Jirawala Parshwanath Bhagwan Jain temple, New Magdalla, Surat','ChIJLaX9ZMZN4DsRBEi5JGl2dl4'),
+   feature:{src:'siddhchakra-lotus.webp',w:900,h:1211,alt:'Golden lotus emblem of the Shri Siddhchakra Pujan'},n:['#A07A2E','#C39A45'],day:'Sunday',date:'6 December 2026',time:'8:30 am onwards',venue:'Rivulet Jirawala Parshwanath Derasar',area:'New Magdalla, Surat',map:MAPS('Shree Jirawala Parshwanath Bhagwan Jain temple, New Magdalla, Surat','ChIJLaX9ZMZN4DsRBEi5JGl2dl4'),
    after:'Followed by lunch at the Banquet Hall, Rivulet Apartment, 12:30 pm onwards',
    fx:{sky:0xFCEFD2,top:0xFFFBF2,mist:[0xFFE6B0,0xFFF3D6],mo:.4,tp:.6,md:.75,fall:.2,rise:.8,spark:0xE8B04A,petal:0xFFFFFF,halo:0xFFDF9A,ho:.8,spd:.6},
    tint:['#FBF3DF','#F1DFB4','#8F6A22'],sketchShape:'arch',photoShape:'circle'},
