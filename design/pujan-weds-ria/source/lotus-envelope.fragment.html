@@ -139,10 +139,10 @@ html.env-on,html.env-on body{overflow:hidden}
 .card::before,.card::after{content:"";position:absolute;border-radius:inherit;pointer-events:none}
 .card::before{inset:8px;border:1px solid var(--gold-line)}
 .card::after{inset:13px;border:1px solid rgba(201,166,90,.4)}
-/* Event cards are frosted glass: the pond shows through the top, and the card fades to near white toward the bottom,
-   so the details and the venue sketch rest on paper. Solid paper where blur is unavailable or transparency is reduced. */
+/* Every card is frosted glass, as the event cards were: the pond shows through the top, and the card fades to near white toward the bottom,
+   so the details rest on paper. Solid paper where blur is unavailable or transparency is reduced. */
 @supports ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
-  .chapter .card.event{--glass-fade:linear-gradient(180deg,rgba(255,253,249,.5) 0,rgba(255,253,249,.68) 30%,rgba(255,253,249,.84) 58%,rgba(255,253,249,.96) 82%,#FFFDF9 100%);
+  .card{--glass-fade:linear-gradient(180deg,rgba(255,253,249,.5) 0,rgba(255,253,249,.68) 30%,rgba(255,253,249,.84) 58%,rgba(255,253,249,.96) 82%,#FFFDF9 100%);
     background:var(--sprigs),var(--glass-fade);
     -webkit-backdrop-filter:blur(12px) saturate(1.15);backdrop-filter:blur(12px) saturate(1.15);
     box-shadow:0 40px 80px -44px rgba(120,60,90,.5),inset 0 0 0 1px rgba(255,255,255,.55)}
@@ -152,7 +152,7 @@ html.env-on,html.env-on body{overflow:hidden}
   #ch-night .card.event{--glass-fade:linear-gradient(180deg,rgba(255,253,249,.66) 0,rgba(255,253,249,.8) 30%,rgba(255,253,249,.91) 58%,rgba(255,253,249,.97) 82%,#FFFDF9 100%)}
 }
 @media (prefers-reduced-transparency:reduce){
-  .chapter .card.event{background:var(--sprigs),var(--paper);-webkit-backdrop-filter:none;backdrop-filter:none}
+  .card{background:var(--sprigs),var(--paper);-webkit-backdrop-filter:none;backdrop-filter:none}
 }
 .crest{position:absolute;top:36px;left:50%;transform:translateX(-50%);width:58px;color:var(--gold-line);line-height:0}
 .crest svg{width:100%;height:auto}
@@ -365,6 +365,9 @@ html.env-on,html.env-on body{overflow:hidden}
 @keyframes ltTwinkle{from{opacity:.35}to{opacity:1}}
 @keyframes ltFlicker{0%,100%{opacity:.78}22%{opacity:1}41%{opacity:.84}63%{opacity:.97}}
 @keyframes ltDrift{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(9vmax,-6vmax,0) scale(1.15)}}
+/* The welcome (scratch card and invitation) borrows the soft gold of the Pujan, a little calmer; the closing borrows the warm glow of the Seven Steps */
+.lt-welcome .rays{opacity:.55}
+.lt-closing .dawn{opacity:.6}
 /* Siddhchakra Pujan: morning light through the derasar, rays from above and the warm pool of the diyas */
 .lt-pujan .rays{inset:-24% -24% 26% -24%;background:repeating-conic-gradient(from 158deg at 50% 0,rgba(255,176,56,.62) 0 2.8deg,rgba(255,196,96,.1) 2.8deg 5deg,rgba(255,196,96,0) 5deg 10.5deg);
   -webkit-mask:radial-gradient(ellipse 66% 100% at 50% 0,#000 0,transparent 80%);mask:radial-gradient(ellipse 66% 100% at 50% 0,#000 0,transparent 80%);transform-origin:50% 0;animation:ltRays 16s ease-in-out infinite alternate}
@@ -534,6 +537,8 @@ html.env-on,html.env-on body{overflow:hidden}
   <div class="lt lt-rang"><i class="b b1"></i><i class="b b2"></i><i class="b b3"></i><i class="b b4"></i><i class="b b5"></i><i class="dots d1"></i><i class="dots d2"></i></div>
   <div class="lt lt-mehandi"><i class="wash"></i><i class="shaft"></i><i class="lf l1"></i><i class="lf l2"></i><i class="lf l3"></i><i class="lf l4"></i><i class="lf l5"></i><i class="lf l6"></i></div>
   <div class="lt lt-night"><i class="bm m1"></i><i class="bm m2"></i><i class="bm m3"></i><i class="bm m4"></i><i class="floor"></i><i class="dots d1"></i><i class="dots d2"></i></div>
+  <div class="lt lt-pujan lt-welcome"><i class="halo"></i><i class="rays"></i><i class="pool"></i><i class="dots d1"></i><i class="dots d2"></i></div>
+  <div class="lt lt-steps lt-closing"><i class="dawn"></i><i class="fire"></i><i class="dots d1"></i><i class="dots d2"></i></div>
   <div class="lt lt-steps"><i class="dawn"></i><i class="fire"></i><i class="dots d1"></i><i class="dots d2"></i></div>
 </div>
 
@@ -1047,14 +1052,21 @@ document.getElementById('cue').addEventListener('click',function(){
 
 /* The light that belongs to each event fades in as its card reaches the middle of the screen */
 (function(){
-  var L=EVENTS.map(function(ev){return {el:document.getElementById('ch-'+ev.id),lt:document.querySelector('.lt-'+ev.id)};}).filter(function(x){return x.el&&x.lt;});
+  var L=EVENTS.map(function(ev){return {el:document.getElementById('ch-'+ev.id),lt:document.querySelector('.lt-'+ev.id)};});
+  L.push({el:document.getElementById('reveal'),lt:document.querySelector('.lt-welcome')},
+         {el:document.getElementById('invite'),lt:document.querySelector('.lt-welcome')},
+         {el:document.getElementById('closing'),lt:document.querySelector('.lt-closing')});
+  L=L.filter(function(x){return x.el&&x.lt;});
+  var lts=[];L.forEach(function(x){if(lts.indexOf(x.lt)<0)lts.push(x.lt);});
   var busy=false;
   function upd(){
-    busy=false;var vh=window.innerHeight||800;
+    busy=false;var vh=window.innerHeight||800,best=new Array(lts.length);
+    for(var k=0;k<lts.length;k++)best[k]=0;
     for(var i=0;i<L.length;i++){
       var r=L[i].el.getBoundingClientRect(),d=Math.abs(r.top+r.height/2-vh/2)/(vh*.8),o=Math.max(0,1-d);o=o*o*(3-2*o);
-      L[i].lt.style.opacity=o>.004?o.toFixed(3):'0';L[i].lt.classList.toggle('on',o>.01);
+      var k2=lts.indexOf(L[i].lt);if(o>best[k2])best[k2]=o;
     }
+    for(var j=0;j<lts.length;j++){lts[j].style.opacity=best[j]>.004?best[j].toFixed(3):'0';lts[j].classList.toggle('on',best[j]>.01);}
   }
   window.addEventListener('scroll',function(){if(!busy){busy=true;requestAnimationFrame(upd);}},{passive:true});
   window.addEventListener('resize',upd);upd();
