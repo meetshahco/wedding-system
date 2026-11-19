@@ -69,7 +69,7 @@ a{color:inherit}
 html.env-on,html.env-on body{overflow:hidden}
 .has-env .hint{display:none}
 #envelope{position:fixed;inset:0;z-index:30;cursor:pointer;-webkit-tap-highlight-color:transparent}
-#envelope.env-wait{background:radial-gradient(ellipse at 50% 45%,#F3ECDF,#E2D4BC)}
+#envelope.env-wait{background:radial-gradient(ellipse at 50% 45%,#FBF1D2,#EBD39A)}
 .env-tap{position:absolute;left:50%;top:50%;width:160px;height:160px;transform:translate(-50%,-50%);border-radius:50%;border:0;padding:0;background:none;cursor:pointer}
 .env-tap:focus-visible{outline:2px solid var(--gold);outline-offset:8px}
 .env-hint{position:absolute;left:50%;top:calc(50% + 100px);transform:translateX(-50%);width:max-content;max-width:88vw;margin:0;padding:7px 20px 8px;border-radius:999px;text-align:center;
@@ -1847,6 +1847,7 @@ function init3D(){
         'uniform sampler2D tPaper;uniform sampler2D tShadow;uniform sampler2D tGlow;uniform sampler2D tNoise;',
         'uniform vec2 uTexel;uniform vec4 uSW;uniform vec3 uL;uniform float uP;uniform float uSeam;uniform float uFade;uniform float uShade;uniform float uEA;uniform float uSw;uniform float uSwI;uniform float uInner;uniform float uGlow;uniform float uPat;uniform float uPF;',
         'varying vec2 vUv;varying vec3 vWP;varying vec3 vN;varying vec3 vT;varying vec3 vB;',
+        'vec3 gild(vec3 c){return pow(max(c,vec3(0.0)),vec3(1.0,1.03,1.14));}',
         'float Hh(vec2 p){return texture2D(tPaper,p).r;}',
         'void main(){',
         ' vec2 uv=vUv;vec4 pm=texture2D(tPaper,uv);vec4 gw=texture2D(tGlow,uv);float h0=pm.r;',
@@ -1868,7 +1869,7 @@ function init3D(){
         ' vec2 q2=vec2((uv.x-0.5)*2.0*uEA,(uv.y-0.5)*2.0);',
         ' float tilt=clamp(normalize(vN).z*(gl_FrontFacing?1.0:-1.0),0.0,1.0);',
         ' float mt=texture2D(tNoise,vec2(uv.x*uEA,uv.y)*1.6+0.37).r;',
-        ' vec3 alb=mix(vec3(0.800,0.700,0.610),vec3(0.935,0.835,0.738),fr)*(0.955+0.05*nz.r+0.09*mt);',
+        ' vec3 alb=mix(vec3(0.860,0.730,0.520),vec3(0.970,0.868,0.700),fr)*(0.955+0.05*nz.r+0.09*mt);',
         ' float lf=0.92+0.13*clamp(dot(q2,normalize(vec2(-1.0,1.0)))*0.35+0.5,0.0,1.0);',
         ' vec3 col=alb*mix(0.80,0.55+0.60*dif,fr)*lf*(0.90+0.10*tilt);',
         ' col*=1.0-0.11*cs*fr-0.09*ao*fr;',
@@ -1891,19 +1892,20 @@ function init3D(){
         ' col*=1.0-0.09*pw*fr;col+=vec3(1.0,0.72,0.36)*pg*pw*fr*0.30;',
         /* gold: the braided border and the double rule on the flap edges */
         ' float foil=pm.g*fr;float sp=pow(max(dot(N,Hv),0.0),50.0);',
-        ' vec3 gold=vec3(0.86,0.72,0.50);float sps=pow(max(dot(N,normalize(Ls+V)),0.0),30.0)*band;',
-        ' vec3 fc=gold*(0.45+0.6*dif)+vec3(1.0,0.93,0.78)*(sp*1.4+sps*2.2)+gold*0.25*pow(1.0-max(dot(N,V),0.0),2.0);',
+        ' vec3 gold=vec3(0.82,0.62,0.28);float sps=pow(max(dot(N,normalize(Ls+V)),0.0),30.0)*band;',
+        ' vec3 fc=gold*(0.45+0.6*dif)+vec3(1.0,0.90,0.62)*(sp*1.4+sps*2.2)+gold*0.25*pow(1.0-max(dot(N,V),0.0),2.0);',
         ' col=mix(col,fc,foil);col+=vec3(1.0,0.80,0.46)*foil*pw*0.28;',
-        ' col*=mix(vec3(1.0),vec3(1.10,1.03,0.89),uInner*fr);',
+        ' col*=mix(vec3(1.0),vec3(1.06,1.02,0.94),uInner*fr);',
         ' col*=1.0-shd*0.30;',
         /* the line of light that escapes along the flap edge as the seal comes away */
         ' float d=length(vec2((uv.x-0.5)*uEA,uv.y-0.5));float m=smoothstep(uP,uP-0.16,d);',
         ' col+=vec3(1.0,0.82,0.52)*(gw.g*0.9+gw.r*0.5)*m*uSeam*smoothstep(0.088,0.102,d);',
-        ' gl_FragColor=vec4(col,uFade);',
+        ' col=gild(col);gl_FragColor=vec4(col,uFade);',
         '}'].join('\n');
       var LINER=[
         'uniform sampler2D tPaper;uniform vec2 uTexel;uniform vec3 uL;uniform sampler2D tShadow;uniform sampler2D tNoise;uniform float uInner;uniform float uFade;uniform float uShade;uniform float uEA;uniform float uP;uniform float uSeam;uniform float uSw;uniform float uSwI;uniform float uHole;uniform float uGlow;uniform float uPat;uniform float uPF;',
         'varying vec2 vUv;varying vec3 vWP;varying vec3 vN;varying vec3 vT;varying vec3 vB;',
+        'vec3 gild(vec3 c){return pow(max(c,vec3(0.0)),vec3(1.0,1.03,1.14));}',
         'float Hb(vec2 p){return texture2D(tPaper,p).b;}',
         'void main(){',
         ' vec2 uv=vUv;vec4 nz=texture2D(tNoise,vec2(uv.x*uEA,uv.y)*5.0);',
@@ -1917,7 +1919,7 @@ function init3D(){
         ' float cs=clamp((Hb(uv+ld*uTexel*2.5)-h0)*2.6+(Hb(uv+ld*uTexel*5.0)-h0)*1.7+(Hb(uv+ld*uTexel*9.0)-h0)*1.0,0.0,1.0);',
         ' float bl=(Hb(uv+vec2(4.0,0.0)*uTexel)+Hb(uv-vec2(4.0,0.0)*uTexel)+Hb(uv+vec2(0.0,4.0)*uTexel)+Hb(uv-vec2(0.0,4.0)*uTexel))*0.25;',
         ' float ao=clamp((bl-h0)*2.4,0.0,1.0);',
-        ' vec3 col=vec3(0.880,0.778,0.688)*(0.93+0.07*nz.r+0.10*texture2D(tNoise,vec2(uv.x*uEA,uv.y)*1.6+0.37).r)*(0.55+0.60*dif)*(1.0-0.11*cs-0.09*ao);',
+        ' vec3 col=vec3(0.930,0.810,0.610)*(0.93+0.07*nz.r+0.10*texture2D(tNoise,vec2(uv.x*uEA,uv.y)*1.6+0.37).r)*(0.55+0.60*dif)*(1.0-0.11*cs-0.09*ao);',
         ' vec2 q2=vec2((uv.x-0.5)*2.0*uEA,(uv.y-0.5)*2.0);float pr=dot(q2,normalize(vec2(1.0,-0.6)))/(uEA+1.0);',
         ' float band=exp(-pow((pr-uSw)/0.3,2.0))*uSwI;vec3 Ls=normalize(vec3(-0.8,0.5,0.3));',
         ' col+=vec3(1.0,0.88,0.64)*pow(max(dot(Nb,Ls)-0.29,0.0)*2.2,1.15)*band*0.9+vec3(1.0,0.84,0.58)*band*0.08;',
@@ -1926,16 +1928,16 @@ function init3D(){
         ' col*=1.0-0.09*pw;col+=vec3(1.0,0.72,0.36)*pg*pw*0.30;',
         ' float fo=texture2D(tPaper,uv).a;vec3 Vb=normalize(cameraPosition-vec3(vWP.xy,0.0));',
         ' float sb=pow(max(dot(Nb,normalize(Lb+Vb)),0.0),30.0)+pow(max(dot(Nb,normalize(Ls+Vb)),0.0),30.0)*band*1.4;',
-        ' vec3 gb=vec3(0.86,0.72,0.50);col=mix(col,gb*(0.5+0.5*dif)+vec3(1.0,0.93,0.78)*sb*1.2,fo*0.95);',
+        ' vec3 gb=vec3(0.82,0.62,0.28);col=mix(col,gb*(0.5+0.5*dif)+vec3(1.0,0.90,0.62)*sb*1.2,fo*0.95);',
         ' col*=1.0-shd*0.32;',
         /* the inside of the envelope is lit from below the bottom flap: the paper takes on warm light and keeps its relief */
         ' float d=length(vec2((uv.x-0.5)*uEA,(uv.y-0.65)*0.85));',
         ' float gy=exp(-pow((uv.y-0.30)/0.42,2.0));float gx=exp(-pow((uv.x-0.5)*uEA/0.9,2.0));',
-        ' vec3 lit=col*vec3(1.05,0.99,0.87)+vec3(1.0,0.76,0.48)*(0.03+0.20*gy*gx)*(0.55+0.45*(1.0-dif));',
+        ' vec3 lit=col*vec3(1.04,1.0,0.93)+vec3(1.0,0.76,0.48)*(0.03+0.20*gy*gx)*(0.55+0.45*(1.0-dif));',
         ' lit+=vec3(1.0,0.88,0.66)*fo*(0.35+0.5*gy)*0.55;',
         ' col=mix(col,lit,uInner);',
         ' col+=vec3(1.0,0.90,0.72)*exp(-pow((d-uHole)/0.1,2.0))*0.08*step(0.001,uHole);',
-        ' gl_FragColor=vec4(col,uFade*smoothstep(uHole-0.34,uHole,d));',
+        ' col=gild(col);gl_FragColor=vec4(col,uFade*smoothstep(uHole-0.34,uHole,d));',
         '}'].join('\n');
       var SEAL=[
         'uniform sampler2D tSeal;uniform sampler2D tLogo;uniform vec3 uL;uniform float uFade;uniform float uGlint;uniform float uGlintI;',
@@ -1947,9 +1949,9 @@ function init3D(){
         ' vec3 N=normalize(normalize(vN)-(normalize(vT)*hx+normalize(vB)*hy)*5.0);',
         ' vec3 L=normalize(uL);vec3 V=normalize(cameraPosition-vWP);vec3 Hv=normalize(L+V);',
         ' float wrap=clamp((dot(N,L)+0.45)/1.45,0.0,1.0);float nh=max(dot(N,Hv),0.0);',
-        ' vec3 alb=vec3(0.955,0.875,0.770);',
+        ' vec3 alb=vec3(0.975,0.815,0.520);',
         ' vec3 col=alb*(0.56+0.52*wrap)+vec3(1.0,0.96,0.90)*pow(nh,20.0)*0.12;',
-        ' vec3 gold=vec3(0.86,0.72,0.50);',
+        ' vec3 gold=vec3(0.84,0.64,0.30);',
         ' col=mix(col,gold*(0.55+0.55*wrap)+vec3(1.0,0.94,0.80)*pow(nh,50.0)*1.0,s.g*0.9);',
         ' float gp=dot(vUv-0.5,normalize(vec2(1.0,-0.7)));float gl=exp(-pow((gp-uGlint)/0.09,2.0))*uGlintI;',
         ' col+=vec3(1.0,0.95,0.84)*gl*(0.35+0.5*s.g);',
@@ -1985,9 +1987,9 @@ function init3D(){
         'uniform sampler2D tNoise;uniform float uFade;uniform float uEA;uniform float uAsp;uniform float uHole;uniform float uBS;varying vec2 vUv;',
         'void main(){',
         ' vec2 p=(vUv-0.5)*vec2(uAsp,1.0)*2.0*uBS;vec4 nz=texture2D(tNoise,vUv*vec2(uAsp,1.0)*3.0*uBS);',
-        ' vec3 c=mix(vec3(0.905,0.825,0.730),vec3(0.840,0.750,0.650),clamp(length(p*vec2(0.42,0.62)),0.0,1.0))*(0.985+0.03*nz.r);',
+        ' vec3 c=mix(vec3(0.985,0.915,0.775),vec3(0.930,0.820,0.640),clamp(length(p*vec2(0.42,0.62)),0.0,1.0))*(0.985+0.03*nz.r);',
         ' vec2 q=abs(p)-vec2(uEA,1.0);float sd=length(max(q,0.0))+min(max(q.x,q.y),0.0);',
-        ' c*=1.0-0.16*exp(-max(sd,0.0)*7.0);',
+        ' c*=vec3(1.0)-vec3(0.13,0.17,0.25)*exp(-max(sd,0.0)*7.0);',
         ' float d=length(vec2(p.x*0.5,(p.y*0.5-0.15)*0.85));',
         ' gl_FragColor=vec4(c,uFade*smoothstep(uHole-0.28,uHole,d));',
         '}'].join('\n');
