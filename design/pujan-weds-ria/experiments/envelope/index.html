@@ -17,6 +17,10 @@ img{max-width:100%}
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Jost:wght@400;500&family=Pinyon+Script&family=Farsan&family=Tiro+Devanagari+Hindi&display=swap">
 <style>
 /* Layout: a fixed 3D pond behind a scrolling invitation. Every block of content is an arched paper card with a double gold line, the way a printed Indian wedding card is framed. */
+/* Numerals: the figures of Cinzel (SIL Open Font License), 0 to 9 and the colon only. Cormorant's own figures are old style, so a 12 reads like "iz".
+   Cinzel's are all capital height, so dates and times read at a glance. Every other character still comes from the text face. */
+@font-face{font-family:'Numerals';font-style:normal;font-weight:100 900;font-display:swap;size-adjust:90%;unicode-range:U+0030-0039,U+003A;
+  src:url(data:font/woff2;base64,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) format('woff2')}
 :root{
   --pearl:#FAF5EA;
   --paper:#FFFDF9;
@@ -27,9 +31,9 @@ img{max-width:100%}
   --ink2:#47605B;
   --gold:#8F6A22;
   --gold-line:#C9A65A;
-  --serif:'Cormorant Garamond',Georgia,'Times New Roman',serif;
-  --sans:'Jost',system-ui,-apple-system,'Segoe UI',sans-serif;
-  --script:'Pinyon Script','Snell Roundhand',cursive;
+  --serif:'Numerals','Cormorant Garamond',Georgia,'Times New Roman',serif;
+  --sans:'Numerals','Jost',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --script:'Numerals','Pinyon Script','Snell Roundhand',cursive;
   color-scheme:light;
 }
 *{box-sizing:border-box}
