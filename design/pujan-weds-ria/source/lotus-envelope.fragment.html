@@ -317,6 +317,8 @@ html.viewing,html.viewing body{overflow:hidden}
 .scratch::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:3;transition:opacity 1.2s ease;
   box-shadow:inset 0 3px 9px rgba(86,58,14,.36),inset 0 -2px 4px rgba(255,248,225,.55)}
 .revealed .scratch::after{opacity:.3}
+.scratch:focus{outline:none}
+.scratch:focus-visible{outline:2px solid var(--rose);outline-offset:9px}
 .scratch-date{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;gap:2px;padding-top:14%}
 .scratch-date span{font:italic 400 19px/1.2 var(--serif);color:var(--gold)}
 .scratch-date b{font:500 clamp(24px,7.2vw,31px)/1.15 var(--serif);color:var(--rose);white-space:nowrap}
@@ -368,7 +370,7 @@ html.viewing,html.viewing body{overflow:hidden}
 
 /* Venue, reply and closing */
 .solo{display:grid;place-items:center;padding-block:12vh}
-.solo .card{width:min(560px,100%);padding-bottom:92px}
+.solo .card{width:min(560px,100%);padding-bottom:128px}
 .solo h2{font:400 clamp(36px,6vw,54px)/1.08 var(--serif);color:var(--leaf);margin-bottom:.3em;text-wrap:balance}
 .venue-name{font:italic 400 30px/1.2 var(--serif);color:var(--rose);margin-bottom:.2em}
 #addr{color:var(--ink2);margin-bottom:.3em}
@@ -481,14 +483,13 @@ html.viewing,html.viewing body{overflow:hidden}
   <section class="solo" id="reveal">
     <div class="card">
       <div class="crest"></div>
-      <div class="scratch" id="scratch">
+      <div class="scratch" id="scratch" tabindex="0" role="button" aria-label="Scratch the gold foil to reveal the wedding date. Press Enter to reveal it.">
         <div class="scratch-date"><span>Sunday</span><b>13 December 2026</b></div>
         <canvas id="foil" aria-hidden="true"></canvas>
         <canvas id="flakes" aria-hidden="true"></canvas>
         <i class="sweep" aria-hidden="true"></i><i class="sheen" aria-hidden="true"></i><i class="finger" aria-hidden="true"></i>
       </div>
       <p class="line" id="scratch-hint">Scratch the gold to reveal the date</p>
-      <button class="link" id="scratch-skip" type="button">Reveal it for me</button>
     </div>
   </section>
 
@@ -829,7 +830,7 @@ function crackers(anchor){
 
 /* Scratch card for the wedding date */
 (function(){
-  var sec=document.getElementById('reveal'),box=document.getElementById('scratch'),cv=document.getElementById('foil'),fl=document.getElementById('flakes'),hint=document.getElementById('scratch-hint'),skip=document.getElementById('scratch-skip');
+  var sec=document.getElementById('reveal'),box=document.getElementById('scratch'),cv=document.getElementById('foil'),fl=document.getElementById('flakes'),hint=document.getElementById('scratch-hint');
   var ctx=cv.getContext('2d'),fx=fl.getContext('2d'),w=0,h=0,done=false,down=false,lx=0,ly=0,moved=0,buzz=0,checks=0,parts=[],raf=0,touch=false;
   var FLAKE=['#E9C873','#F7E3A6','#C99A3A','#FFF3C8','#B8892E','#D6AE54'];
   function R(a,b){return a+Math.random()*(b-a);}
@@ -912,7 +913,7 @@ function crackers(anchor){
   }
   function finish(){
     if(done)return;done=true;
-    sec.classList.add('revealed');hint.textContent='Save the date';skip.hidden=true;
+    sec.classList.add('revealed');hint.textContent='Save the date';box.removeAttribute('tabindex');
     if(api&&api.burst)api.burst();
     crackers(box);
   }
@@ -931,7 +932,8 @@ function crackers(anchor){
   cv.addEventListener('pointerleave',function(){if(!down)box.classList.remove('live');});
   function up(){if(!down)return;down=false;box.classList.remove('live');if(cleared()>.4)finish();}
   cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
-  skip.addEventListener('click',finish);
+  /* no visible shortcut: a keyboard or screen reader guest can focus the foil and press Enter or Space */
+  box.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();finish();}});
   paint();
   window.addEventListener('resize',function(){if(!done&&moved===0)paint();});
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){if(!done&&moved===0)paint();});
