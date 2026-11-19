@@ -1115,9 +1115,9 @@ function crackers(anchor){
   function rub(x,y){
     var dx=x-lx,dy=y-ly,len=Math.sqrt(dx*dx+dy*dy)||1,nx=-dy/len,ny=dx/len,k,o;
     ctx.globalCompositeOperation='destination-out';ctx.strokeStyle='#000';ctx.fillStyle='#000';ctx.lineCap='round';ctx.lineJoin='round';
-    ctx.lineWidth=40;ctx.beginPath();ctx.moveTo(lx,ly);ctx.lineTo(x,y);ctx.stroke();
-    for(k=0;k<2;k++){o=R(-13,13);ctx.lineWidth=R(14,28);ctx.beginPath();ctx.moveTo(lx+nx*o,ly+ny*o);ctx.lineTo(x+nx*o,y+ny*o);ctx.stroke();}
-    for(k=0;k<3;k++){o=(Math.random()<.5?-1:1)*R(18,30);ctx.beginPath();ctx.arc(x+nx*o+R(-4,4),y+ny*o+R(-4,4),R(1.5,5),0,6.2832);ctx.fill();}
+    ctx.lineWidth=56;ctx.beginPath();ctx.moveTo(lx,ly);ctx.lineTo(x,y);ctx.stroke();
+    for(k=0;k<2;k++){o=R(-18,18);ctx.lineWidth=R(18,34);ctx.beginPath();ctx.moveTo(lx+nx*o,ly+ny*o);ctx.lineTo(x+nx*o,y+ny*o);ctx.stroke();}
+    for(k=0;k<3;k++){o=(Math.random()<.5?-1:1)*R(26,40);ctx.beginPath();ctx.arc(x+nx*o+R(-4,4),y+ny*o+R(-4,4),R(1.5,5),0,6.2832);ctx.fill();}
     ctx.globalCompositeOperation='source-over';
     var step=Math.abs(dx)+Math.abs(dy);moved+=step;
     if(!reduce&&step>3)spawn(x,y,Math.min(4,Math.ceil(step/10)));
@@ -1143,11 +1143,11 @@ function crackers(anchor){
   cv.addEventListener('pointermove',function(e){
     var q=at(e);box.style.setProperty('--gx',q[0]+'px');box.style.setProperty('--gy',q[1]+'px');
     if(!down||done)return;rub(q[0],q[1]);
-    if(++checks%14===0&&moved>w*1.4&&cleared()>.45)finish();
+    if(++checks%5===0&&moved>w*.4&&cleared()>.1)finish();
   });
   cv.addEventListener('pointerenter',function(e){if(!done&&e.pointerType==='mouse')box.classList.add('live');});
   cv.addEventListener('pointerleave',function(){if(!down)box.classList.remove('live');});
-  function up(){if(!down)return;down=false;box.classList.remove('live');if(cleared()>.4)finish();}
+  function up(){if(!down)return;down=false;box.classList.remove('live');if(moved>w*.3&&cleared()>.08)finish();}
   cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
   /* no visible shortcut: a keyboard or screen reader guest can focus the foil and press Enter or Space */
   box.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();finish();}});
