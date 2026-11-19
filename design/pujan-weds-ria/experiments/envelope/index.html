@@ -2090,14 +2090,22 @@ function init3D(){
         return out;
       }
       function line(g,pts,w,style){g.beginPath();pts.forEach(function(p,i){i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]);});g.lineWidth=w;g.strokeStyle=style;g.lineJoin='round';g.lineCap='round';g.stroke();}
-      ['top','bottom'].forEach(function(k){var rc=cv(CW,CH);line(rc.getContext('2d'),inset(k,S*1.15),S*1.5,'rgba(255,255,255,.7)');blurInto(hc,rc,S*.5);hg.globalAlpha=.5;hg.drawImage(rc,0,0);hg.globalAlpha=1;});
-      ['top','bottom'].forEach(function(k){line(fg,edge(k).map(px),S*.42,'#fff');line(fg,inset(k,S*1.25),S*.16,'rgba(255,255,255,.95)');
+      /* the top flap lies over the bottom flap, so the bottom flap's gold rules stop where they slip under it
+         (both flaps read the same foil layer, and drawn in full they cross over the top flap like a pair of sticks) */
+      var topPoly=outline('top');
+      function hiddenUnderTop(k,q){return k==='bottom'&&inside([q[0]/CW*100,q[1]/CH*100],topPoly);}
+      function lineV(g,pts,w,style,k){var run=[];pts.forEach(function(q){if(hiddenUnderTop(k,q)){if(run.length>1)line(g,run,w,style);run=[];}else run.push(q);});if(run.length>1)line(g,run,w,style);}
+      ['top','bottom'].forEach(function(k){var rc=cv(CW,CH);lineV(rc.getContext('2d'),inset(k,S*1.15),S*1.5,'rgba(255,255,255,.7)',k);blurInto(hc,rc,S*.5);hg.globalAlpha=.5;hg.drawImage(rc,0,0);hg.globalAlpha=1;});
+      ['top','bottom'].forEach(function(k){lineV(fg,edge(k).map(px),S*.42,'#fff',k);lineV(fg,inset(k,S*1.25),S*.16,'rgba(255,255,255,.95)',k);
         /* a second, finer gold rule inside each petal edge, stopping before the lotus round the seal */
         var ins=inset(k,S*4.2),rcut=RS/2*CH*1.9,run=[];
-        ins.forEach(function(q){if(Math.hypot(q[0]-CW/2,q[1]-CH/2)>rcut)run.push(q);else{if(run.length>1)line(hg,run,S*.24,'rgba(255,255,255,.4)');run=[];}});
+        ins.forEach(function(q){if(Math.hypot(q[0]-CW/2,q[1]-CH/2)>rcut&&!hiddenUnderTop(k,q))run.push(q);else{if(run.length>1)line(hg,run,S*.24,'rgba(255,255,255,.4)');run=[];}});
         if(run.length>1)line(hg,run,S*.24,'rgba(255,255,255,.4)');});
       /* under the seal the borders stop, so the flap tips stay clean when the seal breaks apart */
-      [hg,fg].forEach(function(g){g.save();g.globalCompositeOperation='destination-out';g.beginPath();g.arc(CW/2,CH/2,RS/2*CH*1.02,0,6.2832);g.fill();g.restore();});
+      [hg,fg].forEach(function(g){var r0=RS/2*CH*1.02,r1=RS/2*CH*1.7,gr=g.createRadialGradient(CW/2,CH/2,0,CW/2,CH/2,r1);
+        /* erased right under the seal, then fading back in, so the rules melt away instead of ending in a blunt cut */
+        gr.addColorStop(0,'rgba(0,0,0,1)');gr.addColorStop(r0/r1,'rgba(0,0,0,1)');gr.addColorStop(r0/r1+.12*(1-r0/r1),'rgba(0,0,0,.8)');gr.addColorStop(r0/r1+.5*(1-r0/r1),'rgba(0,0,0,.3)');gr.addColorStop(1,'rgba(0,0,0,0)');
+        g.save();g.globalCompositeOperation='destination-out';g.fillStyle=gr;g.beginPath();g.arc(CW/2,CH/2,r1,0,6.2832);g.fill();g.restore();});
       var tPaper=pack(CW,CH,[alphaOf(hc),alphaOf(fc),alphaOf(bc),alphaOf(fbc)]);
 
       /* shadows each layer casts on the layers beneath it */
