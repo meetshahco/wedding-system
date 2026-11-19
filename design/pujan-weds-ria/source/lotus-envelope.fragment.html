@@ -1133,6 +1133,20 @@ function crackers(anchor){
   cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
   /* no visible shortcut: a keyboard or screen reader guest can focus the foil and press Enter or Space */
   box.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();finish();}});
+  /* put the foil back exactly as a first visit finds it, used when the invitation is replayed */
+  function reset(){
+    if(raf){cancelAnimationFrame(raf);raf=0;}
+    parts.length=0;
+    done=false;down=false;moved=0;buzz=0;checks=0;touch=false;
+    sec.classList.remove('revealed');
+    box.classList.remove('touched','live');
+    box.setAttribute('tabindex','0');
+    box.style.removeProperty('--gx');box.style.removeProperty('--gy');
+    hint.textContent='Scratch the gold to reveal the date';
+    var old=document.querySelectorAll('.crackers');for(var i=0;i<old.length;i++)old[i].remove();
+    paint();
+  }
+  window.resetScratch=reset;
   paint();
   window.addEventListener('resize',function(){if(!done&&moved===0)paint();});
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){if(!done&&moved===0)paint();});
@@ -1244,6 +1258,7 @@ document.getElementById('replay').addEventListener('click',function(){
   if(track){track.currentTime=0;if(soundOn){track.volume=0;playTrack();}}
   if(!api)return;
   api.reset();
+  if(window.resetScratch)window.resetScratch();
   html.classList.remove('opened','opening','flash','named');
   window.scrollTo({top:0,behavior:'auto'});armCue();
   html.classList.add('locked');
