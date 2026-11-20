@@ -640,6 +640,7 @@ html.low .card{--glass-fade:linear-gradient(180deg,rgba(255,253,249,.74) 0,rgba(
   /* Bride side: on the ria. address the invite card carries Ria's family wording. ?side=ria previews it anywhere. */
   (function(){
     var ria=/^ria\./i.test(location.hostname)||/[?&]side=ria(&|$)/.test(location.search);
+    window.__RIA=ria;
     if(!ria)return;
     var c=document.querySelector('#invite .card');if(!c)return;
     var inv=c.querySelector('.invocation');
@@ -766,6 +767,7 @@ var EVENTS=[
 /* Each event remembers where it sits in the full list (idx), which keeps its camera angle, distance and height the same when a guest sees fewer events. Card sides and the camera swing follow the position in the guest's own list, so cards always alternate from the left. A guest with only one event sees it in the centre.
    Then only the events this guest is invited to are kept. The keys come from the personal link check at the top of the page. */
 EVENTS.forEach(function(e,i){e.idx=i;});
+if(window.__RIA)EVENTS.forEach(function(e){if(e.id==='the-seven-steps'&&e.times)e.times=e.times.filter(function(t){return !/^Baarat/i.test(t[0]);});});
 EVENTS=EVENTS.filter(function(e){return (window.__invitedKeys||[]).indexOf(e.id)!==-1;});
 
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
