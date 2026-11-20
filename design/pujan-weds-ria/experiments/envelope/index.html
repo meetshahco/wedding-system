@@ -455,6 +455,11 @@ html.low .card{--glass-fade:linear-gradient(180deg,rgba(255,253,249,.74) 0,rgba(
 .closing .line{text-wrap:balance}
 .family{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:4px}
 .family li{font:500 clamp(19px,5.4vw,23px)/1.35 var(--serif);color:var(--ink)}
+.family.cascade{display:inline-grid;text-align:left;margin:16px auto 0;gap:2px}
+.family.cascade li{font:500 clamp(20px,5.6vw,24px)/1.35 var(--serif);letter-spacing:.03em}
+.family.cascade li:nth-child(2){padding-left:1.5em}
+.family.cascade li:nth-child(3){padding-left:3em}
+.zfam{font:400 clamp(46px,11.5vw,64px)/1.1 var(--script);color:#8F6A22;margin:.1em 0 0;padding:.05em .15em .25em}
 .hashtag{font:500 clamp(20px,5.6vw,24px)/1.4 var(--serif);letter-spacing:.02em}
 .tag{font:400 24px/1.5 var(--serif);color:var(--gold);margin-top:.5em}
 .fabs{position:fixed;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:35;display:grid;gap:12px;
@@ -644,6 +649,21 @@ html.low .card{--glass-fade:linear-gradient(180deg,rgba(255,253,249,.74) 0,rgba(
     L[1].innerHTML='<b>Jigisha &amp; Prashant Zaveri</b><br>request the honour of your presence<br>at the wedding ceremony of their daughter';
     var h=document.querySelector('#hero .names');if(h)h.innerHTML='Ria <i>weds</i> Pujan Sha';
     document.querySelector('meta[name=description]').setAttribute('content','Together with their families, Ria and Pujan Sha invite you to their wedding celebrations.');
+    function foot(){
+    var cl=document.querySelector('#closing .card');
+    if(cl){
+      var fam=cl.querySelector('.family');
+      if(fam){
+        fam.className='family cascade';
+        fam.innerHTML='<li>Kesharichand</li><li>Zaverchand</li><li>Fulchand</li>';
+        var z=document.createElement('p');z.className='zfam';z.textContent='Zaveri Family';
+        fam.parentNode.insertBefore(z,fam.nextSibling);
+      }
+      var cls=cl.querySelectorAll('p.line');
+      if(cls.length>1)cls[cls.length-1].textContent='Your presence and blessings are the greatest gift we could receive.';
+    }
+    }
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',foot);else foot();
     var N=c.querySelectorAll('p.big-name');N[0].textContent='Ria';N[1].textContent='Pujan Sha';
     L[2].innerHTML='Son of<br><b>Purviben &amp; Hemalbhai Jhaveri</b>';
   })();
