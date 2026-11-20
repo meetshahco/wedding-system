@@ -1101,7 +1101,7 @@ document.getElementById('open').addEventListener('click',function(){if(api)api.o
    guest has touched the page, so if the first attempt is refused it starts on the first tap, click or key,
    which is usually the tap on the seal. It fades in, loops, pauses when the tab is hidden, and the sound
    button turns it off and on. */
-var MUSIC='soundtrack-v2.mp3'; /* mastered quiet (about -17 LUFS, peak -5.5 dB) so it sits under the page at full volume, which is also how iPhones play it, since they ignore the volume setting */
+var MUSIC='soundtrack-v3.mp3'; /* mastered quiet (about -17 LUFS, peak -5.5 dB) so it sits under the page at full volume, which is also how iPhones play it, since they ignore the volume setting */
 var soundBtn=document.getElementById('sound'),soundOn=true,track=null,started=false,fadeT=null;
 function fadeTo(v,ms){
   if(!track)return;clearInterval(fadeT);var from=track.volume,t0=performance.now();
