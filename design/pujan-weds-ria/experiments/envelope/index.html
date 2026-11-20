@@ -725,7 +725,7 @@ var EVENTS=[
    fx:{sky:0xFBDDD0,top:0xF7C6BC,mist:[0xFFC08A,0xF7A3A3],mo:.45,fall:.3,rise:1,spark:0xF07A2A,petal:0xD9456B,halo:0xFFC27A,ho:.8,spd:1},
    tint:['#F9DEE0','#EDB4BB','#9E1F33']}
 ];
-/* Each event remembers where it sits in the full list (idx), so its card side and camera never change when a guest sees fewer events.
+/* Each event remembers where it sits in the full list (idx), which keeps its camera angle, distance and height the same when a guest sees fewer events. Card sides and the camera swing follow the position in the guest's own list, so cards always alternate from the left.
    Then only the events this guest is invited to are kept. The keys come from the personal link check at the top of the page. */
 EVENTS.forEach(function(e,i){e.idx=i;});
 EVENTS=EVENTS.filter(function(e){return (window.__invitedKeys||[]).indexOf(e.id)!==-1;});
@@ -735,7 +735,7 @@ function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp
   var host=document.getElementById('chapters');
   EVENTS.forEach(function(ev,i){
     var sec=document.createElement('section');
-    sec.className='chapter '+(ev.idx%2?'right':'left')+(ev.feature?' featured':'')+(ev.sketch?' sketched':'')+(ev.logo?' logoed':'');
+    sec.className='chapter '+(i%2?'right':'left')+(ev.feature?' featured':'')+(ev.sketch?' sketched':'')+(ev.logo?' logoed':'');
     sec.id='ch-'+ev.id;
     sec.style.setProperty('--t1',ev.tint[0]);
     sec.style.setProperty('--t2',ev.tint[1]);
@@ -2541,7 +2541,7 @@ function init3D(){
   var CAMS=[[-14,4.3,1.4,.55],[20,3.6,1.2,.5],[-24,3.2,.75,.55],[30,4.4,1.6,.5],[-18,4.0,2.4,.35],[14,3.4,1.0,.55]];
   EVENTS.forEach(function(ev,i){
     var k=CAMS[ev.idx%CAMS.length];
-    ANCH.push(anchor('ch-'+ev.id,[k[0],k[1],k[2],k[3],(ev.idx%2?-.26:.26),0],ev.fx||{}));
+    ANCH.push(anchor('ch-'+ev.id,[k[0],k[1],k[2],k[3],(i%2?-.26:.26),0],ev.fx||{}));
   });
   ANCH.push(anchor('closing',[0,6.5,2.4,.7,0,.1],{}));
   ANCH.forEach(function(a){a.el=document.getElementById(a.id);a.y=0;});
