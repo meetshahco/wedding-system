@@ -275,7 +275,7 @@ html.low .card{--glass-fade:linear-gradient(180deg,rgba(255,253,249,.74) 0,rgba(
 .pin svg{width:17px;height:17px}
 .pin:hover{background:var(--rose);color:#fff}
 .when-line{font:500 clamp(17.5px,5.5vw,22px)/1.3 var(--serif);color:var(--leaf)}
-.when-line span{white-space:nowrap}
+.when-line span,.nw{white-space:nowrap}
 .times{display:grid;gap:4px;margin:.2em 0 0}
 .times div{display:flex;justify-content:center;gap:.5em;flex-wrap:wrap}
 .times dt{font:italic 400 19px/1.35 var(--serif);color:var(--gold)}
@@ -820,14 +820,16 @@ function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp
     sec.style.setProperty('--t2',ev.tint[1]);
     sec.style.setProperty('--acc',ev.tint[2]);
     var PIN='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.5c-.3 0-.6-.1-.8-.4C9.3 18.9 5 13.7 5 9.6 5 5.7 8.1 2.5 12 2.5s7 3.2 7 7.1c0 4.1-4.3 9.3-6.2 11.5-.2.3-.5.4-.8.4Z" fill="currentColor"/><circle cx="12" cy="9.6" r="2.6" fill="#FFFDF9"/></svg>';
+    /* Small text breaks only at commas, so names like "Avadh Utopia" or "12:00 pm" never split across lines. */
+    function nb(t){var parts=String(t).split(', ');return parts.map(function(x,i){var e=esc(x)+(i<parts.length-1?',':'');e=e.replace(/(\d)\s(am|pm)\b/gi,'$1&nbsp;$2');if(x.length<=26)return '<span class="nw">'+e+'</span>';return e.replace(/\s(\S+)$/,'&nbsp;$1');}).join(' ');}
     var whenHTML=ev.times?
       '<p class="when-line">'+esc(ev.day)+', '+esc(ev.date)+'</p>'+
-      '<dl class="times">'+ev.times.map(function(t){return '<div><dt>'+esc(t[0])+'</dt><dd>'+esc(t[1])+'</dd></div>';}).join('')+'</dl>':
+      '<dl class="times">'+ev.times.map(function(t){return '<div><dt>'+nb(t[0])+'</dt><dd>'+nb(t[1])+'</dd></div>';}).join('')+'</dl>':
       '<p class="when-line"><span>'+esc(ev.day)+', '+esc(ev.date)+',</span> <span>'+esc(ev.time)+'</span></p>';
     var whereHTML=
-      '<p class="place"><span class="place-name"><b>'+esc(ev.venue)+'</b>'+(ev.area?', '+esc(ev.area):'')+'</span>'+
+      '<p class="place"><span class="place-name"><b>'+nb(ev.venue)+'</b>'+(ev.area?', '+nb(ev.area):'')+'</span>'+
       '<a class="pin" href="'+esc(ev.map||DUMMY_MAP)+'" target="_blank" rel="noopener" aria-label="Open '+esc(ev.venue)+' in Google Maps" title="Open in Google Maps">'+PIN+'</a></p>'+
-      (ev.after?'<p class="after">'+esc(ev.after)+'</p>':'');
+      (ev.after?'<p class="after">'+nb(ev.after)+'</p>':'');
     var img=ev.outfit||ev.feature;
     var imgHTML=img?'<div class="feature'+(ev.outfit?' outfit':'')+'"><img src="'+esc(img.src)+'" width="'+img.w+'" height="'+img.h+'" alt="'+esc(img.alt)+'" loading="lazy" decoding="async" draggable="false"></div>':'';
     sec.innerHTML=
@@ -840,7 +842,7 @@ function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp
           '<section class="part"><h4 class="label">When</h4>'+whenHTML+'</section>'+
           (ev.sketch?'':'<section class="part"><h4 class="label">Where</h4>'+whereHTML+'</section>')+
         '</div>'+
-        (ev.outfit?'<section class="part wear-part"><h4 class="label">Vibes</h4>'+(ev.vibe?'<p class="vibe-title">'+esc(ev.vibe.title)+'</p><p class="vibe-line">'+esc(ev.vibe.line)+'</p>':'')+imgHTML+'</section>':
+        (ev.outfit?'<section class="part wear-part"><h4 class="label">Vibes</h4>'+(ev.vibe?'<p class="vibe-title">'+esc(ev.vibe.title)+'</p><p class="vibe-line">'+nb(ev.vibe.line)+'</p>':'')+imgHTML+'</section>':
          ev.feature?'<div class="art feature-art">'+imgHTML+'</div>':'')+
         (ev.sketch?'<section class="part venue-art"><div class="venue-text"><h4 class="label">Where</h4>'+whereHTML+'</div>'+
           '<img class="venue-img" src="'+esc(ev.sketch)+'" width="720" height="360" alt="" loading="lazy" decoding="async" draggable="false"></section>':'')+
