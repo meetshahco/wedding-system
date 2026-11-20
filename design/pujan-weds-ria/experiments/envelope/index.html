@@ -171,6 +171,10 @@ html.env-on,html.env-on body{overflow:hidden}
 .foot-mark{width:min(76vw,400px,50vh);margin:.7em auto 0}
 .names{font:400 clamp(46px,12vw,124px)/.98 var(--serif);color:var(--leaf);margin-top:.1em;letter-spacing:.01em;text-shadow:0 0 30px rgba(255,255,255,.9)}
 .names i{font:400 .72em var(--script);color:var(--rose);padding:0 .1em}
+.names{white-space:nowrap}
+.names .nm{white-space:nowrap}
+.names.stack{display:flex;flex-direction:column;align-items:center;line-height:1.02}
+.names.stack i{line-height:1.1;padding:0}
 
 .hero-bottom{display:grid;justify-items:center;align-items:end}
 .hero-bottom>*{grid-area:1/1}
@@ -610,7 +614,7 @@ a.credit:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
   <header class="hero" id="hero">
     <div>
       <p class="kicker">Marriages are settled in heaven but celebrated on earth</p>
-      <h1 class="names">Pujan <i>weds</i> Ria</h1>
+      <h1 class="names"><span class="nm">Pujan</span> <i>weds</i> <span class="nm">Ria</span></h1>
     </div>
     <div class="hero-bottom">
       <button class="hint" id="open" type="button">Tap the lotus</button>
@@ -667,7 +671,7 @@ a.credit:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
     var L=c.querySelectorAll('p.line');
     L[0].innerHTML='With the blessings of<br><b>Pratibhaben Bipinchandra &amp;</b><br><b>Bipinchandra Kesharichand Zaveri</b>';
     L[1].innerHTML='<b>Jigisha &amp; Prashant Zaveri</b><br>request the honour of your presence<br>at the wedding ceremony of their daughter';
-    var h=document.querySelector('#hero .names');if(h)h.innerHTML='Ria <i>weds</i> Pujan Sha';
+    var h=document.querySelector('#hero .names');if(h)h.innerHTML='<span class="nm">Ria</span> <i>weds</i> <span class="nm">Pujan Sha</span>';
     function foot(){
     var cl=document.querySelector('#closing .card');
     if(cl){
@@ -710,6 +714,22 @@ a.credit:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
     <a class="credit" href="https://myweddingstory.co" target="_blank" rel="noopener noreferrer" aria-label="Designed, Developed and Managed by MyWeddingStory (opens myweddingstory.co)"><span>Designed, Developed and Managed by</span><img src="mws-logo.svg" alt="" width="168" height="25"></a>
   </footer>
 </main>
+<script>
+/* Title stays on one line when it fits, otherwise it stacks as three lines: first name, weds, second name. */
+(function(){
+  var h=document.querySelector('#hero .names');if(!h)return;
+  function fit(){
+    h.classList.remove('stack');
+    var max=document.documentElement.clientWidth-40;
+    if(h.scrollWidth>max)h.classList.add('stack');
+  }
+  fit();
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fit);
+  window.addEventListener('load',fit);
+  window.addEventListener('resize',fit);
+  window.addEventListener('orientationchange',fit);
+})();
+</script>
 
 <div class="fabs" aria-label="Page controls">
   <button class="fab" id="replay" type="button" aria-label="Replay the opening">
