@@ -31,6 +31,21 @@ if(l.sheet)on();else{l.addEventListener('load',on);l.addEventListener('error',on
 if(/[?&]full\b/.test(q))low=false;else if(/[?&]low\b/.test(q))low=true;
 if(low)document.documentElement.classList.add('low');})();
 </script>
+<script>
+/* Which events is this guest invited to? Asked straight away, so the answer is ready by the time the page is. */
+(function(){
+  var t=null;
+  try{t=new URLSearchParams(location.search).get("t")||sessionStorage.getItem("hpk_t");if(t)sessionStorage.setItem("hpk_t",t);}catch(e){}
+  window.__invite=t?new Promise(function(ok,no){
+    var ac=window.AbortController?new AbortController():null,to=setTimeout(function(){if(ac)ac.abort();no();},12000);
+    fetch("https://app.myweddingstory.co/api/public/invite/"+encodeURIComponent(t),ac?{signal:ac.signal}:{})
+      .then(function(r){return r.ok?r.json():Promise.reject();})
+      .then(function(inv){clearTimeout(to);if(inv&&Array.isArray(inv.events))ok(inv.events.map(function(e){return e.key;}));else no();})
+      .catch(function(){clearTimeout(to);no();});
+  }):Promise.reject();
+  window.__invite.catch(function(){});
+})();
+</script>
 <style>
 /* Layout: a fixed 3D pond behind a scrolling invitation. Every block of content is an arched paper card with a double gold line, the way a printed Indian wedding card is framed. */
 /* Numerals: the figures of Cinzel (SIL Open Font License), 0 to 9 and the colon only. Cormorant's own figures are old style, so a 12 reads like "iz".
@@ -168,7 +183,7 @@ html.env-on,html.env-on body{overflow:hidden}
 }
 @supports ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
   /* the Symphony Night chapter sits on a dark sky, so its glass is a little milkier to keep the logo and text clear */
-  #ch-night .card.event{--glass-fade:linear-gradient(180deg,rgba(255,253,249,.66) 0,rgba(255,253,249,.8) 30%,rgba(255,253,249,.91) 58%,rgba(255,253,249,.97) 82%,#FFFDF9 100%)}
+  #ch-symphony-night .card.event{--glass-fade:linear-gradient(180deg,rgba(255,253,249,.66) 0,rgba(255,253,249,.8) 30%,rgba(255,253,249,.91) 58%,rgba(255,253,249,.97) 82%,#FFFDF9 100%)}
 }
 @media (prefers-reduced-transparency:reduce){
   .card{background:var(--sprigs),var(--paper);-webkit-backdrop-filter:none;backdrop-filter:none}
@@ -642,7 +657,7 @@ html.low .card{--glass-fade:linear-gradient(180deg,rgba(255,253,249,.74) 0,rgba(
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script>
+<script type="text/plain" id="main-js">
 (function(){
 'use strict';
 var html=document.documentElement;
@@ -675,42 +690,46 @@ var LOGOS={
 };
 function logoHTML(L){return '<img class="logo-img" src="'+L.src+'" width="'+L.w+'" height="'+L.h+'" alt="" loading="lazy" decoding="async" draggable="false">'}
 var EVENTS=[
-  {id:'pujan',logo:LOGOS.pj,name:'Siddhchakra Pujan',
+  {id:'siddhchakra-pujan',lt:'pujan',logo:LOGOS.pj,name:'Siddhchakra Pujan',
    feature:{src:'siddhchakra-lotus.webp',w:720,h:969,alt:'Golden lotus emblem of the Shri Siddhchakra Pujan'},day:'Sunday',date:'6 December 2026',time:'8:30 am onwards',venue:'Shree Jirawala Parshwanath Jain Derasar',area:'Rivulet, B/h VR Mall lane, Surat',map:MAPS('Shree Jirawala Parshwanath Bhagwan Jain temple, New Magdalla, Surat','ChIJLaX9ZMZN4DsRBEi5JGl2dl4'),
    after:'Followed by lunch at the Banquet Hall, Rivulet Apartment, 12:30 pm onwards',
    fx:{sky:0xFCEFD2,top:0xFFFBF2,mist:[0xFFE6B0,0xFFF3D6],mo:.4,tp:.6,fall:.2,rise:.8,spark:0xE8B04A,petal:0xFFFFFF,halo:0xFFDF9A,ho:.8,spd:.6},
    tint:['#FBF3DF','#F1DFB4','#8F6A22']},
-  {id:'rang',logo:LOGOS.rr,name:'Rang and Rituals',day:'Friday',date:'11 December 2026',time:'3:30 pm onwards',venue:'Rajhans Feriado',area:'Poolside',sketch:'venue-rajhans.webp',map:MAPS('Rajhans Feriado, Dandi Road, Kachhol','ChIJbYyRElK14TsRzGwVFPPO2eQ'),
+  {id:'rang-and-rituals',lt:'rang',logo:LOGOS.rr,name:'Rang and Rituals',day:'Friday',date:'11 December 2026',time:'3:30 pm onwards',venue:'Rajhans Feriado',area:'Poolside',sketch:'venue-rajhans.webp',map:MAPS('Rajhans Feriado, Dandi Road, Kachhol','ChIJbYyRElK14TsRzGwVFPPO2eQ'),
    vibe:{title:'Vibrant & Colorful',line:'A cascade of colorful attire & playful prints'},
    outfit:{src:'outfit-rang_rituals.webp',w:900,h:473,alt:'Outfit ideas for Rang and Rituals'},
    fx:{sky:0xFFEDB5,top:0xFFDCE8,mist:[0xFFAEC9,0xFFDC70],mo:.5,fall:1,petal:0xF7B733,halo:0xFFD9A0,ho:.4,spd:1.5},
    tint:['#FFF1CC','#FBD98A','#B36B00']},
-  {id:'mehandi',logo:LOGOS.me,name:'Mehendi',day:'Saturday',date:'12 December 2026',time:'10:00 am onwards',venue:'OTLO',area:'Aambli ni Pol',sketch:'venue-ambli.webp',map:MAPS('Aambli ni Pol, Kachhol','ChIJZ7QU78q14TsRZwOaIPGklRc'),
+  {id:'mehendi',lt:'mehandi',logo:LOGOS.me,name:'Mehendi',day:'Saturday',date:'12 December 2026',time:'10:00 am onwards',venue:'OTLO',area:'Aambli ni Pol',sketch:'venue-ambli.webp',map:MAPS('Aambli ni Pol, Kachhol','ChIJZ7QU78q14TsRZwOaIPGklRc'),
    after:'Followed by lunch',
    vibe:{title:'Fusion wear, any color',line:'Gathering with intricate designs'},
    outfit:{src:'outfit-mehendi.webp',w:900,h:484,alt:'Outfit ideas for the Mehendi'},
    fx:{sky:0xEAF4DC,top:0xD5EAC6,mist:[0xB7D98A,0xE6F2B4],mo:.55,fall:.8,petal:0x9CBF5E,halo:0xE8F5C8,ho:.4,spd:.8},
    tint:['#EEF5DC','#D3E3B0','#4E6B1F']},
-  {id:'night',logo:LOGOS.sn,name:'Symphony Night',day:'Saturday',date:'12 December 2026',time:'5:30 pm onwards',venue:'The Lawn',area:'Aambli ni Pol',sketch:'venue-ambli.webp',map:MAPS('Aambli ni Pol, Kachhol','ChIJZ7QU78q14TsRZwOaIPGklRc'),
+  {id:'symphony-night',lt:'night',logo:LOGOS.sn,name:'Symphony Night',day:'Saturday',date:'12 December 2026',time:'5:30 pm onwards',venue:'The Lawn',area:'Aambli ni Pol',sketch:'venue-ambli.webp',map:MAPS('Aambli ni Pol, Kachhol','ChIJZ7QU78q14TsRZwOaIPGklRc'),
    after:'Chovihar facility available',
    vibe:{title:'Glitz & Glam',line:'Shimmer, metallics & everything that sparkles under the stars'},
    outfit:{src:'outfit-symphony_night.webp',w:900,h:530,alt:'Outfit ideas for Symphony Night'},
    fx:{sky:0x1B1F3B,top:0x0C0E22,mist:[0x4B3F8F,0x2B3A7A],mo:.45,fall:0,rise:1,spark:0xFFD98A,halo:0xFFC870,ho:.25,spd:.6,night:.9},
    tint:['#E4E5F4','#BFC2E6','#2B2F6B']},
-  {id:'steps',logo:LOGOS.ss,name:'The Seven Steps',day:'Sunday',date:'13 December 2026',time:'',times:[['Baarat (from Utopia lane)','10:30 am onwards'],['Hasta Melap','12:39 pm onwards']],venue:'Avadh Utopia',area:'Dumas Road, Surat',sketch:'venue-avadh.webp',map:MAPS('Avadh Utopia, Dumas Road, Surat','ChIJ5wPU2bdS4DsRe0ZU-9Vuf0c'),
+  {id:'the-seven-steps',lt:'steps',logo:LOGOS.ss,name:'The Seven Steps',day:'Sunday',date:'13 December 2026',time:'',times:[['Baarat (from Utopia lane)','10:30 am onwards'],['Hasta Melap','12:39 pm onwards']],venue:'Avadh Utopia',area:'Dumas Road, Surat',sketch:'venue-avadh.webp',map:MAPS('Avadh Utopia, Dumas Road, Surat','ChIJ5wPU2bdS4DsRe0ZU-9Vuf0c'),
    after:'Lunch at Orchid Hall, 12:00 pm onwards',
    vibe:{title:'Ivory or Gold',line:'Royal elegance, rich textures & timeless classics to celebrate our big moment'},
    outfit:{src:'outfit-wedding.webp',w:900,h:474,alt:'Outfit ideas for The Seven Steps'},
    fx:{sky:0xFBDDD0,top:0xF7C6BC,mist:[0xFFC08A,0xF7A3A3],mo:.45,fall:.3,rise:1,spark:0xF07A2A,petal:0xD9456B,halo:0xFFC27A,ho:.8,spd:1},
    tint:['#F9DEE0','#EDB4BB','#9E1F33']}
 ];
+/* Each event remembers where it sits in the full list (idx), so its card side and camera never change when a guest sees fewer events.
+   Then only the events this guest is invited to are kept. The keys come from the personal link check at the top of the page. */
+EVENTS.forEach(function(e,i){e.idx=i;});
+EVENTS=EVENTS.filter(function(e){return (window.__invitedKeys||[]).indexOf(e.id)!==-1;});
 
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 (function buildChapters(){
   var host=document.getElementById('chapters');
   EVENTS.forEach(function(ev,i){
     var sec=document.createElement('section');
-    sec.className='chapter '+(i%2?'right':'left')+(ev.feature?' featured':'')+(ev.sketch?' sketched':'')+(ev.logo?' logoed':'');
+    sec.className='chapter '+(ev.idx%2?'right':'left')+(ev.feature?' featured':'')+(ev.sketch?' sketched':'')+(ev.logo?' logoed':'');
     sec.id='ch-'+ev.id;
     sec.style.setProperty('--t1',ev.tint[0]);
     sec.style.setProperty('--t2',ev.tint[1]);
@@ -1071,11 +1090,11 @@ document.getElementById('cue').addEventListener('click',function(){
 
 /* The light that belongs to each event fades in as its card reaches the middle of the screen */
 (function(){
-  var L=EVENTS.map(function(ev){return {el:document.getElementById('ch-'+ev.id),lt:document.querySelector('.lt-'+ev.id)};});
+  var L=EVENTS.map(function(ev){return {el:document.getElementById('ch-'+ev.id),lt:document.querySelector('.lt-'+ev.lt)};});
   L.push({el:document.getElementById('reveal'),lt:document.querySelector('.lt-welcome')},
          {el:document.getElementById('invite'),lt:document.querySelector('.lt-welcome')},
          {el:document.getElementById('closing'),lt:document.querySelector('.lt-closing')},
-         {el:document.getElementById('ch-steps'),lt:document.querySelector('.lt-shower')});
+         {el:document.getElementById('ch-the-seven-steps'),lt:document.querySelector('.lt-shower')});
   L=L.filter(function(x){return x.el&&x.lt;});
   var lts=[];L.forEach(function(x){if(lts.indexOf(x.lt)<0)lts.push(x.lt);});
   var busy=false;
@@ -2515,8 +2534,8 @@ function init3D(){
   var ANCH=[anchor('hero',[0,4.6,2.05,.6,0,.13],{}),anchor('reveal',[5,5.0,2.7,.4,0,.07],{}),anchor('invite',[8,5.4,3.2,.3,0,.05],{sky:0xFAF0DE})];
   var CAMS=[[-14,4.3,1.4,.55],[20,3.6,1.2,.5],[-24,3.2,.75,.55],[30,4.4,1.6,.5],[-18,4.0,2.4,.35],[14,3.4,1.0,.55]];
   EVENTS.forEach(function(ev,i){
-    var k=CAMS[i%CAMS.length];
-    ANCH.push(anchor('ch-'+ev.id,[k[0],k[1],k[2],k[3],(i%2?-.26:.26),0],ev.fx||{}));
+    var k=CAMS[ev.idx%CAMS.length];
+    ANCH.push(anchor('ch-'+ev.id,[k[0],k[1],k[2],k[3],(ev.idx%2?-.26:.26),0],ev.fx||{}));
   });
   ANCH.push(anchor('closing',[0,6.5,2.4,.7,0,.1],{}));
   ANCH.forEach(function(a){a.el=document.getElementById(a.id);a.y=0;});
@@ -2759,6 +2778,27 @@ function init3D(){
   function light(){if(!state.lit){state.lit=true;state.l0=performance.now();}}
   return {open:startOpen,reset:reset,burst:burst,light:light};
 }
+})();
+</script>
+<script>
+/* The page starts only once we know which events this guest is invited to. Without a valid personal link it shows one quiet line instead. */
+(function(){
+  var main=document.getElementById('main-js');
+  function start(keys){
+    window.__invitedKeys=keys;
+    var s=document.createElement('script');s.text=main.text;document.body.appendChild(s);
+    if(document.readyState==='complete')window.dispatchEvent(new Event('load'));
+  }
+  function noLink(){
+    var env=document.getElementById('envelope');if(env)env.hidden=true;
+    var m=document.querySelector('main');if(m)m.style.display='none';
+    var f=document.querySelector('.fabs');if(f)f.style.display='none';
+    var d=document.createElement('div');d.id='nolink';d.setAttribute('role','status');
+    d.style.cssText='position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;background:#FAF5EA;color:#6A5226;font:italic 400 clamp(22px,6vw,30px)/1.4 "Cormorant Garamond",Georgia,serif';
+    d.textContent='Please open your personal link';
+    document.body.appendChild(d);
+  }
+  window.__invite.then(start,noLink);
 })();
 </script>
 </body>
