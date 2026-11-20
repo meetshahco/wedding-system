@@ -34,8 +34,14 @@ if(low)document.documentElement.classList.add('low');})();
 <script>
 /* Which events is this guest invited to? Asked straight away, so the answer is ready by the time the page is. */
 (function(){
+  /* The guest's token comes from ?t= first, then from this browser's memory of it, so a guest who reopens the plain address still gets in.
+     localStorage is used, with sessionStorage as the fallback if the browser blocks it. */
+  function get(k){try{return window[k].getItem("hpk_t");}catch(e){return null;}}
+  function put(k,v){try{window[k].setItem("hpk_t",v);return true;}catch(e){return false;}}
   var t=null;
-  try{t=new URLSearchParams(location.search).get("t")||sessionStorage.getItem("hpk_t");if(t)sessionStorage.setItem("hpk_t",t);}catch(e){}
+  try{t=new URLSearchParams(location.search).get("t");}catch(e){}
+  if(t){if(!put("localStorage",t))put("sessionStorage",t);}
+  else t=get("localStorage")||get("sessionStorage");
   window.__invite=t?new Promise(function(ok,no){
     var ac=window.AbortController?new AbortController():null,to=setTimeout(function(){if(ac)ac.abort();no();},12000);
     fetch("https://app.myweddingstory.co/api/public/invite/"+encodeURIComponent(t),ac?{signal:ac.signal}:{})
