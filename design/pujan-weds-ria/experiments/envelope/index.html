@@ -631,6 +631,21 @@ html.low .card{--glass-fade:linear-gradient(180deg,rgba(255,253,249,.74) 0,rgba(
       <p class="dates">Sunday, 13 Dec 2026</p>
     </div>
   </section>
+  <script>
+  /* Bride side: on the ria. address the invite card carries Ria's family wording. ?side=ria previews it anywhere. */
+  (function(){
+    var ria=/^ria\./i.test(location.hostname)||/[?&]side=ria(&|$)/.test(location.search);
+    if(!ria)return;
+    var c=document.querySelector('#invite .card');if(!c)return;
+    var inv=c.querySelector('.invocation');
+    inv.innerHTML='<p>\u0965 Shree Keshariaji Aadinathay Namah \u0965</p>';
+    var L=c.querySelectorAll('p.line');
+    L[0].innerHTML='With the blessings of<br><b>Pratibhaben Bipinchandra &amp;</b><br><b>Bipinchandra Kesharichand Zaveri</b>';
+    L[1].innerHTML='<b>Jigisha &amp; Prashant Zaveri</b><br>request the honour of your presence<br>at the wedding ceremony of their daughter';
+    var N=c.querySelectorAll('p.big-name');N[0].textContent='Ria';N[1].textContent='Pujan Sha';
+    L[2].innerHTML='Son of<br><b>Purviben &amp; Hemalbhai Jhaveri</b>';
+  })();
+  </script>
 
   <div id="chapters"></div>
 
