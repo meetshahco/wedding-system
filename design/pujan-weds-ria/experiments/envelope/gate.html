@@ -4,13 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Hamari Puri Kahani</title>
+<meta name="color-scheme" content="light dark">
+<meta name="supported-color-schemes" content="light">
+<meta name="darkreader-lock">
 <meta name="robots" content="noindex">
 <meta property="og:title" content="Hamari Puri Kahani">
 <meta property="og:description" content="Please open your personal invitation.">
 <style>
-  :root { --ink:#3b2a33; --soft:#8a7480; --line:#e7d9df; --accent:#b4568a; --bg:#fbf6f4; }
+  :root { --ink:#3b2a33; --soft:#8a7480; --line:#e7d9df; --accent:#b4568a; --bg:#fbf6f4; color-scheme: light dark; }
+  /* Dark mode draws exactly the same palette. The page declares it supports dark so browsers do not force their own darkening. */
+  @media (prefers-color-scheme: dark) { :root { --ink:#3b2a33; --soft:#8a7480; --line:#e7d9df; --accent:#b4568a; --bg:#fbf6f4; } }
   * { box-sizing: border-box; }
   html, body { height: 100%; margin: 0; }
+  body { color-scheme: light; }
   body { background: radial-gradient(1200px 600px at 50% -10%, #f6e3ec 0%, var(--bg) 60%); color: var(--ink); font-family: Georgia, "Times New Roman", serif; display: grid; place-items: center; padding: 24px; padding-bottom: max(24px, env(safe-area-inset-bottom)); }
   main { width: 100%; max-width: 380px; text-align: center; }
   .mark { font-size: 40px; line-height: 1; margin-bottom: 14px; }
