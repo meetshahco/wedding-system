@@ -723,6 +723,9 @@ a.credit:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
     function foot(){
     var cl=document.querySelector('#closing .card');
     if(cl){
+      /* The footer logos and their line are for the groom side only */
+      var x=cl.querySelectorAll('.compl,.sponsors');for(var i=0;i<x.length;i++)x[i].remove();
+      cl.style.paddingBottom='116px';
       var fam=cl.querySelector('.family');
       if(fam){
         fam.className='family cascade';
