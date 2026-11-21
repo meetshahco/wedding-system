@@ -179,7 +179,7 @@ html.env-on,html.env-on body{overflow:hidden}
 }
 .hero a,.hero button{pointer-events:auto}
 
-.kicker{font:italic 400 clamp(12px,3.85vw,22px)/1.35 var(--serif);white-space:nowrap;color:var(--ink2);margin-bottom:.35em;text-shadow:0 0 14px #fff}
+.kicker{font:italic 400 clamp(13.5px,4.3vw,23.5px)/1.35 var(--serif);white-space:nowrap;color:var(--ink2);margin-bottom:.35em;text-shadow:0 0 14px #fff}
 :root{--mark:url("mark.webp")}
 .mark{display:block;aspect-ratio:1000/244;background:var(--mark) center/contain no-repeat;width:min(84vw,520px,50vh);margin:.2em auto 0;filter:drop-shadow(0 0 6px rgba(255,250,238,.95)) drop-shadow(0 0 16px rgba(255,246,225,.9)) drop-shadow(0 1px 1px rgba(120,80,30,.22))}
 .foot-mark{width:min(76vw,400px,50vh);margin:.7em auto 0}
@@ -301,9 +301,9 @@ html.low .card,html.low #ch-symphony-night .card.event{--glass-fade:linear-gradi
 .place{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;font-size:16.5px;color:var(--ink2);text-wrap:balance}
 .place .pin{order:-1}
 .place-name{min-width:0}
-.pin{flex:none;display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;color:var(--rose);
+.pin{flex:none;display:inline-flex;align-items:center;justify-content:center;gap:7px;height:34px;padding:0 15px 0 11px;border-radius:999px;color:var(--rose);font:500 13.5px/1 var(--sans);letter-spacing:.04em;white-space:nowrap;text-decoration:none;
   background:var(--paper);box-shadow:0 0 0 1px rgba(168,58,96,.4);position:relative;transition:background .2s ease,color .2s ease}
-.pin::after{content:"";position:absolute;inset:-5px;border-radius:50%}
+.pin::after{content:"";position:absolute;inset:-5px;border-radius:999px}
 .pin svg{width:17px;height:17px}
 .pin:hover{background:var(--rose);color:#fff}
 .when-line{font:500 clamp(17.5px,5.5vw,22px)/1.3 var(--serif);color:var(--leaf)}
@@ -498,11 +498,14 @@ html.low .card,html.low #ch-symphony-night .card.event{--glass-fade:linear-gradi
 .solo .card{width:min(560px,100%);padding-bottom:128px}
 
 .closing{text-align:center;padding-block:10vh}
-.closing .card{display:inline-block;width:min(520px,100%);padding-bottom:116px}
+.closing .card{display:inline-block;width:min(520px,100%);padding-bottom:150px}
 
 .closing .line{text-wrap:balance}
+.compl{font:italic 400 18px/1.4 var(--serif);color:var(--ink2);margin:1.5em 0 0}
+.sponsors{display:flex;flex-wrap:nowrap;justify-content:center;align-items:center;gap:clamp(8px,3vw,22px);margin:12px auto 0;max-width:100%}
+.sponsors img{display:block;flex:1 1 0;min-width:0;width:auto;max-width:33%;height:auto;max-height:clamp(40px,12vw,62px);object-fit:contain;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;pointer-events:none}
 .family{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:4px}
-.family li{font:500 clamp(19px,5.4vw,23px)/1.35 var(--serif);color:var(--ink)}
+.family li{font:500 clamp(19px,5.4vw,23px)/1.35 var(--serif);color:var(--ink);text-wrap:balance}
 .family.cascade{display:inline-grid;text-align:left;margin:16px auto 0;gap:2px}
 .family.cascade li{font:500 clamp(20px,5.6vw,24px)/1.35 var(--serif);letter-spacing:.03em}
 .family.cascade li:nth-child(2){padding-left:1.5em}
@@ -551,7 +554,7 @@ a.credit:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
   .chapter .times{gap:0;margin:0}
   .chapter .times dt{font-size:16px}.chapter .times dd{font-size:clamp(16px,4.6vw,18px)}
   .chapter .place{font-size:15px;gap:4px}
-  .chapter .pin{width:30px;height:30px}
+  .chapter .pin{height:30px;padding:0 13px 0 9px;font-size:12.5px;gap:6px}
   .chapter .pin::after{inset:-7px}
   .chapter .after{font-size:15px}
   .chapter .wear-part{margin-top:10px}
@@ -746,15 +749,18 @@ a.credit:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
       <div class="crest"></div>
       <p class="line">With Best Compliments from</p>
       <ul class="family">
-        <li>Lt. Rameshbhai Jhaveri</li>
+        <li>Lt. Rameshbhai Panachand Jhaveri</li>
         <li>Shailiniben Rameshbhai Jhaveri</li>
         <li>Hemal Rameshbhai Jhaveri</li>
         <li>Purvi Hemal Jhaveri</li>
         <li>Krish Hemal Jhaveri</li>
+        <li>Panachand Rupchand Jhaveri and Family</li>
       </ul>
       <div class="rule"></div>
       <p class="line">We look forward to celebrating with you.</p>
       <p class="tag hashtag"><span class="mark foot-mark" role="img" aria-label="#HamariPuRiKahani"></span></p>
+      <p class="compl">With best compliments from</p>
+      <div class="sponsors"><img src="footer-logo-1.webp" width="360" height="109" alt="Joaillerie" loading="lazy" decoding="async" draggable="false"><img src="footer-logo-2.webp" width="360" height="210" alt="Zaree's" loading="lazy" decoding="async" draggable="false"><img src="footer-logo-3.webp" width="360" height="267" alt="Infishine" loading="lazy" decoding="async" draggable="false"></div>
     </div>
     <a class="credit" href="https://myweddingstory.co" target="_blank" rel="noopener noreferrer" aria-label="Designed, Developed and Managed by MyWeddingStory (opens myweddingstory.co)"><span>Designed, Developed and Managed by</span><img src="mws-logo.svg" alt="" width="168" height="25"></a>
   </footer>
@@ -812,7 +818,7 @@ var FIRST_EVENT='2026-12-13T12:39:00+05:30';
 function MAPS(q,id){return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q)+'&query_place_id='+id;}
 /* The client's title artwork for each event, inlined so it can use the page's fonts */
 var LOGOS={
-  pj:{src:'logo-siddhachakra_pujan.webp',w:660,h:446},
+  pj:{src:'logo-siddhachakra_pujan.webp',w:660,h:451},
   rr:{src:'logo-rang_rituals.webp',w:660,h:465},
   me:{src:'logo-mehendi.webp',w:660,h:353},
   sn:{src:'logo-symphony_night.webp',w:660,h:480},
@@ -874,7 +880,7 @@ function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp
       '<p class="when-line"><span>'+esc(ev.day)+', '+esc(ev.date)+',</span> <span>'+esc(ev.time)+'</span></p>';
     var whereHTML=
       '<p class="place"><span class="place-name"><b>'+nb(ev.venue)+'</b>'+(ev.area?', '+nb(ev.area):'')+'</span>'+
-      '<a class="pin" href="'+esc(ev.map||DUMMY_MAP)+'" target="_blank" rel="noopener" aria-label="Open '+esc(ev.venue)+' in Google Maps" title="Open in Google Maps">'+PIN+'</a></p>'+
+      '<a class="pin" href="'+esc(ev.map||DUMMY_MAP)+'" target="_blank" rel="noopener" aria-label="Open '+esc(ev.venue)+' in Google Maps" title="Open in Google Maps">'+PIN+'<span>Click Here</span></a></p>'+
       (ev.after?'<p class="after">'+nb(ev.after)+'</p>':'');
     var img=ev.outfit||ev.feature;
     var imgHTML=img?'<div class="feature'+(ev.outfit?' outfit':'')+'"><img src="'+esc(img.src)+'" width="'+img.w+'" height="'+img.h+'" alt="'+esc(img.alt)+'" loading="lazy" decoding="async" draggable="false"></div>':'';
@@ -885,7 +891,7 @@ function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp
         '</header>'+
         '<div class="info">'+
           '<div class="rule"></div>'+
-          '<section class="part"><h4 class="label">When</h4>'+whenHTML+'</section>'+
+          '<section class="part">'+whenHTML+'</section>'+
           (ev.sketch?'':'<section class="part"><h4 class="label">Where</h4>'+whereHTML+'</section>')+
         '</div>'+
         (ev.outfit?'<section class="part wear-part"><h4 class="label">Vibes</h4>'+(ev.vibe?'<p class="vibe-title">'+esc(ev.vibe.title)+'</p><p class="vibe-line">'+nb(ev.vibe.line)+'</p>':'')+imgHTML+'</section>':
