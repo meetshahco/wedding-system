@@ -2937,7 +2937,17 @@ function init3D(){
     var s=document.createElement('script');s.text=main.text;document.body.appendChild(s);
     if(document.readyState==='complete')window.dispatchEvent(new Event('load'));
   }
+  /* No token anywhere (not in the address, not saved in this browser): the gate page explains what to do.
+     A token that exists but could not be checked, such as a network hiccup, keeps the quiet line below. */
+  function hasToken(){
+    var v=null;
+    try{v=new URLSearchParams(location.search).get("t");}catch(e){}
+    if(!v){try{v=window.localStorage.getItem("hpk_t");}catch(e){}}
+    if(!v){try{v=window.sessionStorage.getItem("hpk_t");}catch(e){}}
+    return !!v;
+  }
   function noLink(){
+    if(!hasToken()){location.replace('/__gate/reset');return;}
     var env=document.getElementById('envelope');if(env)env.hidden=true;
     var m=document.querySelector('main');if(m)m.style.display='none';
     var f=document.querySelector('.fabs');if(f)f.style.display='none';
