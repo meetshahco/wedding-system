@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Page not found | Hamari Puri Kahani</title>
+<meta name="color-scheme" content="light dark">
+<meta name="supported-color-schemes" content="light">
+<meta name="darkreader-lock">
+<meta name="robots" content="noindex">
+<meta http-equiv="refresh" content="4;url=/">
+<style>
+  :root { --ink:#3b2a33; --soft:#8a7480; --line:#e7d9df; --accent:#b4568a; --bg:#fbf6f4; color-scheme: light dark; }
+  /* Dark mode draws exactly the same palette, so browsers do not force their own darkening. */
+  @media (prefers-color-scheme: dark) { :root { --ink:#3b2a33; --soft:#8a7480; --line:#e7d9df; --accent:#b4568a; --bg:#fbf6f4; } }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body { color-scheme: light; }
+  body { background: radial-gradient(1200px 600px at 50% -10%, #f6e3ec 0%, var(--bg) 60%); color: var(--ink); font-family: Georgia, "Times New Roman", serif; display: grid; place-items: center; padding: 24px; }
+  main { width: 100%; max-width: 380px; text-align: center; }
+  .mark { font-size: 40px; line-height: 1; margin-bottom: 14px; }
+  .code { font-size: 15px; letter-spacing: .4em; color: var(--accent); margin: 0 0 6px; padding-left: .4em; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-weight: 600; }
+  h1 { font-size: 30px; font-weight: 400; margin: 0 0 8px; letter-spacing: .02em; }
+  p { margin: 0 0 22px; color: var(--soft); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 15px; line-height: 1.5; }
+  a.btn { display: inline-block; font: 600 16px/1 system-ui, -apple-system, "Segoe UI", sans-serif; padding: 16px 26px; border-radius: 14px; background: var(--accent); color: #fff; text-decoration: none; }
+</style>
+</head>
+<body>
+<main>
+  <div class="mark" aria-hidden="true">&#10048;</div>
+  <p class="code">404</p>
+  <h1>Page not found</h1>
+  <p>This address does not lead anywhere. Taking you to the entrance in a moment.</p>
+  <a class="btn" href="/">Go to the entrance</a>
+</main>
+<script>setTimeout(function () { location.replace("/"); }, 3500);</script>
+</body>
+</html>
