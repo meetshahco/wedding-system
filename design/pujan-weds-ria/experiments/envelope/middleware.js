@@ -75,6 +75,13 @@ export default async function middleware(req) {
     return json({ ok: false, reason: "wrong" }, 401);
   }
 
+  // The page sends someone here when they hold a pass but no personal link. The pass is cleared and they see the gate.
+  if (url.pathname === "/__gate/reset") {
+    const bare = host.split(":")[0];
+    const domain = process.env.COOKIE_DOMAIN || (/^[\d.]+$/.test(bare) || bare === "localhost" ? "" : bare.split(".").slice(-2).join("."));
+    return new Response(null, { status: 302, headers: { location: "/", "cache-control": "no-store", "set-cookie": `${COOKIE}=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax${domain ? `; Domain=.${domain.replace(/^\./, "")}` : ""}` } });
+  }
+
   // Preview deployments can skip the gate when you set GATE_SKIP_PREVIEW=1 for them. Leave it off in Production.
   if (process.env.GATE_SKIP_PREVIEW === "1" && process.env.VERCEL_ENV === "preview") return next();
 

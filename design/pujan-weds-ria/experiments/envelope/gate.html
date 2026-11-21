@@ -35,15 +35,17 @@
 <main>
   <div class="mark" aria-hidden="true">&#10048;</div>
   <h1>Hamari Puri Kahani</h1>
-  <p>This invitation is private. Please open the link from your WhatsApp message, or type the entry code from it.</p>
-  <form id="f" autocomplete="off">
+  <p>This invitation is private. Please open your personal link from your WhatsApp message.</p>
+  <!-- Guests no longer receive an entry code. The form stays for the couple: add #code to the address to show it. -->
+  <form id="f" autocomplete="off" hidden>
     <input id="pin" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="000000" aria-label="Six digit entry code" autofocus>
     <button id="go" type="submit" disabled>Open my invitation</button>
   </form>
   <div class="msg" id="msg" role="status" aria-live="polite"></div>
-  <p class="small">Cannot find your code? Ask the person who sent you the invitation.</p>
+  <p class="small">Cannot find your link? Ask the person who sent you the invitation.</p>
 </main>
 <script>
+  if (location.hash === "#code") document.getElementById("f").hidden = false;
   var pin = document.getElementById("pin"), go = document.getElementById("go"), msg = document.getElementById("msg");
   pin.addEventListener("input", function () { pin.value = pin.value.replace(/\D/g, "").slice(0, 6); go.disabled = pin.value.length !== 6; msg.textContent = ""; });
   document.getElementById("f").addEventListener("submit", function (e) {
