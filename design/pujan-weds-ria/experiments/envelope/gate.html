@@ -19,7 +19,9 @@
   body { color-scheme: light; }
   body { background: radial-gradient(1200px 600px at 50% -10%, #f6e3ec 0%, var(--bg) 60%); color: var(--ink); font-family: Georgia, "Times New Roman", serif; display: grid; place-items: center; padding: 24px; padding-bottom: max(24px, env(safe-area-inset-bottom)); }
   main { width: 100%; max-width: 380px; text-align: center; }
-  .mark { font-size: 40px; line-height: 1; margin-bottom: 14px; }
+  .mark { display: inline-block; line-height: 0; margin-bottom: 26px; }
+  .mark img { display: block; width: 168px; max-width: 60vw; height: auto; }
+  form[hidden] { display: none; }
   h1 { font-size: 30px; font-weight: 400; margin: 0 0 8px; letter-spacing: .02em; }
   p { margin: 0 0 22px; color: var(--soft); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 15px; line-height: 1.5; }
   form { display: grid; gap: 12px; }
@@ -33,7 +35,7 @@
 </head>
 <body>
 <main>
-  <div class="mark" aria-hidden="true">&#10048;</div>
+  <a class="mark" href="https://myweddingstory.co" target="_blank" rel="noopener noreferrer" aria-label="MyWeddingStory (opens myweddingstory.co)"><img src="/gate/mws-logo.svg" alt="MyWeddingStory" width="168" height="25"></a>
   <h1>Hamari Puri Kahani</h1>
   <p>This invitation is private. Please open your personal link from your WhatsApp message.</p>
   <!-- Guests no longer receive an entry code. The form stays for the couple: add #code to the address to show it. -->
