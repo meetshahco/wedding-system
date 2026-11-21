@@ -62,7 +62,7 @@ if(low)document.documentElement.classList.add('low');})();
     var ac=window.AbortController?new AbortController():null,to=setTimeout(function(){if(ac)ac.abort();no();},12000);
     fetch("https://app.myweddingstory.co/api/public/invite/"+encodeURIComponent(t),ac?{signal:ac.signal}:{})
       .then(function(r){return r.ok?r.json():Promise.reject();})
-      .then(function(inv){clearTimeout(to);if(inv&&Array.isArray(inv.events))ok({keys:inv.events.map(function(e){return e.key;}),side:inv.side==='bride'?'bride':'groom'});else no();})
+      .then(function(inv){clearTimeout(to);if(inv&&Array.isArray(inv.events)&&(inv.side==='bride'||inv.side==='groom'))ok({keys:inv.events.map(function(e){return e.key;}),side:inv.side});else no();})
       .catch(function(){clearTimeout(to);no();});
   }):Promise.reject();
   window.__invite.catch(function(){});
