@@ -47,7 +47,8 @@ if(/[?&]full\b/.test(q))low=false;else if(/[?&]low\b/.test(q))low=true;
 if(low)document.documentElement.classList.add('low');})();
 </script>
 <script>
-/* Which events is this guest invited to? Asked straight away, so the answer is ready by the time the page is. */
+/* Which events is this guest invited to, and which family's wording do they get? Asked straight away, so the answer is ready by the time the page is.
+   The platform decides the side, so moving a guest to the other side there changes what their existing link shows. */
 (function(){
   /* The guest's token comes from ?t= first, then from this browser's memory of it, so a guest who reopens the plain address still gets in.
      localStorage is used, with sessionStorage as the fallback if the browser blocks it. */
@@ -61,7 +62,7 @@ if(low)document.documentElement.classList.add('low');})();
     var ac=window.AbortController?new AbortController():null,to=setTimeout(function(){if(ac)ac.abort();no();},12000);
     fetch("https://app.myweddingstory.co/api/public/invite/"+encodeURIComponent(t),ac?{signal:ac.signal}:{})
       .then(function(r){return r.ok?r.json():Promise.reject();})
-      .then(function(inv){clearTimeout(to);if(inv&&Array.isArray(inv.events))ok(inv.events.map(function(e){return e.key;}));else no();})
+      .then(function(inv){clearTimeout(to);if(inv&&Array.isArray(inv.events))ok({keys:inv.events.map(function(e){return e.key;}),side:inv.side==='bride'?'bride':'groom'});else no();})
       .catch(function(){clearTimeout(to);no();});
   }):Promise.reject();
   window.__invite.catch(function(){});
@@ -682,11 +683,9 @@ a.credit:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
     </div>
   </section>
   <script>
-  /* Bride side: on the ria. address the invite card carries Ria's family wording. ?side=ria previews it anywhere. */
-  (function(){
-    var ria=/^ria\./i.test(location.hostname)||/[?&]side=ria(&|$)/.test(location.search);
-    window.__RIA=ria;
-    if(!ria)return;
+  /* Bride side: when the platform says the guest is on the bride's side, the page swaps in Ria's family wording. Called once, before the page starts. */
+  window.__RIA=false;
+  window.__applyBride=function(){
     var c=document.querySelector('#invite .card');if(!c)return;
     var inv=c.querySelector('.invocation');
     inv.innerHTML='<p>\u0965 Shree Keshariaji Aadinathay Namah \u0965</p>';
@@ -708,10 +707,10 @@ a.credit:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
       if(cls.length>1)cls[cls.length-1].textContent='Your presence and blessings are the greatest gift we could receive.';
     }
     }
-    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',foot);else foot();
+    foot();
     var N=c.querySelectorAll('p.big-name');N[0].textContent='Ria';N[1].textContent='Pujan Sha';
     L[2].innerHTML='Son of<br><b>Purviben &amp; Hemalbhai Jhaveri</b>';
-  })();
+  };
   </script>
 
   <div id="chapters"></div>
@@ -745,6 +744,7 @@ a.credit:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
     var max=document.documentElement.clientWidth-40;
     if(h.scrollWidth>max)h.classList.add('stack');
   }
+  window.__fitNames=fit;
   fit();
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fit);
   window.addEventListener('load',fit);
@@ -2893,8 +2893,10 @@ function init3D(){
 /* The page starts only once we know which events this guest is invited to. Without a valid personal link it shows one quiet line instead. */
 (function(){
   var main=document.getElementById('main-js');
-  function start(keys){
-    window.__invitedKeys=keys;
+  function start(info){
+    window.__invitedKeys=info.keys;
+    window.__RIA=info.side==='bride';
+    if(window.__RIA){window.__applyBride();if(window.__fitNames)window.__fitNames();}
     var s=document.createElement('script');s.text=main.text;document.body.appendChild(s);
     if(document.readyState==='complete')window.dispatchEvent(new Event('load'));
   }
